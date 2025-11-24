@@ -1,7 +1,7 @@
 import './App.css';
 
 function App() {
-    return <></>;
+    return <div>프론트엔드 화면</div>;
 }
 
 export default App;

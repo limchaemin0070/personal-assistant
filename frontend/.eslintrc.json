@@ -32,12 +32,13 @@
         ],
         "prettier/prettier": "error",
         "import/extensions": "off",
-        "import/no-absolute-path": "off"
+        "import/no-absolute-path": "off",
+        "import/no-extraneous-dependencies": [
+            "error",
+            {
+                "devDependencies": ["**/*.config.ts", "**/*.config.js"]
+            }
+        ]
     },
-    "import/no-extraneous-dependencies": [
-        "error",
-        {
-            "devDependencies": ["**/*.config.ts", "**/*.config.js"]
-        }
-    ]
+    "ignorePatterns": ["dist", "node_modules"]
 }
