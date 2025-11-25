@@ -8,19 +8,11 @@ const config: Options = {
   username: env.DB_USER,
   password: env.DB_PASSWORD,
   dialect: "mysql",
-  logging: env.NODE_ENV === "development" ? console.log : false,
+  logging:
+    env.NODE_ENV === "development"
+      ? (msg: string) => console.debug(`[Sequelize] ${msg}`)
+      : false,
   timezone: "+09:00",
-  pool: {
-    max: 5,
-    min: 0,
-    acquire: 30000,
-    idle: 10000,
-  },
-  define: {
-    timestamps: true,
-    underscored: true,
-    freezeTableName: true,
-  },
 };
 
 const sequelize = new Sequelize(config);
