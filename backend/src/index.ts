@@ -1,13 +1,6 @@
-import express, { Request, Response } from "express";
-import cors from "cors";
+import app from "./app";
 import sequelize from "./config/database";
 import { env } from "./config/env";
-
-const app = express();
-
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
 const connectDB = async () => {
   try {
@@ -21,19 +14,7 @@ const connectDB = async () => {
   }
 };
 
-app.get("/", (req: Request, res: Response) => {
-  res.json({
-    message: "API 서버 작동중",
-    environment: env.NODE_ENV,
-    database: {
-      host: env.DB_HOST,
-      name: env.DB_NAME,
-    },
-    timestamp: new Date().toISOString(),
-  });
-});
-
-const startServer = async () => {
+export const startServer = async () => {
   try {
     await connectDB();
 
@@ -47,4 +28,6 @@ const startServer = async () => {
   }
 };
 
-startServer();
+if (process.env.NODE_ENV !== "test") {
+  startServer();
+}
