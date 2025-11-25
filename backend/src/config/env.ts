@@ -20,21 +20,49 @@ function validateEnv(): EnvVariables {
     "DB_NAME",
   ] as const;
 
-  for (const envVar of requiredEnvVars) {
-    if (!process.env[envVar]) {
-      throw new Error(`필요한 환경변수 값이 누락되었습니다.: ${envVar}`);
+  const ensureEnv = (key: (typeof requiredEnvVars)[number]) => {
+    const value = process.env[key];
+
+    if (!value) {
+      throw new Error(`필요한 환경변수 값이 누락되었습니다.: ${key}`);
     }
-  }
+
+    return value;
+  };
+
+  const parseNumberEnv = (
+    value: string | undefined,
+    key: string,
+    fallback?: number
+  ) => {
+    if (value === undefined || value === "") {
+      if (fallback !== undefined) {
+        return fallback;
+      }
+
+      throw new Error(`필요한 환경변수 값이 누락되었습니다.: ${key}`);
+    }
+
+    const parsed = Number(value);
+
+    if (Number.isNaN(parsed)) {
+      throw new Error(`환경변수 ${key}는 숫자 형식이어야 합니다.`);
+    }
+
+    return parsed;
+  };
+
+  requiredEnvVars.forEach((envVar) => ensureEnv(envVar));
 
   return {
     NODE_ENV:
       (process.env.NODE_ENV as EnvVariables["NODE_ENV"]) || "development",
-    PORT: Number(process.env.PORT) || 5000,
-    DB_HOST: process.env.DB_HOST!,
-    DB_PORT: Number(process.env.DB_PORT) || 3306,
-    DB_USER: process.env.DB_USER!,
-    DB_PASSWORD: process.env.DB_PASSWORD!,
-    DB_NAME: process.env.DB_NAME!,
+    PORT: parseNumberEnv(process.env.PORT, "PORT", 5000),
+    DB_HOST: ensureEnv("DB_HOST"),
+    DB_PORT: parseNumberEnv(process.env.DB_PORT, "DB_PORT"),
+    DB_USER: ensureEnv("DB_USER"),
+    DB_PASSWORD: ensureEnv("DB_PASSWORD"),
+    DB_NAME: ensureEnv("DB_NAME"),
   };
 }
 
