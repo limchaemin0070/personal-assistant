@@ -11,7 +11,11 @@ export const sendVerificationCode = async (
     if (!email) {
       return res.status(400).json({
         success: false,
-        message: "이메일 주소가 누락되었습니다.",
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "이메일 주소가 누락되었습니다.",
+          field: "email",
+        },
       });
     }
 
@@ -19,7 +23,11 @@ export const sendVerificationCode = async (
     if (!emailRegex.test(email)) {
       return res.status(400).json({
         success: false,
-        message: "유효한 이메일 형식이 아닙니다.",
+        error: {
+          code: "INVALID_EMAIL_FORMAT",
+          message: "올바른 이메일 형식이 아닙니다.",
+          field: "email",
+        },
       });
     }
 
@@ -33,11 +41,27 @@ export const sendVerificationCode = async (
         expiresAt: result.expiresAt,
       },
     });
-  } catch (error) {
+  } catch (error: any) {
+    // TODO : 에러 타입 지정 및 핸들러 추가
+    // 임시로 any 타입 지정
     console.error("인증 코드 발송 실패:", error);
+    if (error.code && error.statusCode) {
+      return res.status(error.statusCode).json({
+        success: false,
+        error: {
+          code: error.code,
+          message: error.message,
+          ...(error.field && { field: error.field }),
+        },
+      });
+    }
+
     return res.status(500).json({
       success: false,
-      message: "인증 코드 발송 중 오류가 발생했습니다.",
+      error: {
+        code: "INTERNAL_SERVER_ERROR",
+        message: "서버 오류가 발생했습니다.",
+      },
     });
   }
 };
