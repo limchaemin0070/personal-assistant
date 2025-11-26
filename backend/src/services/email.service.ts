@@ -1,6 +1,7 @@
 import { EmailVerification } from "../models/EmailVerification.model";
 import { generateVerificationCode } from "../utils/codeGenerator";
 import { sendEmail } from "../utils/emailSender";
+import { userService } from "./user.service";
 
 interface SendVerificationCodeResult {
   email: string;
@@ -14,6 +15,9 @@ class EmailService {
   async sendVerificationCode(
     email: string
   ): Promise<SendVerificationCodeResult> {
+    // 이메일 중복 체크 로직
+    await userService.validateEmailNotExists(email);
+
     // 기존 인증 코드가 있으면 삭제 (중복 방지)
     await EmailVerification.destroy({
       where: { email },
