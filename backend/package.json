@@ -20,6 +20,7 @@
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.15.3",
+    "nodemailer": "^7.0.10",
     "sequelize": "^6.37.7"
   },
   "devDependencies": {
@@ -27,6 +28,7 @@
     "@types/express": "^5.0.5",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.10.1",
+    "@types/nodemailer": "^7.0.4",
     "@types/sequelize": "^4.28.20",
     "@types/supertest": "^6.0.3",
     "cross-env": "^10.1.0",

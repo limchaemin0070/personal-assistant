@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
 import { env } from "./config/env";
+import authRoutes from "./routes/auth.routes";
 
 const app = express();
 
@@ -19,5 +20,7 @@ app.get("/", (req: Request, res: Response) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+app.use("/auth", authRoutes);
 
 export default app;

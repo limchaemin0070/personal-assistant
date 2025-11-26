@@ -10,6 +10,13 @@ interface EnvVariables {
   DB_USER: string;
   DB_PASSWORD: string;
   DB_NAME: string;
+
+  EMAIL_HOST: string;
+  EMAIL_PORT: number;
+  EMAIL_SECURE: boolean;
+  EMAIL_USER: string;
+  EMAIL_PASSWORD: string;
+  EMAIL_FROM: string;
 }
 
 function validateEnv(): EnvVariables {
@@ -18,6 +25,9 @@ function validateEnv(): EnvVariables {
     "DB_USER",
     "DB_PASSWORD",
     "DB_NAME",
+    "EMAIL_HOST",
+    "EMAIL_USER",
+    "EMAIL_PASSWORD",
   ] as const;
 
   const ensureEnv = (key: (typeof requiredEnvVars)[number]) => {
@@ -63,6 +73,15 @@ function validateEnv(): EnvVariables {
     DB_USER: ensureEnv("DB_USER"),
     DB_PASSWORD: ensureEnv("DB_PASSWORD"),
     DB_NAME: ensureEnv("DB_NAME"),
+
+    EMAIL_HOST: ensureEnv("EMAIL_HOST"),
+    EMAIL_PORT: parseNumberEnv(process.env.EMAIL_PORT, "EMAIL_PORT", 587),
+    EMAIL_SECURE: process.env.EMAIL_SECURE === "true",
+    EMAIL_USER: ensureEnv("EMAIL_USER"),
+    EMAIL_PASSWORD: ensureEnv("EMAIL_PASSWORD"),
+    EMAIL_FROM:
+      process.env.EMAIL_FROM ||
+      `Personal Assistant <${process.env.EMAIL_USER}>`,
   };
 }
 
