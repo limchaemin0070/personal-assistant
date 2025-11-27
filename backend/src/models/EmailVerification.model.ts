@@ -5,9 +5,10 @@ interface EmailVerificationAttributes {
   id?: number;
   email: string;
   code: string;
-  expiresAt: Date;
-  createdAt?: Date;
-  updatedAt?: Date;
+  expires_at: Date;
+  is_verified: boolean;
+  created_at?: Date;
+  updated_at?: Date;
 }
 
 class EmailVerification
@@ -17,9 +18,10 @@ class EmailVerification
   public id!: number;
   public email!: string;
   public code!: string;
-  public expiresAt!: Date;
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  public expires_at!: Date;
+  public is_verified!: boolean;
+  public readonly created_at!: Date;
+  public readonly updated_at!: Date;
 }
 
 EmailVerification.init(
@@ -40,21 +42,31 @@ EmailVerification.init(
       type: DataTypes.STRING(6),
       allowNull: false,
     },
-    expiresAt: {
+    expires_at: {
       type: DataTypes.DATE,
       allowNull: false,
+    },
+    is_verified: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
     },
   },
   {
     sequelize,
     tableName: "email_verifications",
     timestamps: true,
+    createdAt: "created_at",
+    updatedAt: "updated_at",
     indexes: [
       {
         fields: ["email"],
       },
       {
-        fields: ["expiresAt"],
+        fields: ["expires_at"],
+      },
+      {
+        fields: ["email", "is_verified"],
       },
     ],
   }
