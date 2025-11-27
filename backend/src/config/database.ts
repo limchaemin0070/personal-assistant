@@ -18,3 +18,5 @@ const config: Options = {
 const sequelize = new Sequelize(config);
 
 export default sequelize;
+
+module.exports = config;
