@@ -39,7 +39,7 @@ export const sendVerificationCode = async (
       message: "인증 코드가 발송되었습니다.",
       data: {
         email: result.email,
-        expiresAt: result.expiresAt,
+        expires_at: result.expires_at,
       },
     });
   } catch (error: any) {
