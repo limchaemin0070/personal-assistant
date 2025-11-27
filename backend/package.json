@@ -9,7 +9,7 @@
     "start": "node dist/index.js",
     "lint": "tsc --noEmit",
     "test": "cross-env NODE_ENV=test jest --runInBand",
-    "migrate": "ts-node -r tsconfig-paths/register ./node_modules/.bin/sequelize-cli db:migrate",
+    "migrate": "sequelize-cli db:migrate",
     "postinstall": "npm run build && npm run migrate"
   },
   "keywords": [],
