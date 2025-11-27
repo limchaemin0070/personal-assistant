@@ -12,6 +12,11 @@ interface SendVerificationCodeResult {
 // TODO : Redis
 
 class EmailService {
+  /**
+   * 회원가입 시 기입한 이메일에 인증번호 전송
+   * @param email
+   * @returns
+   */
   async sendVerificationCode(
     email: string
   ): Promise<SendVerificationCodeResult> {
@@ -45,27 +50,36 @@ class EmailService {
   }
 
   /**
-   * 인증 코드 검증
+   * 이메일 인증번호가 DB와 일치하는지 검증
+   * @param email
+   * @param code
+   * @returns
    */
-  //   async verifyCode(email: string, code: string): Promise<boolean> {
-  //     const verification = await EmailVerification.findOne({
-  //       where: { email, code },
-  //     });
+  async verifyCode(email: string, code: string): Promise<boolean> {
+    const verification = await EmailVerification.findOne({
+      where: { email, code },
+    });
 
-  //     if (!verification) {
-  //       return false;
-  //     }
+    // 검증 실패 : 값이 없음
+    if (!verification) {
+      return false;
+    }
 
-  //     // 만료 시간 확인
-  //     if (new Date() > verification.expiresAt) {
-  //       await verification.destroy();
-  //       return false;
-  //     }
+    // 검증 실패 : 코드 시간 만료됨
+    if (new Date() > verification.expiresAt) {
+      await verification.destroy();
+      return false;
+    }
 
-  //     // 인증 성공 시 삭제
-  //     await verification.destroy();
-  //     return true;
-  //   }
+    // 검증 실패: 코드가 일치하지 않음
+    if (verification.code !== code) {
+      return false;
+    }
+
+    // 검증 성공 -> DB 삭제
+    await verification.destroy();
+    return true;
+  }
 }
 
 export const emailService = new EmailService();
