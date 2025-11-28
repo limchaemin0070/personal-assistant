@@ -59,3 +59,18 @@ export const validateSignUpPayload = (payload: SignUpPayload) => {
   validatePasswordOrThrow(password);
   validateNicknameOrThrow(nickname);
 };
+
+export const validateRefreshTokenOrThrow = (refreshToken?: string) => {
+  if (!refreshToken) {
+    throw new ValidationError(
+      "리프레시 토큰이 누락되었습니다.",
+      "refreshToken"
+    );
+  }
+  if (typeof refreshToken !== "string" || refreshToken.trim().length === 0) {
+    throw new ValidationError(
+      "리프레시 토큰이 유효하지 않습니다.",
+      "refreshToken"
+    );
+  }
+};
