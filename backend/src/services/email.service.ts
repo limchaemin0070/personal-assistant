@@ -3,37 +3,47 @@ import { EmailVerification } from "../models/EmailVerification.model";
 import { generateVerificationCode } from "../utils/codeGenerator";
 import { sendEmail } from "../utils/emailSender";
 import { userService } from "./user.service";
+import {
+  InvalidVerificationCodeError,
+  VerificationCodeExpiredError,
+} from "../errors/BusinessError";
+import { ValidationError } from "../errors/ValidationError";
 
 interface SendVerificationCodeResult {
   email: string;
   expires_at: Date;
-  message?: string;
+  message: string;
 }
 
-// TODO : Redis
+interface verifyCodeResult {
+  email: string;
+  message: string;
+}
+
+interface isEmailVerifiedResult {
+  email: string;
+  message: string;
+}
+
+// 이메일 인증 코드도 만료기한을 가지고 (10분)
+// 이메일의 인증 상태 또한 만료기한을 가짐 (30분)
 
 class EmailService {
-  /**
-   * 회원가입 시 기입한 이메일에 인증번호 전송
-   * @param email
-   * @returns
-   */
   async sendVerificationCode(
     email: string
   ): Promise<SendVerificationCodeResult> {
-    // 이메일 중복 체크 로직
+    // 이메일 중복 체크
     await userService.validateEmailNotExists(email);
-
     // 기존 인증 코드가 있으면 삭제 (중복 방지)
     await EmailVerification.destroy({
       where: { email },
     });
 
-    // 인증 코드 생성
     const code = generateVerificationCode();
-    const expires_at = new Date(Date.now() + 10 * 60 * 1000); // 만료 시간 : 10분
+    // 만료 시간 : 10분
+    const expires_at = new Date(Date.now() + 10 * 60 * 1000);
 
-    // 데이터베이스 저장
+    // 데이터베이스에 이메일과 코드를 저장
     await EmailVerification.create({
       email,
       code,
@@ -51,80 +61,78 @@ class EmailService {
     };
   }
 
-  /**
-   * 이메일 인증번호가 DB와 일치하는지 검증
-   * @param email
-   * @param code
-   * @returns
-   */
-  async verifyCode(email: string, code: string): Promise<boolean> {
+  async verifyCode(email: string, code: string): Promise<verifyCodeResult> {
+    // 1 - 인증 코드 발송 여부 확인
     const verification = await EmailVerification.findOne({
-      where: { email, code },
+      where: { email },
     });
 
-    // 검증 실패 : 값이 없음
+    // 인증 관리 DB에 이메일이 없음
     if (!verification) {
-      return false;
+      throw new ValidationError("인증 정보가 없습니다.", "email");
     }
 
-    // 검증 실패 : 코드 시간 만료됨
+    // 2 - 만료 시간 확인
     if (new Date() > verification.expires_at) {
       await verification.destroy();
-      return false;
+      throw new VerificationCodeExpiredError();
     }
 
-    // 검증 실패: 코드가 일치하지 않음
+    // 3 - 코드 일치 여부 확인
     if (verification.code !== code) {
-      return false;
+      throw new InvalidVerificationCodeError();
     }
 
-    // 검증 성공 -> is_verified를 true로 업데이트 (삭제하지 않음)
-    // 회원가입 완료 시까지 상태 유지 (30분 후 자동 정리)
+    // 검증 성공 -> is_verified를 true로 업데이트
     await verification.update({ is_verified: true });
-    return true;
+    return {
+      email,
+      message: "이메일 인증이 완료되었습니다.",
+    };
   }
 
-  /**
-   * 이메일 인증 완료 여부 확인
-   * @param email
-   * @returns 인증 완료 여부
-   */
-  async isEmailVerified(email: string): Promise<boolean> {
+  // 이메일 인증 여부 체크
+  async isEmailVerified(email: string): Promise<isEmailVerifiedResult> {
+    // 1 - 인증 코드 발송 여부 확인
     const verification = await EmailVerification.findOne({
       where: { email, is_verified: true },
     });
 
+    // 인증 관리 DB에 이메일이 없슴
     if (!verification) {
-      return false;
+      throw new ValidationError("인증 정보가 없습니다.", "email");
     }
 
     // 인증 완료 후 30분 이내인지 확인
     const verifiedAt = verification.updated_at || verification.created_at;
     const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
-
+    // 만료되었을 경우 인증 정보 삭제
     if (verifiedAt < thirtyMinutesAgo) {
-      // 만료된 인증 레코드 삭제
       await verification.destroy();
-      return false;
+      throw new VerificationCodeExpiredError();
     }
 
-    return true;
+    return {
+      email,
+      message: "인증 완료된 이메일입니다.",
+    };
   }
 
-  /**
-   * 만료된 인증 레코드 정리 (우선은 스케줄러에서 주기적으로 실행)
-   * @returns 삭제된 레코드 수
-   */
+  // 특정 이메일의 인증 정보를 선택 정리
+  async cleanupVerification(email: string): Promise<void> {
+    await EmailVerification.destroy({
+      where: { email },
+    });
+  }
+
+  // 만료된 인증 정보를 정리하는 스케줄러
   async cleanupExpiredVerifications(): Promise<number> {
     const now = new Date();
     const thirtyMinutesAgo = new Date(now.getTime() - 30 * 60 * 1000);
-
     const deletedCount = await EmailVerification.destroy({
       where: {
         [Op.or]: [
-          // 만료된 인증 코드
           { expires_at: { [Op.lt]: now } },
-          // 인증 완료 후 30분 경과한 레코드
           {
             is_verified: true,
             updated_at: { [Op.lt]: thirtyMinutesAgo },
@@ -132,7 +140,6 @@ class EmailService {
         ],
       },
     });
-
     return deletedCount;
   }
 }
