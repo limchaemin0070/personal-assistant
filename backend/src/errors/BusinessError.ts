@@ -16,7 +16,7 @@ export class EmailNotVerifiedError extends CustomError {
 
 export class VerificationCodeExpiredError extends CustomError {
   constructor() {
-    super(400, "VERIFICATION_CODE_EXPIRED", "인증 코드가 만료되었습니다.");
+    super(400, "VERIFICATION_CODE_EXPIRED", "인증 정보가 만료되었습니다.");
   }
 }
 
