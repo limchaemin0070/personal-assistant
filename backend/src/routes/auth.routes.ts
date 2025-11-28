@@ -4,6 +4,7 @@ import {
   verifyCode,
   signUp,
   login,
+  refreshAccesstoken,
 } from "../controllers/auth.controller";
 
 const router = Router();
@@ -19,5 +20,6 @@ router.post("/login", login);
 // 로그아웃
 
 // 리프레시 토큰 갱신
+router.post("/refresh", refreshAccesstoken);
 
 export default router;
