@@ -68,10 +68,16 @@ export function verifyAccessToken(token: string): TokenPayload {
   }
 }
 
+// JWT 검증 결과에서 순수한 payload만 추출 (exp, iat 제거)
+function extractPayload(decoded: any): TokenPayload {
+  const { userId, email } = decoded;
+  return { userId, email };
+}
 // 리프레시 토큰 검증
 export function verifyRefreshToken(token: string): TokenPayload {
   try {
-    return jwt.verify(token, env.JWT_REFRESH_SECRET) as TokenPayload;
+    const decoded = jwt.verify(token, env.JWT_REFRESH_SECRET);
+    return extractPayload(decoded);
   } catch (error) {
     if (error instanceof JwtTokenExpiredError) {
       throw new TokenExpiredError("refresh");

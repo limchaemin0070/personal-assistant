@@ -1,20 +1,18 @@
 import { Request, Response } from "express";
 import { emailService } from "../services/email.service";
-import { userService } from "../services/user.service";
 import { asyncHandler } from "../utils/asyncHandler";
 import {
   validateCodeOrThrow,
   validateEmailOrThrow,
   validateNicknameOrThrow,
   validatePasswordOrThrow,
+  validateSignUpPayload,
+  validateRefreshTokenOrThrow,
 } from "../utils/validation/authValidator";
-import { buildSuccess } from "../utils/response";
-import {
-  generateAccessToken,
-  generateRefreshToken,
-  expiresInToMs,
-} from "../utils/authentication/jwt";
+import { buildSuccess, buildTokenResponse } from "../utils/response";
+import { expiresInToMs } from "../utils/authentication/jwt";
 import { env } from "../config/env";
+import { authService } from "../services/auth.service";
 
 // 이메일 검증 코드 전송
 export const sendVerificationCode = asyncHandler(
@@ -59,24 +57,14 @@ export const signUp = asyncHandler(async (req: Request, res: Response) => {
   const { email, password, nickname, notification_enabled } = req.body;
 
   // 입력값 검증
-  validateEmailOrThrow(email);
-  validatePasswordOrThrow(password);
-  validateNicknameOrThrow(nickname);
+  validateSignUpPayload({ email, password, nickname });
 
-  // 이메일 인증 여부 체크 & 이미 존재하는 유저인지 중복 체크
-  await emailService.isEmailVerified(email);
-  await userService.ensureEmailNotExists(email);
-
-  // 유저 생성
-  const user = await userService.createUser({
+  const { user } = await authService.signUp({
     email,
     password,
     nickname,
-    notification_enabled: notification_enabled ?? false,
+    notification_enabled,
   });
-
-  // 관련 인증 DB 정리
-  await emailService.cleanupVerification(email);
 
   res.status(201).json(
     buildSuccess("SIGNUP_SUCCESS", "회원가입이 완료되었습니다.", {
@@ -94,19 +82,12 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   validateEmailOrThrow(email);
   validatePasswordOrThrow(password);
 
-  // 비밀번호 검증 (사용자 존재 여부 및 비밀번호 일치 확인)
-  const user = await userService.verifyPassword(email, password);
+  const { user, accessToken, refreshToken } = await authService.login(
+    email,
+    password
+  );
 
-  const accessToken = generateAccessToken({
-    userId: user.user_id,
-    email: user.email,
-  });
-
-  const refreshToken = generateRefreshToken({
-    userId: user.user_id,
-    email: user.email,
-  });
-
+  // 액세스토큰은 쿠키에 저장
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -119,11 +100,41 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     buildSuccess("LOGIN_SUCCESS", "로그인에 성공했습니다.", {
       email: user.email,
       nickname: user.nickname,
-      refreshToken: refreshToken,
+      ...buildTokenResponse({ refreshToken }),
     })
   );
 });
 
 // 로그아웃
 
-// 리프레시 토큰 갱신
+// 리프레시 토큰을 이용해 액세스 토큰 갱신
+export const refreshAccesstoken = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { refreshToken } = req.body;
+
+    // 입력값 검증
+    validateRefreshTokenOrThrow(refreshToken);
+
+    // 액세스토큰과 리프레시토큰 둘 다 새로 발급
+    const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
+      await authService.refreshTokens(refreshToken);
+
+    res.cookie("accessToken", newAccessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: expiresInToMs(env.JWT_ACCESS_EXPIRES_IN),
+      path: "/",
+    });
+
+    res
+      .status(200)
+      .json(
+        buildSuccess(
+          "REFRESH_SUCCESS",
+          "액세스 토큰 재발급에 성공했습니다.",
+          buildTokenResponse({ refreshToken: newRefreshToken })
+        )
+      );
+  }
+);

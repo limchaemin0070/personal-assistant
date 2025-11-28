@@ -1,7 +1,6 @@
 import bcrypt from "bcrypt";
 import { User } from "../models/User.model";
 import { EmailAlreadyExistsError } from "../errors/BusinessError";
-import { InvalidCredentialsError } from "../errors/AuthError";
 
 interface CreateUserParams {
   email: string;
@@ -45,23 +44,6 @@ class UserService {
       nickname,
       notification_enabled,
     });
-
-    return user;
-  }
-
-  // 비밀번호 검증
-  async verifyPassword(email: string, password: string): Promise<User> {
-    const user = await this.findByEmail(email);
-
-    if (!user) {
-      throw new InvalidCredentialsError();
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password_hash);
-
-    if (!isPasswordValid) {
-      throw new InvalidCredentialsError();
-    }
 
     return user;
   }
