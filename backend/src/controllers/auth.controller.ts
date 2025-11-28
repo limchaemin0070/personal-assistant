@@ -59,7 +59,7 @@ export const signUp = asyncHandler(async (req: Request, res: Response) => {
 
   // 이메일 인증 여부 체크 & 이미 존재하는 유저인지 중복 체크
   await emailService.isEmailVerified(email);
-  await userService.validateEmailNotExists(email);
+  await userService.ensureEmailNotExists(email);
 
   // 유저 생성
   const user = await userService.createUser({

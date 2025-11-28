@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import { User } from "../models/User.model";
 import { EmailAlreadyExistsError } from "../errors/BusinessError";
+import { InvalidCredentialsError } from "../errors/AuthError";
 
 interface CreateUserParams {
   email: string;
@@ -10,15 +11,21 @@ interface CreateUserParams {
 }
 
 class UserService {
-  // User DB에 유저 존재하는지 확인
-  async checkEmailExists(email: string): Promise<boolean> {
+  // User DB 이메일로 사용자 조회
+  async findByEmail(email: string): Promise<User | null> {
     const user = await User.findOne({ where: { email } });
+    return user;
+  }
+
+  // User DB에 유저 존재하는지 확인 - Boolean
+  async emailExists(email: string): Promise<boolean> {
+    const user = await this.findByEmail(email);
     return !!user;
   }
 
-  // 유저 테이블에 이메일이 존재하지 않는지 확인
-  async validateEmailNotExists(email: string): Promise<void> {
-    const exists = await this.checkEmailExists(email);
+  // User DB이메일이 존재하지 않는지 확인
+  async ensureEmailNotExists(email: string): Promise<void> {
+    const exists = await this.emailExists(email);
     if (exists) {
       throw new EmailAlreadyExistsError();
     }
