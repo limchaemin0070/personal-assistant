@@ -3,6 +3,7 @@ import {
   sendVerificationCode,
   verifyCode,
   signUp,
+  login,
 } from "../controllers/auth.controller";
 
 const router = Router();
@@ -13,5 +14,10 @@ router.post("/email-verifications", sendVerificationCode);
 router.post("/email-verifications/verify", verifyCode);
 // 회원가입
 router.post("/sign-up", signUp);
+// 로그인
+router.post("/login", login);
+// 로그아웃
+
+// 리프레시 토큰 갱신
 
 export default router;

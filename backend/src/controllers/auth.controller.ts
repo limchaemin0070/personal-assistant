@@ -9,6 +9,12 @@ import {
   validatePasswordOrThrow,
 } from "../utils/validation/authValidator";
 import { buildSuccess } from "../utils/response";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  expiresInToMs,
+} from "../utils/authentication/jwt";
+import { env } from "../config/env";
 
 // 이메일 검증 코드 전송
 export const sendVerificationCode = asyncHandler(
@@ -59,7 +65,7 @@ export const signUp = asyncHandler(async (req: Request, res: Response) => {
 
   // 이메일 인증 여부 체크 & 이미 존재하는 유저인지 중복 체크
   await emailService.isEmailVerified(email);
-  await userService.validateEmailNotExists(email);
+  await userService.ensureEmailNotExists(email);
 
   // 유저 생성
   const user = await userService.createUser({
@@ -79,3 +85,45 @@ export const signUp = asyncHandler(async (req: Request, res: Response) => {
     })
   );
 });
+
+// 로그인
+export const login = asyncHandler(async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+
+  // 입력값 검증
+  validateEmailOrThrow(email);
+  validatePasswordOrThrow(password);
+
+  // 비밀번호 검증 (사용자 존재 여부 및 비밀번호 일치 확인)
+  const user = await userService.verifyPassword(email, password);
+
+  const accessToken = generateAccessToken({
+    userId: user.user_id,
+    email: user.email,
+  });
+
+  const refreshToken = generateRefreshToken({
+    userId: user.user_id,
+    email: user.email,
+  });
+
+  res.cookie("accessToken", accessToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: expiresInToMs(env.JWT_ACCESS_EXPIRES_IN),
+    path: "/",
+  });
+
+  res.status(200).json(
+    buildSuccess("LOGIN_SUCCESS", "로그인에 성공했습니다.", {
+      email: user.email,
+      nickname: user.nickname,
+      refreshToken: refreshToken,
+    })
+  );
+});
+
+// 로그아웃
+
+// 리프레시 토큰 갱신

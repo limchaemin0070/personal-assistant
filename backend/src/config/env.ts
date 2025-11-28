@@ -17,6 +17,11 @@ interface EnvVariables {
   EMAIL_USER: string;
   EMAIL_PASSWORD: string;
   EMAIL_FROM: string;
+
+  JWT_ACCESS_SECRET: string;
+  JWT_REFRESH_SECRET: string;
+  JWT_ACCESS_EXPIRES_IN: string;
+  JWT_REFRESH_EXPIRES_IN: string;
 }
 
 function validateEnv(): EnvVariables {
@@ -71,6 +76,11 @@ function validateEnv(): EnvVariables {
       ? "Personal Assistant <test@example.com>"
       : process.env.EMAIL_FROM ||
         `Personal Assistant <${process.env.EMAIL_USER}>`,
+
+    JWT_ACCESS_SECRET: getEnv("JWT_ACCESS_SECRET", "test-access-secret-key"),
+    JWT_REFRESH_SECRET: getEnv("JWT_REFRESH_SECRET", "test-refresh-secret-key"),
+    JWT_ACCESS_EXPIRES_IN: getEnv("JWT_ACCESS_EXPIRES_IN", "15m"),
+    JWT_REFRESH_EXPIRES_IN: getEnv("JWT_REFRESH_EXPIRES_IN", "7d"),
   };
 }
 

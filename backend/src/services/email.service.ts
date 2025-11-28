@@ -33,7 +33,7 @@ class EmailService {
     email: string
   ): Promise<SendVerificationCodeResult> {
     // 이메일 중복 체크
-    await userService.validateEmailNotExists(email);
+    await userService.ensureEmailNotExists(email);
     // 기존 인증 코드가 있으면 삭제 (중복 방지)
     await EmailVerification.destroy({
       where: { email },
@@ -125,7 +125,7 @@ class EmailService {
     });
   }
 
-  // 만료된 인증 정보를 정리하는 스케줄러
+  // 만료된 인증 정보를 주기적으로 정리하는 스케줄러
   async cleanupExpiredVerifications(): Promise<number> {
     const now = new Date();
     const thirtyMinutesAgo = new Date(now.getTime() - 30 * 60 * 1000);
