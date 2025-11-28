@@ -11,3 +11,25 @@ export class InvalidCredentialsError extends CustomError {
     );
   }
 }
+
+export class TokenExpiredError extends CustomError {
+  constructor(tokenType: "access" | "refresh" = "access") {
+    super(
+      401,
+      "TOKEN_EXPIRED",
+      `${tokenType === "access" ? "액세스" : "리프레시"} 토큰이 만료되었습니다.`
+    );
+  }
+}
+
+export class InvalidTokenError extends CustomError {
+  constructor(tokenType: "access" | "refresh" = "access") {
+    super(
+      401,
+      "INVALID_TOKEN",
+      `${
+        tokenType === "access" ? "액세스" : "리프레시"
+      } 토큰이 유효하지 않습니다.`
+    );
+  }
+}
