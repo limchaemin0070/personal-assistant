@@ -39,15 +39,3 @@ export const buildError = <T = null>(
   result: (result ?? null) as T | null,
 });
 
-interface TokenResponseParams {
-  accessToken?: string;
-  refreshToken?: string;
-}
-
-export const buildTokenResponse = ({
-  accessToken,
-  refreshToken,
-}: TokenResponseParams) => ({
-  ...(accessToken && { accessToken }),
-  ...(refreshToken && { refreshToken }),
-});
