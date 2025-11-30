@@ -5,6 +5,7 @@ import {
   signUp,
   login,
   refreshAccesstoken,
+  logout,
 } from "../controllers/auth.controller";
 
 const router = Router();
@@ -18,7 +19,7 @@ router.post("/sign-up", signUp);
 // 로그인
 router.post("/login", login);
 // 로그아웃
-
+router.post("/logout", logout);
 // 리프레시 토큰 갱신
 router.post("/refresh", refreshAccesstoken);
 

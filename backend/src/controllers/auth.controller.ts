@@ -9,7 +9,7 @@ import {
   validateSignUpPayload,
   validateRefreshTokenOrThrow,
 } from "../utils/validation/authValidator";
-import { buildSuccess, buildTokenResponse } from "../utils/response";
+import { buildSuccess } from "../utils/response";
 import { expiresInToMs } from "../utils/authentication/jwt";
 import { env } from "../config/env";
 import { authService } from "../services/auth.service";
@@ -87,7 +87,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     password
   );
 
-  // 액세스토큰은 쿠키에 저장
+  // 액세스토큰과 리프레시토큰 모두 httponly 쿠키에 저장합니다
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -96,21 +96,46 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     path: "/",
   });
 
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: expiresInToMs(env.JWT_REFRESH_EXPIRES_IN),
+    path: "/",
+  });
+
   res.status(200).json(
     buildSuccess("LOGIN_SUCCESS", "로그인에 성공했습니다.", {
       email: user.email,
       nickname: user.nickname,
-      ...buildTokenResponse({ refreshToken }),
     })
   );
 });
 
 // 로그아웃
+export const logout = asyncHandler(async (req: Request, res: Response) => {
+  const cookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict" as const,
+    path: "/",
+  };
+
+  // 액세스 토큰 쿠키 삭제
+  res.clearCookie("accessToken", cookieOptions);
+
+  // 리프레시 토큰 쿠키 삭제
+  res.clearCookie("refreshToken", cookieOptions);
+
+  res
+    .status(200)
+    .json(buildSuccess("LOGOUT_SUCCESS", "로그아웃되었습니다.", null));
+});
 
 // 리프레시 토큰을 이용해 액세스 토큰 갱신
 export const refreshAccesstoken = asyncHandler(
   async (req: Request, res: Response) => {
-    const { refreshToken } = req.body;
+    const refreshToken = req.cookies?.refreshToken;
 
     // 입력값 검증
     validateRefreshTokenOrThrow(refreshToken);
@@ -127,13 +152,21 @@ export const refreshAccesstoken = asyncHandler(
       path: "/",
     });
 
+    res.cookie("refreshToken", newRefreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: expiresInToMs(env.JWT_REFRESH_EXPIRES_IN),
+      path: "/",
+    });
+
     res
       .status(200)
       .json(
         buildSuccess(
           "REFRESH_SUCCESS",
           "액세스 토큰 재발급에 성공했습니다.",
-          buildTokenResponse({ refreshToken: newRefreshToken })
+          null
         )
       );
   }

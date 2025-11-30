@@ -37,8 +37,8 @@ class AuthService {
   async signUp(params: SignUpParams): Promise<SignUpResult> {
     const { email, password, nickname, notification_enabled = false } = params;
 
-    await emailService.isEmailVerified(email);
     await userService.ensureEmailNotExists(email);
+    await emailService.isEmailVerified(email);
 
     const user = await userService.createUser({
       email,
