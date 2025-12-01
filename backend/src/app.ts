@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import cors from "cors";
 import { env } from "./config/env";
 import authRoutes from "./routes/auth.routes";
+import userRoutes from "./routes/user.routes";
 import { errorHandler } from "./middleware/errorHandler";
 import cookieParser from "cookie-parser";
 
@@ -30,6 +31,7 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.use("/auth", authRoutes);
+app.use("/users", userRoutes);
 
 app.use(errorHandler);
 
