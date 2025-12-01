@@ -27,11 +27,13 @@
         "axios": "^1.13.2",
         "react": "^19.2.0",
         "react-dom": "^19.2.0",
+        "react-router-dom": "^7.9.6",
         "tailwindcss": "^4.1.17",
         "zustand": "^5.0.8"
     },
     "devDependencies": {
         "@lhci/cli": "^0.15.1",
+        "@tanstack/react-query-devtools": "^5.91.1",
         "@types/node": "^24.10.1",
         "@types/react": "^19.2.5",
         "@types/react-dom": "^19.2.3",
