@@ -25,3 +25,9 @@ export class InvalidVerificationCodeError extends CustomError {
     super(400, "INVALID_VERIFICATION_CODE", "인증 코드가 일치하지 않습니다.");
   }
 }
+
+export class UserNotFoundError extends CustomError {
+  constructor() {
+    super(404, "USER_NOT_FOUND", "사용자를 찾을 수 없습니다.");
+  }
+}
