@@ -28,6 +28,10 @@
     "moduleResolution": "node",
     "isolatedModules": true
   },
+  "ts-node": {
+    "transpileOnly": true,
+    "files": true
+  },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "src/__tests__"]
 }
