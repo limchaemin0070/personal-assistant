@@ -17,6 +17,13 @@ class UserService {
     return user;
   }
 
+  // User DB user_id로 사용자 조회
+  // 사용자 정보 조회 시 사용
+  async findById(userId: number): Promise<User | null> {
+    const user = await User.findByPk(userId);
+    return user;
+  }
+
   // User DB에 유저 존재하는지 확인
   // Boolean chaek 필요할 때 사용
   async emailExists(email: string): Promise<boolean> {
