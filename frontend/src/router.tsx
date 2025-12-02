@@ -1,12 +1,44 @@
+import type { ReactNode } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 
-import { RegisterPage } from './pages';
+import { RegisterPage, LoginPage } from './pages';
+
+interface RouteProps {
+    children: ReactNode;
+}
+
+// 보호된 라우트 (인증 필요)
+export const ProtectedRoute = ({ children }: RouteProps) => {
+    const { isAuthenticated } = useAuth();
+
+    // 인증되지 않은 사용자는 로그인 페이지로 리다이렉트
+    if (!isAuthenticated) {
+        return <Navigate to="/login" replace />;
+    }
+
+    return children;
+};
+
+// 공개 라우트 (비로그인 접근 가능, 인증된 사용자는 메인으로 리다이렉트)
+export const PublicRoute = ({ children }: RouteProps) => {
+    // TODO: 메인 페이지 생기면 해당 경로로 변경
+    // const { isAuthenticated } = useAuth();
+    // if (isAuthenticated) {
+    //     return <Navigate to="/" replace />;
+    // }
+
+    return children;
+};
 
 export const router = createBrowserRouter([
-    // 임시로 루트를 register로 리다이렉트 (추후 로그인으로 수정필요함)
     {
         path: '/',
-        element: <Navigate to="/register" replace />,
+        element: <Navigate to="/login" replace />,
+    },
+    {
+        path: '/login',
+        element: <LoginPage />,
     },
     {
         path: '/register',
