@@ -1,61 +1,480 @@
-/* @tailwindcss */
 @import 'tailwindcss';
-@import 'tailwindcss/preflight';
-@import 'tailwindcss/utilities';
 
 @layer base {
-    * {
-        @apply box-border;
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
     }
 
     html {
-        @apply h-full;
+        font-family: sans-serif;
+        height: 100%;
         -webkit-text-size-adjust: 100%;
     }
 
     body {
-        @apply m-0 h-full w-full;
-        @apply bg-gray-50 text-gray-900;
-
+        margin: 0;
+        height: 100%;
+        width: 100%;
+        background-color: rgb(249 250 251);
+        color: rgb(17 24 39);
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
     }
 
-    /* 루트 컨테이너 - 반응형 레이아웃 */
     #root {
-        @apply min-w-[375px] w-full;
-        @apply bg-white;
-        @apply min-h-screen h-full;
-        @apply flex flex-col;
-        @apply mx-auto;
-        @apply text-gray-900;
+        min-width: 375px;
+        width: 100%;
+        background-color: white;
+        min-height: 100vh;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        color: rgb(17 24 39);
     }
 
-    /* 모바일: 전체 너비 */
-    @media (max-width: 767px) {
-        #root {
-            @apply max-w-full;
-        }
+    :root {
+        --color-sample-blue: #3b82f6;
+    }
+}
+
+@theme {
+    --gradient-primary-start: rgb(59 130 246);
+    --gradient-primary-end: rgb(147 51 234);
+
+    --gradient-sunset-start: rgb(251 146 60);
+    --gradient-sunset-end: rgb(239 68 68);
+
+    --gradient-ocean-start: rgb(6 182 212);
+    --gradient-ocean-end: rgb(59 130 246);
+
+    --gradient-forest-start: rgb(34 197 94);
+    --gradient-forest-end: rgb(16 185 129);
+
+    --gradient-purple-start: rgb(168 85 247);
+    --gradient-purple-end: rgb(236 72 153);
+
+    --gradient-gold-start: rgb(251 191 36);
+    --gradient-gold-end: rgb(245 158 11);
+}
+
+@layer components {
+    .btn-primary-filled {
+        padding: 0.75rem 1.5rem;
+        background-color: #2563eb;
+        color: white;
+        font-weight: 600;
+        border-radius: 0.5rem;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
     }
 
-    /* 태블릿: 중간 너비 */
-    @media (min-width: 768px) {
-        #root {
-            @apply max-w-[768px];
-            @apply border-x border-gray-200;
-        }
+    .btn-primary-filled:hover {
+        background-color: #1d4ed8;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
     }
 
-    /* 데스크톱: 넓은 너비 */
-    @media (min-width: 1024px) {
-        #root {
-            @apply max-w-[1024px];
-        }
+    .btn-primary-filled:active {
+        transform: translateY(0);
     }
 
-    @media (min-width: 1280px) {
-        #root {
-            @apply max-w-[1280px];
-        }
+    .btn-primary-filled:disabled {
+        background-color: #d1d5db;
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
+    /* Primary 버튼 - Outlined */
+    .btn-primary-outlined {
+        padding: 0.75rem 1.5rem;
+        background-color: transparent;
+        color: #2563eb;
+        font-weight: 600;
+        border-radius: 0.5rem;
+        border: 2px solid #2563eb;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+
+    .btn-primary-outlined:hover {
+        background-color: #eff6ff;
+        border-color: #1d4ed8;
+        color: #1d4ed8;
+    }
+
+    .btn-primary-outlined:disabled {
+        border-color: #d1d5db;
+        color: #9ca3af;
+        cursor: not-allowed;
+    }
+
+    /* Secondary 버튼 */
+    .btn-secondary {
+        padding: 0.75rem 1.5rem;
+        background-color: #e5e7eb;
+        color: #1f2937;
+        font-weight: 500;
+        border-radius: 0.5rem;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-secondary:hover {
+        background-color: #d1d5db;
+    }
+
+    .btn-secondary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    /* Danger 버튼 */
+    .btn-danger {
+        padding: 0.75rem 1.5rem;
+        background-color: #dc2626;
+        color: white;
+        font-weight: 600;
+        border-radius: 0.5rem;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-danger:hover {
+        background-color: #b91c1c;
+    }
+
+    .btn-danger:disabled {
+        background-color: #d1d5db;
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
+    /* Small 버튼 */
+    .btn-sm {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+    }
+
+    /* Large 버튼 */
+    .btn-lg {
+        padding: 1rem 2rem;
+        font-size: 1.125rem;
+    }
+
+    /* Full Width 버튼 */
+    .btn-full {
+        width: 100%;
+    }
+
+    /* 커스텀 색상 버튼 (sample-blue 사용) */
+    .btn-sample-blue {
+        padding: 0.75rem 1.5rem;
+        background-color: var(--color-sample-blue);
+        color: white;
+        font-weight: 600;
+        border-radius: 0.5rem;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-sample-blue:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+    }
+
+    .btn-sample-blue:disabled {
+        background-color: #d1d5db;
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
+    .bg-gradient-primary {
+        background: linear-gradient(
+            135deg,
+            var(--gradient-primary-start),
+            var(--gradient-primary-end)
+        );
+    }
+
+    /* 기본 입력 필드 */
+    .input-base {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        color: rgb(17 24 39);
+        background-color: white;
+        border: 1px solid rgb(209 213 219);
+        border-radius: 0.5rem;
+        transition: all 0.2s;
+        outline: none;
+    }
+
+    .input-base::placeholder {
+        color: rgb(156 163 175);
+    }
+
+    .input-base:focus {
+        border-color: rgb(59 130 246);
+        box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
+    }
+
+    .input-base:disabled {
+        background-color: rgb(243 244 246);
+        color: rgb(156 163 175);
+        cursor: not-allowed;
+    }
+
+    /* 에러 상태 입력 필드 */
+    .input-error {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        color: rgb(17 24 39);
+        background-color: white;
+        border: 1px solid rgb(239 68 68);
+        border-radius: 0.5rem;
+        transition: all 0.2s;
+        outline: none;
+    }
+
+    .input-error:focus {
+        border-color: rgb(220 38 38);
+        box-shadow: 0 0 0 3px rgb(239 68 68 / 0.1);
+    }
+
+    /* 성공 상태 입력 필드 */
+    .input-success {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        color: rgb(17 24 39);
+        background-color: white;
+        border: 1px solid rgb(34 197 94);
+        border-radius: 0.5rem;
+        transition: all 0.2s;
+        outline: none;
+    }
+
+    .input-success:focus {
+        border-color: rgb(22 163 74);
+        box-shadow: 0 0 0 3px rgb(34 197 94 / 0.1);
+    }
+
+    /* 큰 입력 필드 */
+    .input-lg {
+        padding: 1rem 1.25rem;
+        font-size: 1.125rem;
+    }
+
+    /* 작은 입력 필드 */
+    .input-sm {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+    }
+
+    /* 아이콘 포함 입력 필드 (왼쪽) */
+    .input-with-icon-left {
+        padding-left: 2.5rem;
+    }
+
+    /* 아이콘 포함 입력 필드 (오른쪽) */
+    .input-with-icon-right {
+        padding-right: 2.5rem;
+    }
+
+    /* 레이블 스타일 */
+    .input-label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: rgb(55 65 81);
+        margin-bottom: 0.5rem;
+    }
+
+    /* 필수 표시 */
+    .input-label-required::after {
+        content: '*';
+        color: rgb(239 68 68);
+        margin-left: 0.25rem;
+    }
+
+    /* 에러 메시지 */
+    .input-error-message {
+        display: block;
+        font-size: 0.875rem;
+        color: rgb(239 68 68);
+        margin-top: 0.5rem;
+    }
+
+    /* 도움말 텍스트 */
+    .input-help-text {
+        display: block;
+        font-size: 0.875rem;
+        color: rgb(107 114 128);
+        margin-top: 0.5rem;
+    }
+
+    /* 성공 메시지 */
+    .input-success-message {
+        display: block;
+        font-size: 0.875rem;
+        color: rgb(34 197 94);
+        margin-top: 0.5rem;
+    }
+
+    /* 입력 그룹 컨테이너 */
+    .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    /* 아이콘 컨테이너 */
+    .input-icon-left {
+        position: absolute;
+        left: 0.75rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: rgb(156 163 175);
+        pointer-events: none;
+    }
+
+    .input-icon-right {
+        position: absolute;
+        right: 0.75rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: rgb(156 163 175);
+    }
+
+    /* Textarea 스타일 */
+    .textarea-base {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        color: rgb(17 24 39);
+        background-color: white;
+        border: 1px solid rgb(209 213 219);
+        border-radius: 0.5rem;
+        transition: all 0.2s;
+        outline: none;
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .textarea-base::placeholder {
+        color: rgb(156 163 175);
+    }
+
+    .textarea-base:focus {
+        border-color: rgb(59 130 246);
+        box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
+    }
+
+    /* Select 스타일 */
+    .select-base {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        color: rgb(17 24 39);
+        background-color: white;
+        border: 1px solid rgb(209 213 219);
+        border-radius: 0.5rem;
+        transition: all 0.2s;
+        outline: none;
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+        background-position: right 0.5rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+        padding-right: 2.5rem;
+    }
+
+    .select-base:focus {
+        border-color: rgb(59 130 246);
+        box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
+    }
+
+    /* Checkbox 스타일 */
+    .checkbox-base {
+        width: 1.25rem;
+        height: 1.25rem;
+        color: rgb(59 130 246);
+        border: 1px solid rgb(209 213 219);
+        border-radius: 0.25rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .checkbox-base:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
+    }
+
+    /* Radio 스타일 */
+    .radio-base {
+        width: 1.25rem;
+        height: 1.25rem;
+        color: rgb(59 130 246);
+        border: 1px solid rgb(209 213 219);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .radio-base:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
+    }
+
+    /* Floating Label 스타일 */
+    .input-floating-container {
+        position: relative;
+    }
+
+    .input-floating {
+        width: 100%;
+        padding: 1.25rem 1rem 0.5rem;
+        font-size: 1rem;
+        border: 1px solid rgb(209 213 219);
+        border-radius: 0.5rem;
+        transition: all 0.2s;
+        outline: none;
+    }
+
+    .input-floating:focus {
+        border-color: rgb(59 130 246);
+        box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
+    }
+
+    .label-floating {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1rem;
+        color: rgb(156 163 175);
+        pointer-events: none;
+        transition: all 0.2s;
+    }
+
+    .input-floating:focus ~ .label-floating,
+    .input-floating:not(:placeholder-shown) ~ .label-floating {
+        top: 0.75rem;
+        font-size: 0.75rem;
+        color: rgb(59 130 246);
+        transform: translateY(0);
     }
 }
