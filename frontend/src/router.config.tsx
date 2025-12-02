@@ -1,17 +1,30 @@
-import { createBrowserRouter, Navigate } from 'react-router-dom';
-import { RegisterPage, LoginPage } from './pages';
+import { createBrowserRouter } from 'react-router-dom';
+import { RegisterPage, LoginPage, MainPage } from './pages';
+import { ProtectedRoute, PublicRoute } from './router';
 
 export const router = createBrowserRouter([
     {
         path: '/',
-        element: <Navigate to="/login" replace />,
+        element: (
+            <ProtectedRoute>
+                <MainPage />
+            </ProtectedRoute>
+        ),
     },
     {
         path: '/login',
-        element: <LoginPage />,
+        element: (
+            <PublicRoute>
+                <LoginPage />
+            </PublicRoute>
+        ),
     },
     {
         path: '/register',
-        element: <RegisterPage />,
+        element: (
+            <PublicRoute>
+                <RegisterPage />
+            </PublicRoute>
+        ),
     },
 ]);
