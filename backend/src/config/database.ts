@@ -17,4 +17,13 @@ const config: Options = {
 
 const sequelize = new Sequelize(config);
 
+export { config };
 export default sequelize;
+
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = config;
+  module.exports.config = config;
+  module.exports.default = sequelize;
+  module.exports.sequelize = sequelize;
+  module.exports.__esModule = true;
+}

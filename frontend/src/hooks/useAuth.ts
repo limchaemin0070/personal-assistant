@@ -1,0 +1,51 @@
+import { useQuery } from '@tanstack/react-query';
+import type { AxiosError } from 'axios';
+import { userService } from '@/services/user.service';
+import type { ApiErrorResponse } from '@/utils/api';
+
+/**
+ * 인증 상태를 관리하는 훅
+ * httpOnly 쿠키 환경에서 API 호출을 통해 인증 상태를 확인합니다.
+ *
+ * @returns {Object} 인증 상태 정보
+ * - user: 현재 로그인한 사용자 정보
+ * - isAuthenticated: 인증된 사용자 여부
+ * - isUnauthorized: 인증 실패 여부 (401 에러)
+ * - error: 에러 정보
+ */
+export const useAuth = () => {
+    const { data, isError, error } = useQuery({
+        queryKey: ['auth', 'me'],
+        queryFn: async () => {
+            const response = await userService.getCurrentUser();
+            return response.result;
+        },
+        retry: (failureCount, err) => {
+            // 401 에러는 재시도하지 않음 (인터셉터에서 처리)
+            const axiosError = err as { response?: { status?: number } };
+            if (axiosError?.response?.status === 401) {
+                return false;
+            }
+            // 네트워크 에러 등은 최대 1번 재시도
+            return failureCount < 1;
+        },
+        staleTime: 5 * 60 * 1000,
+        gcTime: 10 * 60 * 1000,
+        refetchOnWindowFocus: true,
+        refetchOnMount: true,
+        refetchInterval: false, // 자동 리프레시는 인터셉터에서 처리
+    });
+
+    const isAuthenticated = !!data && !isError;
+    const authError = error as AxiosError<ApiErrorResponse> | undefined;
+    const isUnauthorized =
+        authError?.response?.status === 401 ||
+        authError?.response?.data?.error?.code === 'INVALID_TOKEN';
+
+    return {
+        user: data,
+        isAuthenticated,
+        isUnauthorized,
+        error: authError,
+    };
+};
