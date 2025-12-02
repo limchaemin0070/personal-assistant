@@ -13,7 +13,7 @@ export interface UserInfo {
 export const userService = {
     // 현재 로그인한 사용자 정보 조회
     async getCurrentUser(): Promise<ApiSuccessResponse<UserInfo>> {
-        const response = await defaultApi<UserInfo>('/user/me', {
+        const response = await defaultApi<UserInfo>('/users/me', {
             method: 'GET',
         });
         return response.data;
