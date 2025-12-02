@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { AxiosError } from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { authService } from '@/services/auth.service';
 import {
     validateCode,
@@ -23,6 +24,7 @@ export const RegisterPage = () => {
 
     const [errors, setErrors] = useState<Record<string, string>>({});
     const { addToast } = useToastStore();
+    const navigate = useNavigate();
 
     const handleEmailVerification = async () => {
         const emailResult = validateEmail(email);
@@ -129,6 +131,8 @@ export const RegisterPage = () => {
             );
             console.log('회원가입 응답:', response);
             addToast('회원가입이 완료되었습니다.', 'success');
+            // 회원가입 완료 후 로그인 페이지로 이동
+            navigate('/login');
         } catch (error) {
             const axiosError = error as AxiosError<ApiErrorResponse>;
             const errorMessage =
@@ -308,6 +312,15 @@ export const RegisterPage = () => {
                     <button type="submit" className="btn-primary-filled">
                         회원가입
                     </button>
+                    <div className="flex justify-center mt-2">
+                        <button
+                            type="button"
+                            onClick={() => navigate('/login')}
+                            className="text-sm text-sample-blue hover:underline"
+                        >
+                            로그인
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
