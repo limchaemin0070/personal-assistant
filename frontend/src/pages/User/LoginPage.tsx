@@ -46,6 +46,7 @@ export const LoginPage = () => {
 
         try {
             const response = await authService.login(email, password);
+            // eslint-disable-next-line no-console
             console.log('로그인 응답:', response);
             addToast('로그인에 성공했습니다.', 'success');
             // TODO: 로그인 성공 후 리다이렉트 처리 (예: 메인 페이지)

@@ -44,6 +44,7 @@ export const RegisterPage = () => {
 
         try {
             const response = await authService.sendVerificationCode(email);
+            // eslint-disable-next-line no-console
             console.log('인증번호 전송 응답:', response);
             setIsVerificationCodeSent(true);
             setIsEmailVerified(false);
@@ -80,6 +81,7 @@ export const RegisterPage = () => {
                 email,
                 verificationCode,
             );
+            // eslint-disable-next-line no-console
             console.log('인증번호 검증 응답:', response);
             setIsEmailVerified(true);
             addToast('이메일 인증이 완료되었습니다.', 'success');
@@ -129,6 +131,7 @@ export const RegisterPage = () => {
                 password,
                 nickname,
             );
+            // eslint-disable-next-line no-console
             console.log('회원가입 응답:', response);
             addToast('회원가입이 완료되었습니다.', 'success');
             // 회원가입 완료 후 로그인 페이지로 이동

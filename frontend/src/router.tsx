@@ -1,8 +1,6 @@
 import type { ReactNode } from 'react';
-import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-
-import { RegisterPage, LoginPage } from './pages';
 
 interface RouteProps {
     children: ReactNode;
@@ -30,18 +28,3 @@ export const PublicRoute = ({ children }: RouteProps) => {
 
     return children;
 };
-
-export const router = createBrowserRouter([
-    {
-        path: '/',
-        element: <Navigate to="/login" replace />,
-    },
-    {
-        path: '/login',
-        element: <LoginPage />,
-    },
-    {
-        path: '/register',
-        element: <RegisterPage />,
-    },
-]);

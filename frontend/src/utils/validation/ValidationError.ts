@@ -9,4 +9,3 @@ export class ValidationError extends Error {
         this.field = field;
     }
 }
-
