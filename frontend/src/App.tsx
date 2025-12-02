@@ -2,11 +2,13 @@ import { RouterProvider } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { router } from '@/router';
+import ToastContainer from './components/common/ToastContainer';
 
 export const App = () => {
     const queryClient = new QueryClient();
     return (
         <QueryClientProvider client={queryClient}>
+            <ToastContainer />
             <RouterProvider router={router} />
             <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>

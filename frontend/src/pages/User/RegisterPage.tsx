@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import type { AxiosError } from 'axios';
 import { authService } from '@/services/auth.service';
 import {
     validateCode,
@@ -8,6 +9,8 @@ import {
     validatePassword,
     validateSignUp,
 } from '@/utils/validation/authValidator';
+import { useToastStore } from '@/hooks/useToastStore';
+import type { ApiErrorResponse } from '@/utils/api';
 
 export const RegisterPage = () => {
     const [email, setEmail] = useState('');
@@ -19,11 +22,15 @@ export const RegisterPage = () => {
     const [isEmailVerified, setIsEmailVerified] = useState(false);
 
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const { addToast } = useToastStore();
 
     const handleEmailVerification = async () => {
         const emailResult = validateEmail(email);
         if (!emailResult.isValid) {
-            setErrors((prev) => ({ ...prev, email: emailResult.error || '' }));
+            const errorMessage =
+                emailResult.error || '이메일 형식이 올바르지 않습니다.';
+            setErrors((prev) => ({ ...prev, email: errorMessage }));
+            addToast(errorMessage, 'error');
             return;
         }
 
@@ -33,17 +40,30 @@ export const RegisterPage = () => {
             return newErrors;
         });
 
-        const response = await authService.sendVerificationCode(email);
-        console.log('인증번호 전송 응답:', response);
-        setIsVerificationCodeSent(true);
-        setIsEmailVerified(false);
-        setVerificationCode('');
+        try {
+            const response = await authService.sendVerificationCode(email);
+            console.log('인증번호 전송 응답:', response);
+            setIsVerificationCodeSent(true);
+            setIsEmailVerified(false);
+            setVerificationCode('');
+            addToast('인증번호가 전송되었습니다.', 'success');
+        } catch (error) {
+            const axiosError = error as AxiosError<ApiErrorResponse>;
+            const errorMessage =
+                axiosError.response?.data?.error?.message ||
+                axiosError.message ||
+                '인증번호 전송에 실패했습니다.';
+            addToast(errorMessage, 'error');
+        }
     };
 
     const handleVerifyCode = async () => {
         const codeResult = validateCode(verificationCode);
         if (!codeResult.isValid) {
-            setErrors((prev) => ({ ...prev, code: codeResult.error || '' }));
+            const errorMessage =
+                codeResult.error || '인증번호 형식이 올바르지 않습니다.';
+            setErrors((prev) => ({ ...prev, code: errorMessage }));
+            addToast(errorMessage, 'error');
             return;
         }
 
@@ -53,9 +73,22 @@ export const RegisterPage = () => {
             return newErrors;
         });
 
-        const response = await authService.verifyCode(email, verificationCode);
-        console.log('인증번호 검증 응답:', response);
-        setIsEmailVerified(true);
+        try {
+            const response = await authService.verifyCode(
+                email,
+                verificationCode,
+            );
+            console.log('인증번호 검증 응답:', response);
+            setIsEmailVerified(true);
+            addToast('이메일 인증이 완료되었습니다.', 'success');
+        } catch (error) {
+            const axiosError = error as AxiosError<ApiErrorResponse>;
+            const errorMessage =
+                axiosError.response?.data?.error?.message ||
+                axiosError.message ||
+                '인증번호 검증에 실패했습니다.';
+            addToast(errorMessage, 'error');
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -66,6 +99,7 @@ export const RegisterPage = () => {
                 ...prev,
                 email: '이메일 인증을 완료해주세요.',
             }));
+            addToast('이메일 인증을 완료해주세요.', 'warning');
             return;
         }
 
@@ -78,13 +112,31 @@ export const RegisterPage = () => {
 
         if (!validation.isValid) {
             setErrors(validation.errors);
+            const firstError = Object.values(validation.errors)[0];
+            if (firstError) {
+                addToast(firstError, 'error');
+            }
             return;
         }
 
         setErrors({});
 
-        const response = await authService.register(email, password, nickname);
-        console.log('회원가입 응답:', response);
+        try {
+            const response = await authService.register(
+                email,
+                password,
+                nickname,
+            );
+            console.log('회원가입 응답:', response);
+            addToast('회원가입이 완료되었습니다.', 'success');
+        } catch (error) {
+            const axiosError = error as AxiosError<ApiErrorResponse>;
+            const errorMessage =
+                axiosError.response?.data?.error?.message ||
+                axiosError.message ||
+                '회원가입에 실패했습니다.';
+            addToast(errorMessage, 'error');
+        }
     };
 
     return (
