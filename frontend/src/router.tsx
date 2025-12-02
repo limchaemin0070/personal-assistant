@@ -1,8 +1,6 @@
 import type { ReactNode } from 'react';
-import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-
-import { RegisterPage, LoginPage } from './pages';
 
 interface RouteProps {
     children: ReactNode;
@@ -22,26 +20,10 @@ export const ProtectedRoute = ({ children }: RouteProps) => {
 
 // 공개 라우트 (비로그인 접근 가능, 인증된 사용자는 메인으로 리다이렉트)
 export const PublicRoute = ({ children }: RouteProps) => {
-    // TODO: 메인 페이지 생기면 해당 경로로 변경
-    // const { isAuthenticated } = useAuth();
-    // if (isAuthenticated) {
-    //     return <Navigate to="/" replace />;
-    // }
+    const { isAuthenticated } = useAuth();
+    if (isAuthenticated) {
+        return <Navigate to="/" replace />;
+    }
 
     return children;
 };
-
-export const router = createBrowserRouter([
-    {
-        path: '/',
-        element: <Navigate to="/login" replace />,
-    },
-    {
-        path: '/login',
-        element: <LoginPage />,
-    },
-    {
-        path: '/register',
-        element: <RegisterPage />,
-    },
-]);
