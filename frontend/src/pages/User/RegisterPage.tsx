@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
 import { authService } from '@/services/auth.service';
-// TODO: 이후 이슈에서 프론트엔드 유효성 검증을 사용할 예정
-// import { ValidationError } from '@/utils/validation/ValidationError';
-// import { validateSignUp } from '@/utils/validation/authValidator';
+import {
+    validateCode,
+    validateConfirmPassword,
+    validateEmail,
+    validateNickname,
+    validatePassword,
+    validateSignUp,
+} from '@/utils/validation/authValidator';
 
 export const RegisterPage = () => {
     const [email, setEmail] = useState('');
@@ -13,8 +18,21 @@ export const RegisterPage = () => {
     const [isVerificationCodeSent, setIsVerificationCodeSent] = useState(false);
     const [isEmailVerified, setIsEmailVerified] = useState(false);
 
+    const [errors, setErrors] = useState<Record<string, string>>({});
+
     const handleEmailVerification = async () => {
-        // TODO: 이후 이슈에서 ValidationError 기반 프론트 유효성 검증 추가
+        const emailResult = validateEmail(email);
+        if (!emailResult.isValid) {
+            setErrors((prev) => ({ ...prev, email: emailResult.error || '' }));
+            return;
+        }
+
+        setErrors((prev) => {
+            const newErrors = { ...prev };
+            delete newErrors.email;
+            return newErrors;
+        });
+
         const response = await authService.sendVerificationCode(email);
         console.log('인증번호 전송 응답:', response);
         setIsVerificationCodeSent(true);
@@ -23,7 +41,18 @@ export const RegisterPage = () => {
     };
 
     const handleVerifyCode = async () => {
-        // TODO: 이후 이슈에서 ValidationError 기반 프론트 유효성 검증 추가
+        const codeResult = validateCode(verificationCode);
+        if (!codeResult.isValid) {
+            setErrors((prev) => ({ ...prev, code: codeResult.error || '' }));
+            return;
+        }
+
+        setErrors((prev) => {
+            const newErrors = { ...prev };
+            delete newErrors.code;
+            return newErrors;
+        });
+
         const response = await authService.verifyCode(email, verificationCode);
         console.log('인증번호 검증 응답:', response);
         setIsEmailVerified(true);
@@ -32,10 +61,30 @@ export const RegisterPage = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // TODO: 이후 이슈에서 프론트 유효성 검증(이메일 인증 여부 포함) 추가
+        if (!isEmailVerified) {
+            setErrors((prev) => ({
+                ...prev,
+                email: '이메일 인증을 완료해주세요.',
+            }));
+            return;
+        }
+
+        const validation = validateSignUp({
+            email,
+            password,
+            confirmPassword,
+            nickname,
+        });
+
+        if (!validation.isValid) {
+            setErrors(validation.errors);
+            return;
+        }
+
+        setErrors({});
+
         const response = await authService.register(email, password, nickname);
         console.log('회원가입 응답:', response);
-        // TODO: 회원가입 성공 UX 개선 (토스트, 페이지 이동 등)
     };
 
     return (
@@ -52,6 +101,21 @@ export const RegisterPage = () => {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    onBlur={(e) => {
+                        const result = validateEmail(e.target.value);
+                        if (!result.isValid && result.error) {
+                            setErrors((prev) => ({
+                                ...prev,
+                                email: result.error || '',
+                            }));
+                        } else {
+                            setErrors((prev) => {
+                                const newErrors = { ...prev };
+                                delete newErrors.email;
+                                return newErrors;
+                            });
+                        }
+                    }}
                     placeholder="이메일을 입력하세요"
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sample-blue"
                 />
@@ -71,6 +135,21 @@ export const RegisterPage = () => {
                             onChange={(e) =>
                                 setVerificationCode(e.target.value)
                             }
+                            onBlur={(e) => {
+                                const result = validateCode(e.target.value);
+                                if (!result.isValid && result.error) {
+                                    setErrors((prev) => ({
+                                        ...prev,
+                                        code: result.error || '',
+                                    }));
+                                } else {
+                                    setErrors((prev) => {
+                                        const newErrors = { ...prev };
+                                        delete newErrors.code;
+                                        return newErrors;
+                                    });
+                                }
+                            }}
                             placeholder="인증번호를 입력하세요"
                             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sample-blue"
                         />
@@ -92,6 +171,21 @@ export const RegisterPage = () => {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    onBlur={(e) => {
+                        const result = validatePassword(e.target.value);
+                        if (!result.isValid && result.error) {
+                            setErrors((prev) => ({
+                                ...prev,
+                                password: result.error || '',
+                            }));
+                        } else {
+                            setErrors((prev) => {
+                                const newErrors = { ...prev };
+                                delete newErrors.password;
+                                return newErrors;
+                            });
+                        }
+                    }}
                     placeholder="비밀번호를 입력하세요"
                     className="w-full px-4 py-2 border border-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-sample-blue"
                 />
@@ -99,6 +193,24 @@ export const RegisterPage = () => {
                     type="confirmPassword"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
+                    onBlur={(e) => {
+                        const result = validateConfirmPassword(
+                            password,
+                            e.target.value,
+                        );
+                        if (!result.isValid && result.error) {
+                            setErrors((prev) => ({
+                                ...prev,
+                                confirmPassword: result.error || '',
+                            }));
+                        } else {
+                            setErrors((prev) => {
+                                const newErrors = { ...prev };
+                                delete newErrors.confirmPassword;
+                                return newErrors;
+                            });
+                        }
+                    }}
                     placeholder="비밀번호를 한번 더 입력하세요"
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sample-blue"
                 />
@@ -106,6 +218,21 @@ export const RegisterPage = () => {
                     type="nickname"
                     value={nickname}
                     onChange={(e) => setNickname(e.target.value)}
+                    onBlur={(e) => {
+                        const result = validateNickname(e.target.value);
+                        if (!result.isValid && result.error) {
+                            setErrors((prev) => ({
+                                ...prev,
+                                nickname: result.error || '',
+                            }));
+                        } else {
+                            setErrors((prev) => {
+                                const newErrors = { ...prev };
+                                delete newErrors.nickname;
+                                return newErrors;
+                            });
+                        }
+                    }}
                     placeholder="사용할 닉네임을 입력하세요"
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sample-blue"
                 />

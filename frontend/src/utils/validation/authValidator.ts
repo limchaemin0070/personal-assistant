@@ -13,9 +13,7 @@ export interface SignUpValidationData {
     nickname?: string;
 }
 
-/**
- * 이메일 유효성 검사
- */
+// 이메일 유효성 검사
 export const validateEmail = (email?: string): ValidationResult => {
     if (!email || !email.trim()) {
         return {
@@ -34,9 +32,7 @@ export const validateEmail = (email?: string): ValidationResult => {
     return { isValid: true };
 };
 
-/**
- * 인증번호 유효성 검사
- */
+// 인증번호 유효성 검사
 export const validateCode = (code?: string): ValidationResult => {
     if (!code || !code.trim()) {
         return {
@@ -55,9 +51,7 @@ export const validateCode = (code?: string): ValidationResult => {
     return { isValid: true };
 };
 
-/**
- * 비밀번호 유효성 검사
- */
+// 비밀번호 유효성 검사
 export const validatePassword = (password?: string): ValidationResult => {
     if (!password) {
         return {
@@ -76,9 +70,7 @@ export const validatePassword = (password?: string): ValidationResult => {
     return { isValid: true };
 };
 
-/**
- * 비밀번호 확인 유효성 검사
- */
+// 비밀번호 확인 유효성 검사
 export const validateConfirmPassword = (
     password?: string,
     confirmPassword?: string,
@@ -86,7 +78,7 @@ export const validateConfirmPassword = (
     if (!confirmPassword) {
         return {
             isValid: false,
-            error: '비밀번호 확인을 입력해주세요.',
+            error: '비밀번호 확인란을 입력해주세요.',
             field: 'confirmPassword',
         };
     }
@@ -100,9 +92,7 @@ export const validateConfirmPassword = (
     return { isValid: true };
 };
 
-/**
- * 닉네임 유효성 검사
- */
+// 닉네임 유효성 검사
 export const validateNickname = (nickname?: string): ValidationResult => {
     if (!nickname || !nickname.trim()) {
         return {
@@ -122,42 +112,40 @@ export const validateNickname = (nickname?: string): ValidationResult => {
     return { isValid: true };
 };
 
-/**
- * 회원가입 전체 유효성 검사
- */
-// export const validateSignUp = (
-//     data: SignUpValidationData,
-// ): {
-//     isValid: boolean;
-//     errors: Record<string, string>;
-// } => {
-//     const errors: Record<string, string> = {};
+// 회원가입 전체 유효성 검사
+export const validateSignUp = (
+    data: SignUpValidationData,
+): {
+    isValid: boolean;
+    errors: Record<string, string>;
+} => {
+    const errors: Record<string, string> = {};
 
-//     const emailResult = validateEmail(data.email);
-//     if (!emailResult.isValid && emailResult.error) {
-//         errors.email = emailResult.error;
-//     }
+    const emailResult = validateEmail(data.email);
+    if (!emailResult.isValid && emailResult.error) {
+        errors.email = emailResult.error;
+    }
 
-//     const passwordResult = validatePassword(data.password);
-//     if (!passwordResult.isValid && passwordResult.error) {
-//         errors.password = passwordResult.error;
-//     }
+    const passwordResult = validatePassword(data.password);
+    if (!passwordResult.isValid && passwordResult.error) {
+        errors.password = passwordResult.error;
+    }
 
-//     const confirmPasswordResult = validateConfirmPassword(
-//         data.password,
-//         data.confirmPassword,
-//     );
-//     if (!confirmPasswordResult.isValid && confirmPasswordResult.error) {
-//         errors.confirmPassword = confirmPasswordResult.error;
-//     }
+    const confirmPasswordResult = validateConfirmPassword(
+        data.password,
+        data.confirmPassword,
+    );
+    if (!confirmPasswordResult.isValid && confirmPasswordResult.error) {
+        errors.confirmPassword = confirmPasswordResult.error;
+    }
 
-//     const nicknameResult = validateNickname(data.nickname);
-//     if (!nicknameResult.isValid && nicknameResult.error) {
-//         errors.nickname = nicknameResult.error;
-//     }
+    const nicknameResult = validateNickname(data.nickname);
+    if (!nicknameResult.isValid && nicknameResult.error) {
+        errors.nickname = nicknameResult.error;
+    }
 
-//     return {
-//         isValid: Object.keys(errors).length === 0,
-//         errors,
-//     };
-// };
+    return {
+        isValid: Object.keys(errors).length === 0,
+        errors,
+    };
+};
