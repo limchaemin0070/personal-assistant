@@ -1,6 +1,6 @@
 import { FormInput } from '@/components/auth/FormInput';
 import { EmailAuthSection } from '@/components/auth/EmailAuthSection';
-import { useRegister } from '@/hooks/useRegister';
+import { useRegister } from '@/hooks/Auth/useRegister';
 import {
     validateCode,
     validateEmail,

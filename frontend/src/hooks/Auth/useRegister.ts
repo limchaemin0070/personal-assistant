@@ -12,6 +12,7 @@ import { useToastStore } from '@/hooks/useToastStore';
 export const useRegister = () => {
     const navigate = useNavigate();
     const { addToast } = useToastStore();
+    const [errors, setErrors] = useState<Record<string, string>>({});
 
     const [email, setEmail] = useState('');
     const [verificationCode, setVerificationCode] = useState('');
@@ -22,9 +23,7 @@ export const useRegister = () => {
     const [isVerificationCodeSent, setIsVerificationCodeSent] = useState(false);
     const [isEmailVerified, setIsEmailVerified] = useState(false);
 
-    const [errors, setErrors] = useState<Record<string, string>>({});
-
-    // 일반 필드 블러 핸들러
+    // 필드 블러 핸들러
     const handleFieldBlur = (
         fieldName: string,
         value: string,
@@ -45,20 +44,38 @@ export const useRegister = () => {
         }
     };
 
+    const setFieldError = (fieldName: string, error: string) => {
+        setErrors((prev) => ({
+            ...prev,
+            [fieldName]: error,
+        }));
+    };
+
+    const clearFieldError = (fieldName: string) => {
+        setErrors((prev) => {
+            const newErrors = { ...prev };
+            delete newErrors[fieldName];
+            return newErrors;
+        });
+    };
+
+    const setErrorsFromValidation = (
+        validationErrors: Record<string, string>,
+    ) => {
+        setErrors(validationErrors);
+    };
+
+    const clearAllErrors = () => {
+        setErrors({});
+    };
+
     // 비밀번호 확인 필드 블러 핸들러
     const handleConfirmPasswordBlur = (value: string) => {
         const result = validateConfirmPassword(password, value);
         if (!result.isValid && result.error) {
-            setErrors((prev) => ({
-                ...prev,
-                confirmPassword: result.error || '',
-            }));
+            setFieldError('confirmPassword', result.error || '');
         } else {
-            setErrors((prev) => {
-                const newErrors = { ...prev };
-                delete newErrors.confirmPassword;
-                return newErrors;
-            });
+            clearFieldError('confirmPassword');
         }
     };
 
@@ -68,16 +85,12 @@ export const useRegister = () => {
         if (!emailResult.isValid) {
             const errorMessage =
                 emailResult.error || '이메일 형식이 올바르지 않습니다.';
-            setErrors((prev) => ({ ...prev, email: errorMessage }));
+            setFieldError('email', errorMessage);
             addToast(errorMessage, 'error');
             return;
         }
 
-        setErrors((prev) => {
-            const newErrors = { ...prev };
-            delete newErrors.email;
-            return newErrors;
-        });
+        clearFieldError('email');
 
         try {
             const response = await authService.sendVerificationCode(email);
@@ -100,16 +113,12 @@ export const useRegister = () => {
         if (!codeResult.isValid) {
             const errorMessage =
                 codeResult.error || '인증번호 형식이 올바르지 않습니다.';
-            setErrors((prev) => ({ ...prev, code: errorMessage }));
+            setFieldError('code', errorMessage);
             addToast(errorMessage, 'error');
             return;
         }
 
-        setErrors((prev) => {
-            const newErrors = { ...prev };
-            delete newErrors.code;
-            return newErrors;
-        });
+        clearFieldError('code');
 
         try {
             const response = await authService.verifyCode(
@@ -132,10 +141,7 @@ export const useRegister = () => {
         e.preventDefault();
 
         if (!isEmailVerified) {
-            setErrors((prev) => ({
-                ...prev,
-                email: '이메일 인증을 완료해주세요.',
-            }));
+            setFieldError('email', '이메일 인증을 완료해주세요.');
             addToast('이메일 인증을 완료해주세요.', 'warning');
             return;
         }
@@ -148,7 +154,7 @@ export const useRegister = () => {
         });
 
         if (!validation.isValid) {
-            setErrors(validation.errors);
+            setErrorsFromValidation(validation.errors);
             const firstError = Object.values(validation.errors)[0];
             if (firstError) {
                 addToast(firstError, 'error');
@@ -156,7 +162,7 @@ export const useRegister = () => {
             return;
         }
 
-        setErrors({});
+        clearAllErrors();
 
         try {
             const response = await authService.register(

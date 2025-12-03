@@ -5,10 +5,10 @@ import {
   validateCodeOrThrow,
   validateEmailOrThrow,
   validateNicknameOrThrow,
-  validatePasswordOrThrow,
   validateSignUpPayload,
   validateRefreshTokenOrThrow,
 } from "../utils/validation/authValidator";
+import { ValidationError } from "../errors/ValidationError";
 import { buildSuccess } from "../utils/response";
 import { expiresInToMs } from "../utils/authentication/jwt";
 import { env } from "../config/env";
@@ -80,7 +80,10 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
 
   // 입력값 검증
   validateEmailOrThrow(email);
-  validatePasswordOrThrow(password);
+  // 비밀번호는 입력만 되면 됨 (형식 검사 없음)
+  if (!password || !password.trim()) {
+    throw new ValidationError("비밀번호를 입력해주세요.", "password");
+  }
 
   const { user, accessToken, refreshToken } = await authService.login(
     email,

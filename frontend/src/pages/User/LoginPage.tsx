@@ -1,64 +1,9 @@
-import React, { useState } from 'react';
-import type { AxiosError } from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { authService } from '@/services/auth.service';
-import {
-    validateEmail,
-    validatePassword,
-} from '@/utils/validation/authValidator';
-import { useToastStore } from '@/hooks/useToastStore';
-import type { ApiErrorResponse } from '@/utils/api';
+import { FormInput } from '@/components/auth/FormInput';
+import { useLogin } from '@/hooks/Auth/useLogin';
 
 export const LoginPage = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-
-    const [errors, setErrors] = useState<Record<string, string>>({});
-    const { addToast } = useToastStore();
-    const navigate = useNavigate();
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        const validation = {
-            email: validateEmail(email),
-            password: validatePassword(password),
-        };
-
-        const validationErrors: Record<string, string> = {};
-        if (!validation.email.isValid && validation.email.error) {
-            validationErrors.email = validation.email.error;
-        }
-        if (!validation.password.isValid && validation.password.error) {
-            validationErrors.password = validation.password.error;
-        }
-
-        if (Object.keys(validationErrors).length > 0) {
-            setErrors(validationErrors);
-            const firstError = Object.values(validationErrors)[0];
-            if (firstError) {
-                addToast(firstError, 'error');
-            }
-            return;
-        }
-
-        setErrors({});
-
-        try {
-            const response = await authService.login(email, password);
-            // eslint-disable-next-line no-console
-            console.log('로그인 응답:', response);
-            addToast('로그인에 성공했습니다.', 'success');
-            navigate('/');
-        } catch (error) {
-            const axiosError = error as AxiosError<ApiErrorResponse>;
-            const errorMessage =
-                axiosError.response?.data?.error?.message ||
-                axiosError.message ||
-                '로그인에 실패했습니다.';
-            addToast(errorMessage, 'error');
-        }
-    };
+    const { email, password, setEmail, setPassword, handleSubmit, navigate } =
+        useLogin();
 
     return (
         <div className="flex flex-row items-center w-full h-full min-[]:">
@@ -74,51 +19,17 @@ export const LoginPage = () => {
                     onSubmit={handleSubmit}
                     noValidate
                 >
-                    <input
+                    <FormInput
                         type="email"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        onBlur={(e) => {
-                            const result = validateEmail(e.target.value);
-                            if (!result.isValid && result.error) {
-                                setErrors((prev) => ({
-                                    ...prev,
-                                    email: result.error || '',
-                                }));
-                            } else {
-                                setErrors((prev) => {
-                                    const newErrors = { ...prev };
-                                    delete newErrors.email;
-                                    return newErrors;
-                                });
-                            }
-                        }}
+                        onChange={setEmail}
                         placeholder="이메일을 입력하세요"
-                        className={errors.email ? 'input-error' : 'input-base'}
                     />
-                    <input
+                    <FormInput
                         type="password"
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        onBlur={(e) => {
-                            const result = validatePassword(e.target.value);
-                            if (!result.isValid && result.error) {
-                                setErrors((prev) => ({
-                                    ...prev,
-                                    password: result.error || '',
-                                }));
-                            } else {
-                                setErrors((prev) => {
-                                    const newErrors = { ...prev };
-                                    delete newErrors.password;
-                                    return newErrors;
-                                });
-                            }
-                        }}
+                        onChange={setPassword}
                         placeholder="비밀번호를 입력하세요"
-                        className={
-                            errors.password ? 'input-error' : 'input-base'
-                        }
                     />
                     <button type="submit" className="btn-primary-filled">
                         로그인
