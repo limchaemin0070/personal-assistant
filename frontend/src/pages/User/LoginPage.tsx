@@ -1,9 +1,18 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FormInput } from '@/components/auth/FormInput';
 import { useLogin } from '@/hooks/Auth/useLogin';
 
 export const LoginPage = () => {
-    const { email, password, setEmail, setPassword, handleSubmit, navigate } =
-        useLogin();
+    const navigate = useNavigate();
+    const loginMutation = useLogin();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        loginMutation.mutate({ email, password });
+    };
 
     return (
         <div className="flex flex-row items-center w-full h-full min-[]:">
@@ -21,12 +30,14 @@ export const LoginPage = () => {
                 >
                     <FormInput
                         type="email"
+                        name="email"
                         value={email}
                         onChange={setEmail}
                         placeholder="이메일을 입력하세요"
                     />
                     <FormInput
                         type="password"
+                        name="password"
                         value={password}
                         onChange={setPassword}
                         placeholder="비밀번호를 입력하세요"

@@ -1,6 +1,7 @@
+import { useNavigate } from 'react-router-dom';
 import { FormInput } from '@/components/auth/FormInput';
 import { EmailAuthSection } from '@/components/auth/EmailAuthSection';
-import { useRegister } from '@/hooks/Auth/useRegister';
+import { useRegisterForm } from '@/hooks/Auth/useRegister';
 import {
     validateCode,
     validateEmail,
@@ -9,6 +10,7 @@ import {
 } from '@/utils/validation/authValidator';
 
 export const RegisterPage = () => {
+    const navigate = useNavigate();
     const {
         email,
         verificationCode,
@@ -27,13 +29,10 @@ export const RegisterPage = () => {
 
         handleEmailVerification,
         handleVerifyCode,
-
         handleFieldBlur,
         handleConfirmPasswordBlur,
         handleSubmit,
-
-        navigate,
-    } = useRegister();
+    } = useRegisterForm();
 
     return (
         <div className="flex flex-row items-center w-full h-full min-[]:">

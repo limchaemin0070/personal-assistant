@@ -1,53 +1,53 @@
-import { useState } from 'react';
+// 📁 hooks/useLogin.ts
+import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import type { AxiosError } from 'axios';
 import { authService } from '@/services/auth.service';
-import { validateEmail } from '@/utils/validation/authValidator';
 import { useToastStore } from '@/hooks/useToastStore';
+import type { ApiErrorResponse } from '@/utils/api';
+import { extractErrorMessage } from '@/utils/errorHandler';
+
+interface LoginRequest {
+    email: string;
+    password: string;
+}
+
+const LOGIN_ERROR_MESSAGES: Record<string, string> = {
+    INVALID_CREDENTIALS: '이메일 또는 비밀번호가 올바르지 않습니다.',
+    VALIDATION_ERROR: '올바른 입력 형식이 아닙니다.',
+    INTERNAL_SERVER_ERROR: '서버 오류가 발생했습니다.',
+};
+
+const getLoginErrorMessage = (error: AxiosError<ApiErrorResponse>): string => {
+    const errorCode = error.response?.data?.error?.code;
+
+    if (errorCode && LOGIN_ERROR_MESSAGES[errorCode]) {
+        return LOGIN_ERROR_MESSAGES[errorCode];
+    }
+
+    return extractErrorMessage(error);
+};
 
 export const useLogin = () => {
     const navigate = useNavigate();
     const { addToast } = useToastStore();
 
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    return useMutation<
+        Awaited<ReturnType<typeof authService.login>>,
+        AxiosError<ApiErrorResponse>,
+        LoginRequest
+    >({
+        mutationFn: ({ email, password }: LoginRequest) =>
+            authService.login(email, password),
 
-    // 로그인 제출
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        // 이메일 유효성 검사
-        const emailResult = validateEmail(email);
-        if (!emailResult.isValid) {
-            if (emailResult.error) {
-                addToast(emailResult.error, 'error');
-            }
-            return;
-        }
-
-        // 비밀번호는 입력만 되면 됨 (형식 검사 없음)
-        if (!password || !password.trim()) {
-            addToast('비밀번호를 입력해주세요.', 'error');
-            return;
-        }
-
-        try {
-            const response = await authService.login(email, password);
-            // eslint-disable-next-line no-console
-            console.log('로그인 응답:', response);
-            addToast('로그인에 성공했습니다.', 'success');
+        onSuccess: () => {
+            addToast('로그인에 성공했습니다', 'success');
             navigate('/');
-        } catch (error) {
-            // eslint-disable-next-line no-console
-            console.error('에러: ', error);
-        }
-    };
+        },
 
-    return {
-        email,
-        password,
-        setEmail,
-        setPassword,
-        handleSubmit,
-        navigate,
-    };
+        onError: (error: AxiosError<ApiErrorResponse>) => {
+            const message = getLoginErrorMessage(error);
+            addToast(message, 'error');
+        },
+    });
 };
