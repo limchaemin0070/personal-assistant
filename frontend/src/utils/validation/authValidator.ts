@@ -12,6 +12,10 @@ export interface SignUpValidationData {
     confirmPassword?: string;
     nickname?: string;
 }
+export interface LoginValidationData {
+    email?: string;
+    password?: string;
+}
 
 // 이메일 유효성 검사
 export const validateEmail = (email?: string): ValidationResult => {
@@ -113,6 +117,31 @@ export const validateNickname = (nickname?: string): ValidationResult => {
         };
     }
     return { isValid: true };
+};
+
+// 로그인 전체 유효성 검사
+export const validateLogin = (
+    data: LoginValidationData,
+): {
+    isValid: boolean;
+    errors: Record<string, string>;
+} => {
+    const errors: Record<string, string> = {};
+
+    const emailResult = validateEmail(data.email);
+    if (!emailResult.isValid && emailResult.error) {
+        errors.email = emailResult.error;
+    }
+
+    const passwordResult = validatePassword(data.password);
+    if (!passwordResult.isValid && passwordResult.error) {
+        errors.password = passwordResult.error;
+    }
+
+    return {
+        isValid: Object.keys(errors).length === 0,
+        errors,
+    };
 };
 
 // 회원가입 전체 유효성 검사
