@@ -1,150 +1,39 @@
-import React, { useState } from 'react';
-import type { AxiosError } from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { authService } from '@/services/auth.service';
+import { FormInput } from '@/components/auth/FormInput';
+import { EmailAuthSection } from '@/components/auth/EmailAuthSection';
+import { useRegister } from '@/hooks/useRegister';
 import {
     validateCode,
-    validateConfirmPassword,
     validateEmail,
     validateNickname,
     validatePassword,
-    validateSignUp,
 } from '@/utils/validation/authValidator';
-import { useToastStore } from '@/hooks/useToastStore';
-import type { ApiErrorResponse } from '@/utils/api';
 
 export const RegisterPage = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [nickname, setNickname] = useState('');
-    const [verificationCode, setVerificationCode] = useState('');
-    const [isVerificationCodeSent, setIsVerificationCodeSent] = useState(false);
-    const [isEmailVerified, setIsEmailVerified] = useState(false);
+    const {
+        email,
+        verificationCode,
+        password,
+        confirmPassword,
+        nickname,
+        isVerificationCodeSent,
+        isEmailVerified,
+        errors,
 
-    const [errors, setErrors] = useState<Record<string, string>>({});
-    const { addToast } = useToastStore();
-    const navigate = useNavigate();
+        setEmail,
+        setVerificationCode,
+        setPassword,
+        setConfirmPassword,
+        setNickname,
 
-    const handleEmailVerification = async () => {
-        const emailResult = validateEmail(email);
-        if (!emailResult.isValid) {
-            const errorMessage =
-                emailResult.error || '이메일 형식이 올바르지 않습니다.';
-            setErrors((prev) => ({ ...prev, email: errorMessage }));
-            addToast(errorMessage, 'error');
-            return;
-        }
+        handleEmailVerification,
+        handleVerifyCode,
 
-        setErrors((prev) => {
-            const newErrors = { ...prev };
-            delete newErrors.email;
-            return newErrors;
-        });
+        handleFieldBlur,
+        handleConfirmPasswordBlur,
+        handleSubmit,
 
-        try {
-            const response = await authService.sendVerificationCode(email);
-            // eslint-disable-next-line no-console
-            console.log('인증번호 전송 응답:', response);
-            setIsVerificationCodeSent(true);
-            setIsEmailVerified(false);
-            setVerificationCode('');
-            addToast('인증번호가 전송되었습니다.', 'success');
-        } catch (error) {
-            const axiosError = error as AxiosError<ApiErrorResponse>;
-            const errorMessage =
-                axiosError.response?.data?.error?.message ||
-                axiosError.message ||
-                '인증번호 전송에 실패했습니다.';
-            addToast(errorMessage, 'error');
-        }
-    };
-
-    const handleVerifyCode = async () => {
-        const codeResult = validateCode(verificationCode);
-        if (!codeResult.isValid) {
-            const errorMessage =
-                codeResult.error || '인증번호 형식이 올바르지 않습니다.';
-            setErrors((prev) => ({ ...prev, code: errorMessage }));
-            addToast(errorMessage, 'error');
-            return;
-        }
-
-        setErrors((prev) => {
-            const newErrors = { ...prev };
-            delete newErrors.code;
-            return newErrors;
-        });
-
-        try {
-            const response = await authService.verifyCode(
-                email,
-                verificationCode,
-            );
-            // eslint-disable-next-line no-console
-            console.log('인증번호 검증 응답:', response);
-            setIsEmailVerified(true);
-            addToast('이메일 인증이 완료되었습니다.', 'success');
-        } catch (error) {
-            const axiosError = error as AxiosError<ApiErrorResponse>;
-            const errorMessage =
-                axiosError.response?.data?.error?.message ||
-                axiosError.message ||
-                '인증번호 검증에 실패했습니다.';
-            addToast(errorMessage, 'error');
-        }
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        if (!isEmailVerified) {
-            setErrors((prev) => ({
-                ...prev,
-                email: '이메일 인증을 완료해주세요.',
-            }));
-            addToast('이메일 인증을 완료해주세요.', 'warning');
-            return;
-        }
-
-        const validation = validateSignUp({
-            email,
-            password,
-            confirmPassword,
-            nickname,
-        });
-
-        if (!validation.isValid) {
-            setErrors(validation.errors);
-            const firstError = Object.values(validation.errors)[0];
-            if (firstError) {
-                addToast(firstError, 'error');
-            }
-            return;
-        }
-
-        setErrors({});
-
-        try {
-            const response = await authService.register(
-                email,
-                password,
-                nickname,
-            );
-            // eslint-disable-next-line no-console
-            console.log('회원가입 응답:', response);
-            addToast('회원가입이 완료되었습니다.', 'success');
-            // 회원가입 완료 후 로그인 페이지로 이동
-            navigate('/login');
-        } catch (error) {
-            const axiosError = error as AxiosError<ApiErrorResponse>;
-            const errorMessage =
-                axiosError.response?.data?.error?.message ||
-                axiosError.message ||
-                '회원가입에 실패했습니다.';
-            addToast(errorMessage, 'error');
-        }
-    };
+        navigate,
+    } = useRegister();
 
     return (
         <div className="flex flex-row items-center w-full h-full min-[]:">
@@ -160,157 +49,59 @@ export const RegisterPage = () => {
                     onSubmit={handleSubmit}
                     noValidate
                 >
-                    <div className="flex flex-row gap-2">
-                        <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            onBlur={(e) => {
-                                const result = validateEmail(e.target.value);
-                                if (!result.isValid && result.error) {
-                                    setErrors((prev) => ({
-                                        ...prev,
-                                        email: result.error || '',
-                                    }));
-                                } else {
-                                    setErrors((prev) => {
-                                        const newErrors = { ...prev };
-                                        delete newErrors.email;
-                                        return newErrors;
-                                    });
-                                }
-                            }}
-                            placeholder="이메일을 입력하세요"
-                            className={
-                                errors.email ? 'input-error' : 'input-base'
-                            }
-                        />
-                        <button
-                            type="button"
-                            onClick={handleEmailVerification}
-                            className="btn-primary-filled w-[30%]"
-                            disabled={isEmailVerified}
-                        >
-                            인증
-                        </button>
-                    </div>
-
-                    {isVerificationCodeSent && !isEmailVerified && (
-                        <>
-                            <input
-                                type="text"
-                                value={verificationCode}
-                                onChange={(e) =>
-                                    setVerificationCode(e.target.value)
-                                }
-                                onBlur={(e) => {
-                                    const result = validateCode(e.target.value);
-                                    if (!result.isValid && result.error) {
-                                        setErrors((prev) => ({
-                                            ...prev,
-                                            code: result.error || '',
-                                        }));
-                                    } else {
-                                        setErrors((prev) => {
-                                            const newErrors = { ...prev };
-                                            delete newErrors.code;
-                                            return newErrors;
-                                        });
-                                    }
-                                }}
-                                placeholder="인증번호를 입력하세요"
-                                className="input-base"
-                            />
-                            <button
-                                type="button"
-                                onClick={handleVerifyCode}
-                                className="btn-primary-filled"
-                            >
-                                인증번호 확인
-                            </button>
-                        </>
-                    )}
-                    {isEmailVerified && (
-                        <div className="text-green-600 text-sm">
-                            이메일 인증이 완료되었습니다.
-                        </div>
-                    )}
-                    <input
+                    <EmailAuthSection
+                        email={email}
+                        verificationCode={verificationCode}
+                        isVerificationCodeSent={isVerificationCodeSent}
+                        isEmailVerified={isEmailVerified}
+                        errors={errors}
+                        onEmailChange={setEmail}
+                        onAuthNumChange={setVerificationCode}
+                        onEmailBlur={(value) => {
+                            handleFieldBlur('email', value, validateEmail);
+                        }}
+                        onCodeBlur={(value) => {
+                            handleFieldBlur('code', value, validateCode);
+                        }}
+                        onEmailVerification={handleEmailVerification}
+                        onVerifyCode={handleVerifyCode}
+                        disabled={isEmailVerified}
+                    />
+                    <FormInput
                         type="password"
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        onBlur={(e) => {
-                            const result = validatePassword(e.target.value);
-                            if (!result.isValid && result.error) {
-                                setErrors((prev) => ({
-                                    ...prev,
-                                    password: result.error || '',
-                                }));
-                            } else {
-                                setErrors((prev) => {
-                                    const newErrors = { ...prev };
-                                    delete newErrors.password;
-                                    return newErrors;
-                                });
-                            }
+                        onChange={setPassword}
+                        onBlur={(value) => {
+                            handleFieldBlur(
+                                'password',
+                                value,
+                                validatePassword,
+                            );
                         }}
                         placeholder="비밀번호를 입력하세요"
-                        className={
-                            errors.password ? 'input-error' : 'input-base'
-                        }
+                        error={errors.password}
                     />
-                    <input
-                        type="confirmPassword"
+                    <FormInput
+                        type="password"
                         value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        onBlur={(e) => {
-                            const result = validateConfirmPassword(
-                                password,
-                                e.target.value,
-                            );
-                            if (!result.isValid && result.error) {
-                                setErrors((prev) => ({
-                                    ...prev,
-                                    confirmPassword: result.error || '',
-                                }));
-                            } else {
-                                setErrors((prev) => {
-                                    const newErrors = { ...prev };
-                                    delete newErrors.confirmPassword;
-                                    return newErrors;
-                                });
-                            }
-                        }}
+                        onChange={setConfirmPassword}
+                        onBlur={handleConfirmPasswordBlur}
                         placeholder="비밀번호를 한번 더 입력하세요"
-                        className={
-                            errors.confirmPassword
-                                ? 'input-error'
-                                : 'input-base'
-                        }
+                        error={errors.confirmPassword}
                     />
-                    <input
-                        type="nickname"
+                    <FormInput
+                        type="text"
                         value={nickname}
-                        onChange={(e) => setNickname(e.target.value)}
-                        onBlur={(e) => {
-                            const result = validateNickname(e.target.value);
-                            if (!result.isValid && result.error) {
-                                setErrors((prev) => ({
-                                    ...prev,
-                                    nickname: result.error || '',
-                                }));
-                            } else {
-                                setErrors((prev) => {
-                                    const newErrors = { ...prev };
-                                    delete newErrors.nickname;
-                                    return newErrors;
-                                });
-                            }
+                        onChange={setNickname}
+                        onBlur={(value) => {
+                            handleFieldBlur(
+                                'nickname',
+                                value,
+                                validateNickname,
+                            );
                         }}
                         placeholder="사용할 닉네임을 입력하세요"
-                        className={
-                            errors.nickname ? 'input-error' : 'input-base'
-                        }
+                        error={errors.nickname}
                     />
                     <button type="submit" className="btn-primary-filled">
                         회원가입

@@ -1,4 +1,4 @@
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { AUTH_INPUT_VALIDATION } from '@/constants/authInputValidation';
 
 export interface ValidationResult {
     isValid: boolean;
@@ -22,7 +22,7 @@ export const validateEmail = (email?: string): ValidationResult => {
             field: 'email',
         };
     }
-    if (!EMAIL_REGEX.test(email.trim())) {
+    if (!AUTH_INPUT_VALIDATION.EMAIL_REGEX.test(email.trim())) {
         return {
             isValid: false,
             error: '올바른 이메일 형식이 아닙니다.',
@@ -41,7 +41,7 @@ export const validateCode = (code?: string): ValidationResult => {
             field: 'code',
         };
     }
-    if (!/^\d{6}$/.test(code.trim())) {
+    if (!AUTH_INPUT_VALIDATION.CODE_REGEX.test(code.trim())) {
         return {
             isValid: false,
             error: '인증번호는 6자리 숫자여야 합니다.',
@@ -60,7 +60,7 @@ export const validatePassword = (password?: string): ValidationResult => {
             field: 'password',
         };
     }
-    if (password.length < 8) {
+    if (password.length < AUTH_INPUT_VALIDATION.PASSWORD_MIN_LENGTH) {
         return {
             isValid: false,
             error: '비밀번호는 최소 8자 이상이어야 합니다.',
@@ -102,7 +102,10 @@ export const validateNickname = (nickname?: string): ValidationResult => {
         };
     }
     const trimmedNickname = nickname.trim();
-    if (trimmedNickname.length < 1 || trimmedNickname.length > 10) {
+    if (
+        trimmedNickname.length < AUTH_INPUT_VALIDATION.NICKNAME_MIN_LENGTH ||
+        trimmedNickname.length > AUTH_INPUT_VALIDATION.NICKNAME_MAX_LENGTH
+    ) {
         return {
             isValid: false,
             error: '닉네임은 1자 이상 10자 이하여야 합니다.',
