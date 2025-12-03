@@ -26,14 +26,13 @@ export const useAuth = () => {
             if (axiosError?.response?.status === 401) {
                 return false;
             }
-            // 네트워크 에러 등은 최대 1번 재시도
             return failureCount < 1;
         },
         staleTime: 5 * 60 * 1000,
         gcTime: 10 * 60 * 1000,
         refetchOnWindowFocus: true,
         refetchOnMount: true,
-        refetchInterval: false, // 자동 리프레시는 인터셉터에서 처리
+        refetchInterval: false,
     });
 
     const isAuthenticated = !!data && !isError;

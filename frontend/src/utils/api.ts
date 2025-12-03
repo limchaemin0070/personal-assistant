@@ -4,7 +4,7 @@ import axios, {
     AxiosError,
 } from 'axios';
 import { useToastStore } from '@/hooks/useToastStore';
-import { extractErrorMessage } from './errorHandler';
+// import { extractErrorMessage } from './errorHandler';
 
 const baseURL = import.meta.env.VITE_SERVER_URL;
 
@@ -25,24 +25,6 @@ export interface ApiErrorResponse {
 }
 
 export type ApiResponse<T = null> = ApiSuccessResponse<T> | ApiErrorResponse;
-
-export interface NetworkError {
-    success: false;
-    error: {
-        code: string;
-        message: string;
-    };
-}
-
-export interface BackendErrorInfo {
-    code: string;
-    message: string;
-    field?: string;
-}
-
-export interface ApiAxiosError extends AxiosError {
-    backendError?: BackendErrorInfo;
-}
 
 const axiosInstance = axios.create({
     baseURL,
@@ -111,15 +93,26 @@ axiosInstance.interceptors.response.use(
             isRefreshing = true;
 
             try {
+                // eslint-disable-next-line no-console
+                console.log('리프레시 토큰으로 액세스 토큰 갱신 시도 중...');
                 await axiosInstance.post('/auth/refresh');
+                // eslint-disable-next-line no-console
+                console.log('액세스 토큰 갱신 성공');
                 processQueue(null, null);
                 const retryResponse = await axiosInstance(originalRequest);
                 return retryResponse;
             } catch (refreshError) {
+                // eslint-disable-next-line no-console
+                console.error('액세스 토큰 갱신 실패:', refreshError);
                 processQueue(refreshError as AxiosError, null);
-                // 리프레시 실패 시 로그인 페이지로 리다이렉트
+
                 if (window.location.pathname !== '/login') {
-                    window.location.href = '/login';
+                    const { addToast } = useToastStore.getState();
+                    addToast('로그인이 만료되었습니다', 'error');
+
+                    setTimeout(() => {
+                        window.location.replace('/login');
+                    }, 500);
                 }
                 return await Promise.reject(refreshError);
             } finally {
@@ -127,16 +120,16 @@ axiosInstance.interceptors.response.use(
             }
         }
 
+        if (!error.request) {
+            const { addToast } = useToastStore.getState();
+            addToast('네트워크 연결을 확인해주세요.', 'error');
+        }
+
         // 프로덕션 환경에서는 이부분 제거
         if (import.meta.env.DEV) {
             // eslint-disable-next-line no-console
             console.log('API Error:', error.response?.data || error.message);
         }
-
-        // 에러 Toast 표시
-        const errorMessage = extractErrorMessage(error);
-        const { addToast } = useToastStore.getState();
-        addToast(errorMessage, 'error');
 
         return Promise.reject(error);
     },

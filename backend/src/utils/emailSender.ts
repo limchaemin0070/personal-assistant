@@ -1,6 +1,7 @@
 import { env } from "../config/env";
 import { emailTransporter } from "../config/email";
 import nodemailer from "nodemailer";
+import { EmailServiceUnavailableError } from "../errors/ValidationError";
 
 function createVerificationEmailTemplate(code: string): string {
   return `
@@ -32,10 +33,7 @@ export async function sendEmail(
     const info = await emailTransporter.sendMail(mailTemplate);
     console.log("이메일 발송 성공:", info.messageId);
   } catch (error) {
-    if (error instanceof Error) {
-      console.error("이메일 발송 실패:", error.message);
-      throw new Error(`이메일 발송 중 오류가 발생했습니다: ${error.message}`);
-    }
-    throw new Error("알 수 없는 오류가 발생했습니다.");
+    console.error("이메일 발송 실패:", error);
+    throw new EmailServiceUnavailableError();
   }
 }
