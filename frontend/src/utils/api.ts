@@ -3,6 +3,8 @@ import axios, {
     type AxiosResponse,
     AxiosError,
 } from 'axios';
+import { useToastStore } from '@/hooks/useToastStore';
+import { extractErrorMessage } from './errorHandler';
 
 const baseURL = import.meta.env.VITE_SERVER_URL;
 
@@ -86,7 +88,7 @@ axiosInstance.interceptors.response.use(
     async (error: AxiosError<ApiErrorResponse>) => {
         const originalRequest = error.config as RetryableRequestConfig;
 
-        // 401 인증 만료
+        // 401 인증 만료 처리
         if (
             error.response?.status === 401 &&
             !originalRequest.retry &&
@@ -125,10 +127,17 @@ axiosInstance.interceptors.response.use(
             }
         }
 
+        // 프로덕션 환경에서는 이부분 제거
         if (import.meta.env.DEV) {
             // eslint-disable-next-line no-console
             console.log('API Error:', error.response?.data || error.message);
         }
+
+        // 에러 Toast 표시
+        const errorMessage = extractErrorMessage(error);
+        const { addToast } = useToastStore.getState();
+        addToast(errorMessage, 'error');
+
         return Promise.reject(error);
     },
 );
