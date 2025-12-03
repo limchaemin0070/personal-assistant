@@ -61,6 +61,7 @@ module.exports = {
                 allowTaggedTemplates: true,
             },
         ],
+        'react/require-default-props': 'off',
     },
     ignorePatterns: [
         'dist',
