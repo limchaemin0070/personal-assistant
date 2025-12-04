@@ -23,7 +23,7 @@ export interface CalendarDay {
     isPast: boolean;
 }
 
-export class calculateDate {
+export class CalendarUtils {
     /**
      * 캘린더 그리드용 날짜 배열 생성 (6주 * 7일 = 42칸)
      */

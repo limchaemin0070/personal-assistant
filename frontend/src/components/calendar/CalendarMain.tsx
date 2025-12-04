@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calander } from './Calander';
+import { Calander } from './Calandar';
 
 interface CalendarMainProps {
     // eslint-disable-next-line react/require-default-props
