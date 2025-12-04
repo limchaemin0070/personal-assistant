@@ -40,6 +40,15 @@
 }
 
 @theme {
+    /* 반응형 breakpoint */
+    --breakpoint-xs: 375px;
+    --breakpoint-sm: 640px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 1024px;
+    --breakpoint-xl: 1280px;
+    --breakpoint-2xl: 1536px;
+
+    /* 색상 */
     --gradient-primary-start: rgb(59 130 246);
     --gradient-primary-end: rgb(147 51 234);
 
