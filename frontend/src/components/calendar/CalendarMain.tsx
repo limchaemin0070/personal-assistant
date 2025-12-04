@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calander } from './Calander';
+import { Calander } from './Calandar';
 
 interface CalendarMainProps {
     // eslint-disable-next-line react/require-default-props
@@ -14,7 +14,7 @@ export const CalendarMain: React.FC<CalendarMainProps> = ({
 }) => {
     return (
         <main className="flex flex-1 flex-col overflow-hidden">
-            <div className="flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3">
+            <div className="flex items-center justify-between bg-white px-4 py-3">
                 <div className="flex items-center gap-2">
                     {onToggleLeftSidebar && (
                         <button
@@ -25,9 +25,6 @@ export const CalendarMain: React.FC<CalendarMainProps> = ({
                             ☰
                         </button>
                     )}
-                    <h1 className="text-xl font-semibold text-gray-900">
-                        캘린더
-                    </h1>
                 </div>
                 {onToggleRightSidebar && (
                     <button
@@ -39,7 +36,7 @@ export const CalendarMain: React.FC<CalendarMainProps> = ({
                     </button>
                 )}
             </div>
-            <div className="flex-1 overflow-auto">
+            <div className="flex flex-1">
                 <Calander />
             </div>
         </main>
