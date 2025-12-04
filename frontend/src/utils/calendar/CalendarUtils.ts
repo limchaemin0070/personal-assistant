@@ -1,17 +1,12 @@
 import {
     startOfMonth,
-    endOfMonth,
     startOfWeek,
-    endOfWeek,
     eachDayOfInterval,
     isSameMonth,
     isToday,
     format,
-    addMonths,
-    subMonths,
-    isSameDay,
     startOfDay,
-    endOfDay,
+    addDays,
 } from 'date-fns';
 import { ko } from 'date-fns/locale';
 
@@ -26,14 +21,16 @@ export interface CalendarDay {
 export class CalendarUtils {
     /**
      * 캘린더 그리드용 날짜 배열 생성 (6주 * 7일 = 42칸)
+     * 항상 6주로 고정되며, 빈 줄은 이전달/다음달 날짜로 채워집니다.
      */
     static getMonthGrid(date: Date): CalendarDay[] {
         const monthStart = startOfMonth(date);
-        const monthEnd = endOfMonth(date);
 
-        // 캘린더 시작 - 일요일 (weekStartsOn : 0)
+        // 캘린더 시작 - 월의 첫 날이 속한 주의 일요일 (weekStartsOn : 0)
         const gridStart = startOfWeek(monthStart, { weekStartsOn: 0 });
-        const gridEnd = endOfWeek(monthEnd, { weekStartsOn: 0 });
+
+        // 항상 6주(42일)로 고정
+        const gridEnd = addDays(gridStart, 41); // 0일부터 41일까지 = 42일
 
         const days = eachDayOfInterval({ start: gridStart, end: gridEnd });
         const today = new Date();
