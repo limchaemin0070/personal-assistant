@@ -1,4 +1,6 @@
 import type { CalendarDay } from '@/utils/calendar/CalendarUtils';
+import { MonthEventTicket } from '../event/MonthEventTicket';
+import { addDays } from 'date-fns';
 
 interface CalendarWeekProps {
     weekDays: CalendarDay[];
@@ -35,7 +37,16 @@ export const CalendarWeek = ({
                             {day.dayOfMonth}
                         </div>
                         <div className="calendar-events-grid">
-                            {/* 이후 여기에 이벤트들을 최대 4개까지 렌더링 */}
+                            <MonthEventTicket
+                                id="1"
+                                title="샘플 이벤트"
+                                categoryColor="#3b82f6"
+                                startDate={new Date(2024, 11, 5)}
+                                endDate={addDays(new Date(2024, 11, 5), 2)}
+                                row={0}
+                                span={3}
+                                isStart
+                            />
                         </div>
                     </div>
                 );
