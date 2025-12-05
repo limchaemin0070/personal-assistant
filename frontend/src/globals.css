@@ -581,4 +581,61 @@
         gap: 0.125rem; /* 이벤트 간 간격 */
         overflow: hidden; /* 넘치는 이벤트는 숨김 */
     }
+
+    /* ============================================
+       이벤트 티켓 스타일
+       ============================================ */
+
+    /* 이벤트 티켓 기본 스타일 */
+    .month-event-ticket {
+        position: relative;
+        min-height: 14px;
+        padding: 0.125rem 0.375rem;
+        border-radius: 0.25rem;
+        background-color: var(--event-ticket-bg-color, var(--color-stone-200));
+        color: var(--event-ticket-text-color, rgb(17 24 39));
+        font-size: 0.75rem;
+        line-height: 1.25;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+
+    .month-event-ticket:hover {
+        opacity: 0.85;
+        transform: translateY(-1px);
+        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+    }
+
+    /* 시작 이벤트 티켓: 왼쪽에 책갈피 색상 표시 (노션 스타일) */
+    .month-event-ticket.is-start::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background-color: var(
+            --event-ticket-category-color,
+            var(--color-stone-500)
+        );
+        border-radius: 0.25rem 0 0 0.25rem;
+    }
+
+    /* 시작 이벤트의 제목은 책갈피 색상과 겹치지 않도록 왼쪽 패딩 추가 */
+    .month-event-ticket.is-start .event-title {
+        display: block;
+        padding-left: 0.5rem;
+    }
+
+    /* 이벤트 제목 스타일 */
+    .event-title {
+        display: block;
+        font-weight: 500;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
 }
