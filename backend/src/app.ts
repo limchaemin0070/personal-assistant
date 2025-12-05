@@ -3,6 +3,7 @@ import cors from "cors";
 import { env } from "./config/env";
 import authRoutes from "./routes/auth.routes";
 import userRoutes from "./routes/user.routes";
+import scheduleRoutes from "./routes/schedule.routes";
 import { errorHandler } from "./middleware/errorHandler";
 import cookieParser from "cookie-parser";
 
@@ -32,6 +33,18 @@ app.get("/", (req: Request, res: Response) => {
 
 app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
+app.use("/schedules", scheduleRoutes);
+
+// 404 핸들러 - 등록되지 않은 라우트 처리
+app.use((req: Request, res: Response) => {
+  res.status(404).json({
+    success: false,
+    error: {
+      code: "NOT_FOUND",
+      message: `라우트를 찾을 수 없습니다: ${req.method} ${req.originalUrl}`,
+    },
+  });
+});
 
 app.use(errorHandler);
 
