@@ -58,7 +58,7 @@ export class CalendarUtils {
     }
 
     /**
-     * 날짜 키 생성 (이벤트 인덱싱용)
+     * 날짜 키 생성 (이벤트 인덱싱용) -> 문자열
      */
     static getDateKey(date: Date): string {
         return format(date, 'yyyy-MM-dd');
@@ -88,6 +88,18 @@ export class CalendarUtils {
             target >= startOfDay(eventStart) && target <= startOfDay(eventEnd)
         );
     }
+
+    /**
+     * 이벤트가 며칠간 지속되는지
+     */
+    static getEventDuration(startDate: Date, endDate: Date): number {
+        return this.getDateRange(startDate, endDate).length;
+    }
+
+    /**
+     * 이벤트가 주를 넘어가는지 확인
+     * TODO : 유틸에 작성할지 이벤트 관련 훅에 작성할지
+     */
 
     /**
      * 한글 포맷팅
