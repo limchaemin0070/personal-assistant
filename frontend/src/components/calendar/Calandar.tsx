@@ -1,20 +1,39 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { SlArrowLeft, SlArrowRight } from 'react-icons/sl';
 import { CalendarWeek } from './CalendarWeek';
 import { useCalendar } from '@/hooks/calendar/useCalendar';
-import { SlArrowLeft, SlArrowRight } from 'react-icons/sl';
+import { useCalendarEvents } from '@/hooks/calendar/useCalendarEvents';
+import { useCalendarLayout } from '@/hooks/calendar/useCalendarLayout';
 
 // 전체 캘린더 뷰
 export const Calander: React.FC = () => {
-    const {
-        currentDate,
-        view,
+    // 캘린더
+    const { currentDate, weekDays, headerText, goToNextMonth, goToPrevMonth } =
+        useCalendar();
 
-        weekDays,
-        headerText,
+    // 이벤트(일정)
+    const { monthEvents, isLoading } = useCalendarEvents(currentDate);
 
-        goToNextMonth,
-        goToPrevMonth,
-    } = useCalendar();
+    // 이벤트 레이아웃 계산
+    const { calculateMonthLayout } = useCalendarLayout();
+    const eventsLayout = React.useMemo(() => {
+        return calculateMonthLayout(monthEvents);
+    }, [monthEvents, calculateMonthLayout]);
+
+    // TODO : 이벤트 티켓은 여러 군데에서 재사용 가능하기 때문에
+    // 티켓 핸들링 관련 로직들을 hook으로 분리할 계획
+    // 호버 관련 상태
+    const [hoveredEventId, setHoveredEventId] = useState<string | null>(null);
+
+    // 티켓 핸들러 함수
+    const handleHover = (eventId: string | null) => {
+        setHoveredEventId(eventId);
+    };
+
+    // 드래그 앤 드롭 관련 [제외] - TODO : 수정 기능
+    // const [draggedEventId, setDraggedEventId] = useState<string | null>(null);
+    // const [dragStartDate, setDragStartDate] = useState<Date | null>(null); // 원래 시작 날짜
+    // const [dragCurrentDate, setDragCurrentDate] = useState<Date | null>(null); // 현재 마우스가 있는 날짜
 
     return (
         <div className="flex flex-col flex-1 h-full w-full bg-white">
@@ -40,15 +59,26 @@ export const Calander: React.FC = () => {
                 </div>
             </div>
             {/* 요일 레인 */}
-            {weekDays.map((week) => {
-                return (
-                    <CalendarWeek
-                        weekDays={week}
-                        // weekLayout={weekLayout}
-                        // maxVisibleEvents={4}
-                    />
-                );
-            })}
+            {isLoading ? (
+                <div className="flex items-center justify-center p-8">
+                    <p>이벤트를 불러오는 중...</p>
+                </div>
+            ) : (
+                weekDays.map((week) => {
+                    // 주의 첫 번째 날짜를 key로 사용
+                    const weekKey = week[0]?.date.toISOString() || '';
+                    return (
+                        <CalendarWeek
+                            key={weekKey}
+                            weekDays={week}
+                            eventsLayout={eventsLayout}
+                            // 호버 관련 Props
+                            hoveredEventId={hoveredEventId}
+                            onHover={handleHover}
+                        />
+                    );
+                })
+            )}
         </div>
     );
 };

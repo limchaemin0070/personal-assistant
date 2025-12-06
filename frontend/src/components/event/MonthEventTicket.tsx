@@ -12,6 +12,12 @@ interface MonthEventTicketProps {
     isStart: boolean; // 시작일인지
     isEnd?: boolean; // 종료일인지 (옵션)
 
+    isWeekStart: boolean;
+
+    // 호버 이벤트 관련
+    isHovered: boolean;
+    onHover: (eventId: string | null) => void;
+
     // onClick?: (id: string) => void;
 }
 
@@ -27,6 +33,12 @@ export const MonthEventTicket = ({
     span,
     isStart,
     isEnd,
+
+    isWeekStart,
+    isWeekEnd,
+
+    isHovered,
+    onHover,
 
     // onClick,
 }: MonthEventTicketProps) => {
@@ -46,9 +58,21 @@ export const MonthEventTicket = ({
         return `rgba(${r}, ${g}, ${b}, 0.15)`;
     };
 
+    const className = [
+        'month-event-ticket',
+        isStart && 'is-start',
+        isWeekStart && 'is-week-start',
+        isWeekEnd && 'is-week-end',
+        isHovered && 'is-hovered',
+    ]
+        .filter(Boolean)
+        .join(' ');
+
     return (
         <div
-            className={`month-event-ticket ${isStart ? 'is-start' : ''}`}
+            onMouseEnter={() => onHover(id)}
+            onMouseLeave={() => onHover(null)}
+            className={className}
             style={
                 {
                     '--event-ticket-category-color': categoryColor,
@@ -60,8 +84,10 @@ export const MonthEventTicket = ({
             }
             // onClick={handleClick}
         >
-            {/* 시작일에만 제목 표시 */}
-            {isStart && <span className="event-title">{title}</span>}
+            {/* 시작일이거나 or 그 주의 시작(일요일)에 표시되는 이벤트일 경우 제목 표시 */}
+            {(isStart || isWeekStart) && (
+                <span className="event-title">{title}</span>
+            )}
         </div>
     );
 };

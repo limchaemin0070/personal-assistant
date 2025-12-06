@@ -1,34 +1,36 @@
-import { useMemo, useCallback } from 'react';
-import { CalendarUtils } from '@/utils/calendar';
-import { isSameDay, isWithinInterval, startOfDay } from 'date-fns';
+import { useMemo } from 'react';
+import { isSameDay, format } from 'date-fns';
 import { useQuery } from '@tanstack/react-query';
 import { calendarService } from '@/services/calendar.service';
 
 /**
  * 이벤트 데이터 관리
- * @param events 해당하는 달의 이벤트 목록
- * @param currentDate 오늘 날짜
+ * @param currentDate 현재 선택된 날짜 (월 필터링용)
  */
-export const useCalendarEvents = (
-    events: CalendarEvent[],
-    currentDate: Date,
-) => {
-    const { data: monthEvents, isLoading } = useQuery({
-        queryKey: ['events', 'month', formatMonth(currentDate)],
-        // calendarMonth 구현중
-        queryFn: () => calendarService.getEventsByMonth(currentDate),
+export const useCalendarEvents = (currentDate: Date) => {
+    // 유저ID로 모든 이벤트 조회
+    const { data: allEvents = [], isLoading } = useQuery({
+        queryKey: ['events', 'user'],
+        queryFn: () => calendarService.getEventsByUserId(),
     });
+
+    // 현재 월의 이벤트만 필터링
+    const monthEvents = useMemo(() => {
+        const monthKey = format(currentDate, 'yyyy-MM');
+        return allEvents.filter((event) => {
+            const eventMonth = format(event.startDate, 'yyyy-MM');
+            return eventMonth === monthKey;
+        });
+    }, [allEvents, currentDate]);
 
     // 특정 날짜의 이벤트 조회
     const getEventsByDate = (date: Date) => {
-        return (
-            monthEvents?.filter((event) => isSameDay(event.startDate, date)) ||
-            []
-        );
+        return monthEvents.filter((event) => isSameDay(event.startDate, date));
     };
 
     return {
         monthEvents,
+        allEvents,
         getEventsByDate,
         isLoading,
     };
