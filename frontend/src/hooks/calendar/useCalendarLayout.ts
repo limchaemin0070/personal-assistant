@@ -1,5 +1,4 @@
-import { useMemo, useCallback } from 'react';
-import { endOfWeek, isSameDay, isWithinInterval, startOfDay } from 'date-fns';
+import { endOfWeek, isSameDay, startOfWeek } from 'date-fns';
 import { CalendarUtils } from '@/utils/calendar/CalendarUtils';
 
 export interface CalendarEvent {
@@ -24,15 +23,19 @@ export interface EventLayout {
     span: number; // 가로로 차지하는 칸 수 (며칠간)
     isStart: boolean; // 시작일인지
     isEnd: boolean; // 종료일인지
+    isWeekStart: boolean; // 그 주의 시작인지 (제목을 표시해야 하기 때문)
 }
 
 export const useCalendarLayout = () => {
+    // 최대 표시할 이벤트 티켓 개수
+    const MAX_EVENTS_PER_DAY = 4;
+
     // 사용 가능한 이벤트 레인을 찾는 함수 (세로로 어디에 들어가야 하는지)
     // existingEvent : { event: { id: 'A' }, row: 0 }
     const findAvailableRow = (
         existingEvents: EventLayout[], // 원래 있던 이벤트
         newEvent: CalendarEvent, // 새로 배치하려는 이벤트
-    ): number => {
+    ): number | null => {
         // 이미 배치된 이벤트들에 같은 이벤트가 있는지 확인
         const existingLayout = existingEvents.find(
             (layout) => layout.event.id === newEvent.id,
@@ -48,8 +51,13 @@ export const useCalendarLayout = () => {
 
         // 남은 레인 중 가장 위부터 (작은 숫자) 할당
         let row = 0;
-        while (usedRows.has(row)) {
+        while (usedRows.has(row) && row < MAX_EVENTS_PER_DAY) {
             row += 1;
+        }
+
+        // 최대 개수를 초과하면 null 반환
+        if (row >= MAX_EVENTS_PER_DAY) {
+            return null;
         }
 
         return row;
@@ -108,6 +116,11 @@ export const useCalendarLayout = () => {
                 // row 할당 (일자별로 계산)
                 const row = findAvailableRow(dayEvents, event);
 
+                // 최대 개수를 초과하면 이벤트를 추가하지 않음
+                if (row === null) {
+                    return;
+                }
+
                 // span 계산
                 const span = calculateSpanForDate(event, date);
 
@@ -116,6 +129,10 @@ export const useCalendarLayout = () => {
                     row,
                     span,
                     isStart: isSameDay(date, event.startDate),
+                    isWeekStart: isSameDay(
+                        date,
+                        startOfWeek(date, { weekStartsOn: 0 }),
+                    ),
                     isEnd: isSameDay(date, event.endDate),
                 });
             });

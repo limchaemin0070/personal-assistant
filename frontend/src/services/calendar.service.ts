@@ -1,0 +1,35 @@
+import { defaultApi } from '@/utils/api';
+import type { ScheduleResponse, CalendarEvent } from '@/types/calendar';
+
+export const calendarService = {
+    // 특정 유저의 이벤트 조회
+    async getEventsByUserId(): Promise<CalendarEvent[]> {
+        const response = await defaultApi<ScheduleResponse[]>('/schedules', {
+            method: 'GET',
+        });
+
+        if (!response.data.result) {
+            return [];
+        }
+
+        // ScheduleResponse를 CalendarEvent로 변환
+        return response.data.result.map((schedule) => ({
+            id: schedule.schedule_id,
+            title: schedule.title,
+            memo: schedule.memo,
+            startDate: new Date(schedule.start_date),
+            endDate: new Date(schedule.end_date),
+            startTime: schedule.start_time,
+            endTime: schedule.end_time,
+            isAllDay: schedule.is_all_day,
+            notificationEnabled: schedule.notification_enabled,
+            userId: schedule.user_id,
+            createdAt: schedule.created_at
+                ? new Date(schedule.created_at)
+                : undefined,
+            updatedAt: schedule.updated_at
+                ? new Date(schedule.updated_at)
+                : undefined,
+        }));
+    },
+};
