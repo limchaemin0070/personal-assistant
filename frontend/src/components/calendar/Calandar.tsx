@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { SlArrowLeft, SlArrowRight } from 'react-icons/sl';
+import { useQueryClient } from '@tanstack/react-query';
 import { CalendarWeek } from './CalendarWeek';
 import { useCalendar } from '@/hooks/calendar/useCalendar';
 import { useCalendarEvents } from '@/hooks/calendar/useCalendarEvents';
@@ -8,6 +9,12 @@ import { AddButton } from '../common/Button/AddButton';
 import { useModal } from '@/hooks/useModal';
 import type { CalendarEvent } from '@/types/calendar';
 import { EventTicketDetail } from '../event/EventTicketDetail';
+import {
+    EventTicketForm,
+    type EventTicketFormData,
+} from '../event/EventTicketForm';
+import { calendarService } from '@/services/calendar.service';
+import { useToastStore } from '@/hooks/useToastStore';
 
 // 전체 캘린더 뷰
 export const Calander: React.FC = () => {
@@ -34,6 +41,14 @@ export const Calander: React.FC = () => {
         null,
     );
     const { openModal, closeModal, ModalComponent } = useModal();
+    const {
+        openModal: openFormModal,
+        closeModal: closeFormModal,
+        ModalComponent: FormModalComponent,
+    } = useModal();
+
+    const queryClient = useQueryClient();
+    const { addToast } = useToastStore();
 
     // 티켓 핸들러 함수
     const handleHover = (eventId: string | null) => {
@@ -42,7 +57,6 @@ export const Calander: React.FC = () => {
 
     // 이벤트 클릭 핸들러
     const handleEventClick = (eventId: string) => {
-        // 이벤트 ID로 해당 이벤트 찾기
         const event = monthEvents.find((e) => String(e.id) === eventId);
         if (event) {
             setSelectedEvent(event);
@@ -67,7 +81,28 @@ export const Calander: React.FC = () => {
     };
 
     // 이벤트 추가 버튼 핸들러 함수
-    const handleAdd = () => {};
+    const handleAdd = () => {
+        openFormModal();
+    };
+
+    // 이벤트 생성 핸들러
+    const handleEventCreate = async (formData: EventTicketFormData) => {
+        try {
+            await calendarService.createSchedule(formData);
+
+            // 캐시 무효화하여 새로고침
+            await queryClient.invalidateQueries({
+                queryKey: ['events', 'user'],
+            });
+
+            addToast('일정이 생성되었습니다.', 'success');
+            closeFormModal();
+        } catch (error) {
+            // eslint-disable-next-line no-console
+            console.error('이벤트 생성 실패:', error);
+            addToast('일정 생성에 실패했습니다.', 'error');
+        }
+    };
 
     // 드래그 앤 드롭 관련 [제외] - TODO : 수정 기능
     // const [draggedEventId, setDraggedEventId] = useState<string | null>(null);
@@ -136,6 +171,14 @@ export const Calander: React.FC = () => {
                     />
                 )}
             </ModalComponent>
+            {/* 이벤트 생성 폼 모달 */}
+            <FormModalComponent height="h-auto max-h-[90vh] overflow-y-auto">
+                <EventTicketForm
+                    onSubmit={handleEventCreate}
+                    onCancel={closeFormModal}
+                    initialDate={currentDate}
+                />
+            </FormModalComponent>
         </div>
     );
 };
