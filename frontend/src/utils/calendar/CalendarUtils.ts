@@ -114,4 +114,87 @@ export class CalendarUtils {
     static getMonthYearText(date: Date): string {
         return this.formatKorean(date, 'yyyy년 M월');
     }
+
+    /**
+     * 날짜를 YYYY.MM.DD 형식으로 포맷팅
+     * @example formatDateDisplay(new Date(2024, 0, 1)) // "2024.01.01"
+     */
+    static formatDateDisplay(date: Date): string {
+        return format(date, 'yyyy.MM.dd');
+    }
+
+    /**
+     * 시간 문자열을 HH:mm 형식으로 포맷팅
+     * @param time "HH:mm:ss" 또는 "HH:mm" 형식의 시간 문자열
+     * @returns "HH:mm" 형식의 시간 문자열, 없으면 빈 문자열
+     * @example formatTimeDisplay("14:30:00") // "14:30"
+     * @example formatTimeDisplay("09:05") // "09:05"
+     */
+    static formatTimeDisplay(time: string | null | undefined): string {
+        if (!time) return '';
+        // "HH:mm:ss" 형식이면 "HH:mm"만 추출
+        return time.substring(0, 5);
+    }
+
+    /**
+     * 이벤트 날짜 범위를 표시용 문자열로 포맷팅
+     * 같은 날짜면 하나만, 다르면 범위로 표시
+     * @param startDate 시작 날짜
+     * @param endDate 종료 날짜
+     * @returns 포맷팅된 날짜 범위 문자열
+     * @example formatEventDateRange(new Date(2024, 0, 1), new Date(2024, 0, 1)) // "2024.01.01"
+     * @example formatEventDateRange(new Date(2024, 0, 1), new Date(2024, 0, 5)) // "2024.01.01 ~ 2024.01.05"
+     */
+    static formatEventDateRange(startDate: Date, endDate: Date): string {
+        const startDateStr = this.formatDateDisplay(startDate);
+        const endDateStr = this.formatDateDisplay(endDate);
+
+        // 같은 날짜인 경우
+        if (startDateStr === endDateStr) {
+            return startDateStr;
+        }
+
+        return `${startDateStr} ~ ${endDateStr}`;
+    }
+
+    /**
+     * 이벤트 시간 범위를 표시용 문자열로 포맷팅
+     * @param isAllDay 종일 여부
+     * @param startTime 시작 시간 (HH:mm 형식)
+     * @param endTime 종료 시간 (HH:mm 형식)
+     * @returns 포맷팅된 시간 범위 문자열
+     * @example formatEventTimeRange(false, "09:00", "18:00") // "09:00 ~ 18:00"
+     * @example formatEventTimeRange(true) // "종일"
+     * @example formatEventTimeRange(false, "09:00", null) // "09:00부터"
+     */
+    static formatEventTimeRange(
+        isAllDay: boolean,
+        startTime?: string | null,
+        endTime?: string | null,
+    ): string {
+        if (isAllDay) {
+            return '종일';
+        }
+
+        const formattedStartTime = this.formatTimeDisplay(startTime);
+        const formattedEndTime = this.formatTimeDisplay(endTime);
+
+        if (!formattedStartTime && !formattedEndTime) {
+            return '시간 미정';
+        }
+
+        if (formattedStartTime && formattedEndTime) {
+            return `${formattedStartTime} ~ ${formattedEndTime}`;
+        }
+
+        if (formattedStartTime) {
+            return `${formattedStartTime}부터`;
+        }
+
+        if (formattedEndTime) {
+            return `${formattedEndTime}까지`;
+        }
+
+        return '';
+    }
 }
