@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { SlArrowLeft, SlArrowRight } from 'react-icons/sl';
 import { useQueryClient } from '@tanstack/react-query';
-import { CalendarWeek } from './CalendarWeek';
 import { useCalendar } from '@/hooks/calendar/useCalendar';
 import { useCalendarEvents } from '@/hooks/calendar/useCalendarEvents';
 import { useCalendarLayout } from '@/hooks/calendar/useCalendarLayout';
@@ -15,11 +14,13 @@ import {
 } from '../event/EventTicketForm';
 import { calendarService } from '@/services/calendar.service';
 import { useToastStore } from '@/hooks/useToastStore';
+import { CalendarUtils } from '@/utils/calendar/CalendarUtils';
+import { MonthEventTicket } from '../event/MonthEventTicket';
 
 // 전체 캘린더 뷰
-export const Calander: React.FC = () => {
+export const Calendar: React.FC = () => {
     // 캘린더
-    const { currentDate, weekDays, headerText, goToNextMonth, goToPrevMonth } =
+    const { currentDate, monthDays, headerText, goToNextMonth, goToPrevMonth } =
         useCalendar();
 
     // 이벤트(일정)
@@ -171,28 +172,71 @@ export const Calander: React.FC = () => {
                     </button>
                 </div>
             </div>
-            {/* 요일 레인 */}
+            {/* 캘린더 그리드 */}
             {isLoading ? (
                 <div className="flex items-center justify-center p-8">
                     <p>이벤트를 불러오는 중...</p>
                 </div>
             ) : (
-                weekDays.map((week) => {
-                    // 주의 첫 번째 날짜를 key로 사용
-                    const weekKey = week[0]?.date.toISOString() || '';
-                    return (
-                        <CalendarWeek
-                            key={weekKey}
-                            weekDays={week}
-                            eventsLayout={eventsLayout}
-                            // 호버 관련 Props
-                            hoveredEventId={hoveredEventId}
-                            onHover={handleHover}
-                            // 클릭 관련 Props
-                            onEventClick={handleEventClick}
-                        />
-                    );
-                })
+                <div className="calendar-grid">
+                    {monthDays.map((day) => {
+                        const dateKey = CalendarUtils.getDateKey(day.date);
+                        const dayEvents = eventsLayout.get(dateKey) || [];
+                        const dayOfWeek = day.date.getDay();
+                        const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+
+                        return (
+                            <div
+                                key={dateKey}
+                                className={`calendar-day-cell ${
+                                    isWeekend ? 'calendar-day-cell-weekend' : ''
+                                }`}
+                            >
+                                {/* 현재 달이 아닌 채워진 날짜들은 흐리게 */}
+                                <div
+                                    className={`calendar-day-number ${
+                                        !day.isCurrentMonth
+                                            ? 'calendar-day-number-other-month'
+                                            : ''
+                                    }`}
+                                >
+                                    {day.dayOfMonth}
+                                </div>
+                                {/* 이벤트(일정-schedule) 날짜별로 그리드 배치 */}
+                                <div className="calendar-events-grid">
+                                    {dayEvents.map((eventLayout) => (
+                                        <MonthEventTicket
+                                            key={`${eventLayout.event.id}-${dateKey}`}
+                                            id={String(eventLayout.event.id)}
+                                            title={eventLayout.event.title}
+                                            categoryColor={
+                                                eventLayout.event
+                                                    .categoryColor || '#3b82f6'
+                                            }
+                                            startDate={
+                                                eventLayout.event.startDate
+                                            }
+                                            endDate={eventLayout.event.endDate}
+                                            row={eventLayout.row}
+                                            span={eventLayout.span}
+                                            isStart={eventLayout.isStart}
+                                            isEnd={eventLayout.isEnd}
+                                            isWeekStart={
+                                                eventLayout.isWeekStart
+                                            }
+                                            isHovered={
+                                                hoveredEventId ===
+                                                String(eventLayout.event.id)
+                                            }
+                                            onHover={handleHover}
+                                            onClick={handleEventClick}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
             )}
             <AddButton
                 onClick={handleAdd}
