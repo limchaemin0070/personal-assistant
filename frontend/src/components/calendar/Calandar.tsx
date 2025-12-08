@@ -4,6 +4,7 @@ import { CalendarWeek } from './CalendarWeek';
 import { useCalendar } from '@/hooks/calendar/useCalendar';
 import { useCalendarEvents } from '@/hooks/calendar/useCalendarEvents';
 import { useCalendarLayout } from '@/hooks/calendar/useCalendarLayout';
+import { AddButton } from '../common/Button/AddButton';
 
 // 전체 캘린더 뷰
 export const Calander: React.FC = () => {
@@ -30,13 +31,16 @@ export const Calander: React.FC = () => {
         setHoveredEventId(eventId);
     };
 
+    // 이벤트 추가 버튼 핸들러 함수
+    const handleAdd = () => {};
+
     // 드래그 앤 드롭 관련 [제외] - TODO : 수정 기능
     // const [draggedEventId, setDraggedEventId] = useState<string | null>(null);
     // const [dragStartDate, setDragStartDate] = useState<Date | null>(null); // 원래 시작 날짜
     // const [dragCurrentDate, setDragCurrentDate] = useState<Date | null>(null); // 현재 마우스가 있는 날짜
 
     return (
-        <div className="flex flex-col flex-1 h-full w-full bg-white">
+        <div className="relative flex flex-col flex-1 h-full w-full bg-white">
             <div className="flex flex-row align-middle gap-5">
                 {/* 캘린더 제목 */}
                 <h3 className="text-2xl font-semibold">{headerText}</h3>
@@ -79,6 +83,12 @@ export const Calander: React.FC = () => {
                     );
                 })
             )}
+            <AddButton
+                onClick={handleAdd}
+                className="absolute bottom-6 right-6 z-50"
+                variant="fab"
+                size="md"
+            />
         </div>
     );
 };
