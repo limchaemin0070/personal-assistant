@@ -40,6 +40,9 @@ export const Calander: React.FC = () => {
     const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
         null,
     );
+    const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(
+        null,
+    );
     const { openModal, closeModal, ModalComponent } = useModal();
     const {
         openModal: openFormModal,
@@ -66,41 +69,77 @@ export const Calander: React.FC = () => {
 
     // 이벤트 수정 핸들러
     const handleEventUpdate = (event: CalendarEvent) => {
-        // TODO: 이벤트 수정 로직 구현
-        // eslint-disable-next-line no-console
-        console.log('이벤트 수정:', event);
-    };
-
-    // 이벤트 삭제 핸들러
-    const handleEventDelete = (eventId: string | number) => {
-        // TODO: 이벤트 삭제 로직 구현
-        // eslint-disable-next-line no-console
-        console.log('이벤트 삭제:', eventId);
+        setEditingEvent(event);
         closeModal();
         setSelectedEvent(null);
-    };
-
-    // 이벤트 추가 버튼 핸들러 함수
-    const handleAdd = () => {
         openFormModal();
     };
 
-    // 이벤트 생성 핸들러
-    const handleEventCreate = async (formData: EventTicketFormData) => {
+    // 이벤트 삭제 핸들러
+    const handleEventDelete = async (eventId: string | number) => {
         try {
-            await calendarService.createSchedule(formData);
+            await calendarService.deleteSchedule(eventId);
 
             // 캐시 무효화하여 새로고침
             await queryClient.invalidateQueries({
                 queryKey: ['events', 'user'],
             });
 
-            addToast('일정이 생성되었습니다.', 'success');
-            closeFormModal();
+            addToast('일정이 삭제되었습니다.', 'success');
+            closeModal();
+            setSelectedEvent(null);
         } catch (error) {
             // eslint-disable-next-line no-console
-            console.error('이벤트 생성 실패:', error);
-            addToast('일정 생성에 실패했습니다.', 'error');
+            console.error('이벤트 삭제 실패:', error);
+            addToast('일정 삭제에 실패했습니다.', 'error');
+        }
+    };
+
+    // 이벤트 추가 버튼 핸들러 함수
+    const handleAdd = () => {
+        setEditingEvent(null);
+        openFormModal();
+    };
+
+    // 이벤트 생성/수정 핸들러
+    const handleEventSubmit = async (formData: EventTicketFormData) => {
+        try {
+            if (editingEvent) {
+                // 수정 모드
+                await calendarService.updateSchedule(editingEvent.id, formData);
+
+                // 캐시 무효화하여 새로고침
+                await queryClient.invalidateQueries({
+                    queryKey: ['events', 'user'],
+                });
+
+                addToast('일정이 수정되었습니다.', 'success');
+            } else {
+                // 생성 모드
+                await calendarService.createSchedule(formData);
+
+                // 캐시 무효화하여 새로고침
+                await queryClient.invalidateQueries({
+                    queryKey: ['events', 'user'],
+                });
+
+                addToast('일정이 생성되었습니다.', 'success');
+            }
+
+            closeFormModal();
+            setEditingEvent(null);
+        } catch (error) {
+            // eslint-disable-next-line no-console
+            console.error(
+                editingEvent ? '이벤트 수정 실패:' : '이벤트 생성 실패:',
+                error,
+            );
+            addToast(
+                editingEvent
+                    ? '일정 수정에 실패했습니다.'
+                    : '일정 생성에 실패했습니다.',
+                'error',
+            );
         }
     };
 
@@ -171,12 +210,16 @@ export const Calander: React.FC = () => {
                     />
                 )}
             </ModalComponent>
-            {/* 이벤트 생성 폼 모달 */}
+            {/* 이벤트 생성/수정 폼 모달 */}
             <FormModalComponent height="h-auto max-h-[90vh] overflow-y-auto">
                 <EventTicketForm
-                    onSubmit={handleEventCreate}
-                    onCancel={closeFormModal}
+                    onSubmit={handleEventSubmit}
+                    onCancel={() => {
+                        closeFormModal();
+                        setEditingEvent(null);
+                    }}
                     initialDate={currentDate}
+                    initialEvent={editingEvent}
                 />
             </FormModalComponent>
         </div>

@@ -67,4 +67,51 @@ export const calendarService = {
                 : undefined,
         };
     },
+
+    // 일정 수정
+    async updateSchedule(
+        scheduleId: string | number,
+        data: EventTicketFormData,
+    ): Promise<CalendarEvent> {
+        const response = await defaultApi<ScheduleResponse>(
+            `/schedules/${scheduleId}`,
+            {
+                method: 'PUT',
+                data,
+            },
+        );
+
+        if (!response.data.result) {
+            throw new Error('일정 수정에 실패했습니다.');
+        }
+
+        const schedule = response.data.result;
+
+        // ScheduleResponse를 CalendarEvent로 변환
+        return {
+            id: schedule.schedule_id,
+            title: schedule.title,
+            memo: schedule.memo,
+            startDate: new Date(schedule.start_date),
+            endDate: new Date(schedule.end_date),
+            startTime: schedule.start_time,
+            endTime: schedule.end_time,
+            isAllDay: schedule.is_all_day,
+            notificationEnabled: schedule.notification_enabled,
+            userId: schedule.user_id,
+            createdAt: schedule.created_at
+                ? new Date(schedule.created_at)
+                : undefined,
+            updatedAt: schedule.updated_at
+                ? new Date(schedule.updated_at)
+                : undefined,
+        };
+    },
+
+    // 일정 삭제
+    async deleteSchedule(scheduleId: string | number): Promise<void> {
+        await defaultApi(`/schedules/${scheduleId}`, {
+            method: 'DELETE',
+        });
+    },
 };
