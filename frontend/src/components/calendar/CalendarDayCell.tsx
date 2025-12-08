@@ -7,9 +7,9 @@ import { CalendarUtils } from '@/utils/calendar/CalendarUtils';
 interface CalendarDayCellProps {
     day: CalendarDay;
     events: EventLayout[];
-    hoveredEventId: string | null;
-    onHover: (eventId: string | null) => void;
-    onEventClick: (eventId: string) => void;
+    hoveredEventId: number | null;
+    onHover: (eventId: number | null) => void;
+    onEventClick: (eventId: number) => void;
 }
 
 export const CalendarDayCell: React.FC<CalendarDayCellProps> = ({
@@ -40,7 +40,7 @@ export const CalendarDayCell: React.FC<CalendarDayCellProps> = ({
                 {events.map((eventLayout) => (
                     <MonthEventTicket
                         key={`${eventLayout.event.id}-${dateKey}`}
-                        id={String(eventLayout.event.id)}
+                        id={eventLayout.event.id}
                         title={eventLayout.event.title}
                         categoryColor={
                             eventLayout.event.categoryColor || '#3b82f6'
@@ -52,9 +52,7 @@ export const CalendarDayCell: React.FC<CalendarDayCellProps> = ({
                         isStart={eventLayout.isStart}
                         isEnd={eventLayout.isEnd}
                         isWeekStart={eventLayout.isWeekStart}
-                        isHovered={
-                            hoveredEventId === String(eventLayout.event.id)
-                        }
+                        isHovered={hoveredEventId === eventLayout.event.id}
                         onHover={onHover}
                         onClick={onEventClick}
                     />

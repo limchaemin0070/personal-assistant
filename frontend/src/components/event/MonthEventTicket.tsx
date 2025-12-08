@@ -3,7 +3,7 @@ import React from 'react';
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // MonthEventTicket.tsx
 interface MonthEventTicketProps {
-    id: string;
+    id: number;
     title: string;
     categoryColor?: string; // 카테고리 색상 (책갈피 및 배경색에 사용)
 
@@ -20,10 +20,10 @@ interface MonthEventTicketProps {
 
     // 호버 이벤트 관련
     isHovered: boolean;
-    onHover: (eventId: string | null) => void;
+    onHover: (eventId: number | null) => void;
 
     // 클릭 이벤트 관련
-    onClick?: (id: string) => void;
+    onClick?: (id: number) => void;
 }
 
 export const MonthEventTicket = ({
