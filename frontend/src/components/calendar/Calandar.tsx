@@ -5,6 +5,9 @@ import { useCalendar } from '@/hooks/calendar/useCalendar';
 import { useCalendarEvents } from '@/hooks/calendar/useCalendarEvents';
 import { useCalendarLayout } from '@/hooks/calendar/useCalendarLayout';
 import { AddButton } from '../common/Button/AddButton';
+import { useModal } from '@/hooks/useModal';
+import type { CalendarEvent } from '@/types/calendar';
+import { EventTicketDetail } from '../event/EventTicketDetail';
 
 // 전체 캘린더 뷰
 export const Calander: React.FC = () => {
@@ -26,9 +29,41 @@ export const Calander: React.FC = () => {
     // 호버 관련 상태
     const [hoveredEventId, setHoveredEventId] = useState<string | null>(null);
 
+    // 모달 관련 상태 및 훅
+    const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
+        null,
+    );
+    const { openModal, closeModal, ModalComponent } = useModal();
+
     // 티켓 핸들러 함수
     const handleHover = (eventId: string | null) => {
         setHoveredEventId(eventId);
+    };
+
+    // 이벤트 클릭 핸들러
+    const handleEventClick = (eventId: string) => {
+        // 이벤트 ID로 해당 이벤트 찾기
+        const event = monthEvents.find((e) => String(e.id) === eventId);
+        if (event) {
+            setSelectedEvent(event);
+            openModal();
+        }
+    };
+
+    // 이벤트 수정 핸들러
+    const handleEventUpdate = (event: CalendarEvent) => {
+        // TODO: 이벤트 수정 로직 구현
+        // eslint-disable-next-line no-console
+        console.log('이벤트 수정:', event);
+    };
+
+    // 이벤트 삭제 핸들러
+    const handleEventDelete = (eventId: string | number) => {
+        // TODO: 이벤트 삭제 로직 구현
+        // eslint-disable-next-line no-console
+        console.log('이벤트 삭제:', eventId);
+        closeModal();
+        setSelectedEvent(null);
     };
 
     // 이벤트 추가 버튼 핸들러 함수
@@ -79,6 +114,8 @@ export const Calander: React.FC = () => {
                             // 호버 관련 Props
                             hoveredEventId={hoveredEventId}
                             onHover={handleHover}
+                            // 클릭 관련 Props
+                            onEventClick={handleEventClick}
                         />
                     );
                 })
@@ -89,6 +126,16 @@ export const Calander: React.FC = () => {
                 variant="fab"
                 size="md"
             />
+            {/* 이벤트 상세보기 모달 */}
+            <ModalComponent height="h-auto max-h-[80vh] overflow-y-auto">
+                {selectedEvent && (
+                    <EventTicketDetail
+                        event={selectedEvent}
+                        onUpdate={handleEventUpdate}
+                        onDelete={handleEventDelete}
+                    />
+                )}
+            </ModalComponent>
         </div>
     );
 };

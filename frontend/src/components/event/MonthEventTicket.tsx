@@ -1,3 +1,6 @@
+import React from 'react';
+
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // MonthEventTicket.tsx
 interface MonthEventTicketProps {
     id: string;
@@ -13,12 +16,14 @@ interface MonthEventTicketProps {
     isEnd?: boolean; // 종료일인지 (옵션)
 
     isWeekStart: boolean;
+    isWeekEnd?: boolean; // 주의 마지막 날인지 (옵션)
 
     // 호버 이벤트 관련
     isHovered: boolean;
     onHover: (eventId: string | null) => void;
 
-    // onClick?: (id: string) => void;
+    // 클릭 이벤트 관련
+    onClick?: (id: string) => void;
 }
 
 export const MonthEventTicket = ({
@@ -39,12 +44,11 @@ export const MonthEventTicket = ({
 
     isHovered,
     onHover,
-
-    // onClick,
+    onClick,
 }: MonthEventTicketProps) => {
-    // const handleClick = () => {
-    //     onClick?.(id);
-    // };
+    const handleClick = () => {
+        onClick?.(id);
+    };
 
     // 카테고리 색상에 따른 배경색 계산 (연한 색상)
     const getBackgroundColor = (color: string): string => {
@@ -72,6 +76,7 @@ export const MonthEventTicket = ({
         <div
             onMouseEnter={() => onHover(id)}
             onMouseLeave={() => onHover(null)}
+            onClick={handleClick}
             className={className}
             style={
                 {
@@ -82,7 +87,14 @@ export const MonthEventTicket = ({
                     gridColumn: `span ${span}`,
                 } as React.CSSProperties
             }
-            // onClick={handleClick}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleClick();
+                }
+            }}
         >
             {/* 시작일이거나 or 그 주의 시작(일요일)에 표시되는 이벤트일 경우 제목 표시 */}
             {(isStart || isWeekStart) && (

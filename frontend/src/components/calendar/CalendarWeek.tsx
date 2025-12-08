@@ -8,6 +8,7 @@ interface CalendarWeekProps {
     eventsLayout: Map<string, EventLayout[]>;
     hoveredEventId: string | null;
     onHover: (eventId: string | null) => void;
+    onEventClick?: (eventId: string) => void;
 }
 
 // 캘린더의 한 주차 컴포넌트
@@ -16,6 +17,7 @@ export const CalendarWeek = ({
     eventsLayout,
     hoveredEventId,
     onHover,
+    onEventClick,
 }: CalendarWeekProps) => {
     return (
         <div className="calendar-week-container">
@@ -66,6 +68,7 @@ export const CalendarWeek = ({
                                         String(eventLayout.event.id)
                                     }
                                     onHover={onHover}
+                                    onClick={onEventClick}
                                 />
                             ))}
                         </div>
