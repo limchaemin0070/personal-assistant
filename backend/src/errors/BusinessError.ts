@@ -31,3 +31,9 @@ export class UserNotFoundError extends CustomError {
     super(404, "USER_NOT_FOUND", "사용자를 찾을 수 없습니다.");
   }
 }
+
+export class ScheduleNotFoundError extends CustomError {
+  constructor() {
+    super(404, "SCHEDULE_NOT_FOUND", "일정을 찾을 수 없습니다.");
+  }
+}
