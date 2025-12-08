@@ -58,7 +58,9 @@ export class CalendarUtils {
     }
 
     /**
-     * 날짜 키 생성 (이벤트 인덱싱용) -> 문자열
+     * 날짜를 YYYY-MM-DD 형식으로 포맷팅
+     * 이벤트 인덱싱용 키 생성 및 HTML input type="date"용으로 사용
+     * @example getDateKey(new Date(2024, 0, 1)) // "2024-01-01"
      */
     static getDateKey(date: Date): string {
         return format(date, 'yyyy-MM-dd');
@@ -134,6 +136,14 @@ export class CalendarUtils {
         if (!time) return '';
         // "HH:mm:ss" 형식이면 "HH:mm"만 추출
         return time.substring(0, 5);
+    }
+
+    /**
+     * Date 객체를 HH:mm 형식으로 포맷팅 (HTML input type="time"용)
+     * @example formatTimeForInput(new Date(2024, 0, 1, 14, 30)) // "14:30"
+     */
+    static formatTimeForInput(date: Date): string {
+        return format(date, 'HH:mm');
     }
 
     /**
