@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { cn } from '@/utils/cn';
 import { CalendarUtils } from '@/utils/calendar/CalendarUtils';
+import type { CalendarEvent } from '@/types/calendar';
 
 interface EventTicketFormProps {
     onSubmit: (data: EventTicketFormData) => void | Promise<void>;
     onCancel?: () => void;
     initialDate?: Date;
+    initialEvent?: CalendarEvent | null;
     className?: string;
 }
 
@@ -24,6 +26,7 @@ export const EventTicketForm: React.FC<EventTicketFormProps> = ({
     onSubmit,
     onCancel,
     initialDate,
+    initialEvent,
     className,
 }) => {
     const defaultDate = initialDate || new Date();
@@ -32,24 +35,63 @@ export const EventTicketForm: React.FC<EventTicketFormProps> = ({
     const defaultEndTime = new Date();
     defaultEndTime.setHours(10, 0, 0, 0); // 기본 종료 시간: 10:00
 
+    const isEditMode = !!initialEvent;
+
     // TODO : 추후 훅으로 관리 (수정 시에도 동일하게 이용해야 함)
-    // 폼 상태
-    const [title, setTitle] = useState('');
-    const [memo, setMemo] = useState('');
+    // 폼 상태 - 초기 이벤트가 있으면 그 값으로 초기화
+    const [title, setTitle] = useState(initialEvent?.title || '');
+    const [memo, setMemo] = useState(initialEvent?.memo || '');
     const [startDate, setStartDate] = useState(
-        CalendarUtils.getDateKey(defaultDate),
+        initialEvent
+            ? CalendarUtils.getDateKey(initialEvent.startDate)
+            : CalendarUtils.getDateKey(defaultDate),
     );
     const [endDate, setEndDate] = useState(
-        CalendarUtils.getDateKey(defaultDate),
+        initialEvent
+            ? CalendarUtils.getDateKey(initialEvent.endDate)
+            : CalendarUtils.getDateKey(defaultDate),
     );
-    const [isAllDay, setIsAllDay] = useState(true);
+    const [isAllDay, setIsAllDay] = useState(initialEvent?.isAllDay ?? true);
     const [startTime, setStartTime] = useState(
-        CalendarUtils.formatTimeForInput(defaultStartTime),
+        initialEvent?.startTime
+            ? CalendarUtils.formatTimeDisplay(initialEvent.startTime)
+            : CalendarUtils.formatTimeForInput(defaultStartTime),
     );
     const [endTime, setEndTime] = useState(
-        CalendarUtils.formatTimeForInput(defaultEndTime),
+        initialEvent?.endTime
+            ? CalendarUtils.formatTimeDisplay(initialEvent.endTime)
+            : CalendarUtils.formatTimeForInput(defaultEndTime),
     );
-    const [notificationEnabled, setNotificationEnabled] = useState(false);
+    const [notificationEnabled, setNotificationEnabled] = useState(
+        initialEvent?.notificationEnabled ?? false,
+    );
+
+    // initialEvent가 변경되면 폼 상태 업데이트 (외부에서 다른 이벤트로 변경 시)
+    useEffect(() => {
+        if (initialEvent) {
+            const defaultStartTimeForEdit = new Date();
+            defaultStartTimeForEdit.setHours(9, 0, 0, 0);
+            const defaultEndTimeForEdit = new Date();
+            defaultEndTimeForEdit.setHours(10, 0, 0, 0);
+
+            setTitle(initialEvent.title || '');
+            setMemo(initialEvent.memo || '');
+            setStartDate(CalendarUtils.getDateKey(initialEvent.startDate));
+            setEndDate(CalendarUtils.getDateKey(initialEvent.endDate));
+            setIsAllDay(initialEvent.isAllDay ?? true);
+            setStartTime(
+                initialEvent.startTime
+                    ? CalendarUtils.formatTimeDisplay(initialEvent.startTime)
+                    : CalendarUtils.formatTimeForInput(defaultStartTimeForEdit),
+            );
+            setEndTime(
+                initialEvent.endTime
+                    ? CalendarUtils.formatTimeDisplay(initialEvent.endTime)
+                    : CalendarUtils.formatTimeForInput(defaultEndTimeForEdit),
+            );
+            setNotificationEnabled(initialEvent.notificationEnabled ?? false);
+        }
+    }, [initialEvent]);
 
     // 에러 상태
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -175,7 +217,7 @@ export const EventTicketForm: React.FC<EventTicketFormProps> = ({
                 )}
             >
                 <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                    새 일정 만들기
+                    {isEditMode ? '일정 수정' : '새 일정 만들기'}
                 </h2>
 
                 {/* 제목 */}
@@ -415,7 +457,12 @@ export const EventTicketForm: React.FC<EventTicketFormProps> = ({
                         className="btn-primary-filled btn-full"
                         disabled={isSubmitting}
                     >
-                        {isSubmitting ? '생성 중...' : '제출'}
+                        {(() => {
+                            if (isSubmitting) {
+                                return isEditMode ? '수정 중...' : '생성 중...';
+                            }
+                            return isEditMode ? '수정' : '제출';
+                        })()}
                     </button>
                 </div>
             </form>
