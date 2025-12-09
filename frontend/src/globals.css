@@ -672,4 +672,64 @@
         white-space: nowrap;
         line-height: 1.5; /* 줄 높이 증가로 가독성 향상 */
     }
+
+    /* 이벤트 시간 스타일 */
+    .event-time {
+        display: inline-block;
+        font-size: 0.75rem;
+        color: rgb(107 114 128);
+        margin-right: 0.5rem;
+    }
+
+    /* 일간 뷰 스타일 */
+    .month-event-ticket-day {
+        height: auto;
+        min-height: 40px;
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 0.5rem;
+        border: 1px solid rgb(229 231 235);
+        background-color: var(--event-ticket-bg-color, var(--color-stone-50));
+        white-space: normal;
+        overflow: visible;
+        box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    }
+
+    .month-event-ticket-day:hover {
+        box-shadow:
+            0 4px 6px -1px rgb(0 0 0 / 0.1),
+            0 2px 4px -2px rgb(0 0 0 / 0.1);
+        transform: translateY(-1px);
+    }
+
+    .month-event-ticket-day .event-content-day {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        width: 100%;
+    }
+
+    .month-event-ticket-day .event-time {
+        flex-shrink: 0;
+        font-weight: 600;
+        color: rgb(75 85 99);
+        min-width: 60px;
+    }
+
+    .month-event-ticket-day .event-title {
+        flex: 1;
+        font-weight: 500;
+        color: rgb(17 24 39);
+        white-space: normal;
+        word-break: break-word;
+    }
+
+    /* 일간 뷰에서는 책갈피 제거 */
+    .month-event-ticket-day.is-start::before {
+        display: none;
+    }
+
+    .month-event-ticket-day.is-start .event-title {
+        padding-left: 0;
+    }
 }

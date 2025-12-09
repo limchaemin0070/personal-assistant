@@ -1,12 +1,10 @@
 import React from 'react';
-import { useCalendar } from '@/hooks/calendar/useCalendar';
 import { useCalendarEvents } from '@/hooks/calendar/useCalendarEvents';
 import { useCalendarLayout } from '@/hooks/calendar/useCalendarLayout';
 import { AddButton } from '../common/Button/AddButton';
 import { EventTicketDetail } from '../event/EventTicketDetail';
 import { EventTicketForm } from '../event/EventTicketForm';
 import { CalendarUtils } from '@/utils/calendar/CalendarUtils';
-import { CalendarHeader } from './CalendarHeader';
 import { CalendarDayCell } from './CalendarDayCell';
 import { useEventTicketHandling } from '@/hooks/event/useEventTicketHandling';
 import {
@@ -15,10 +13,19 @@ import {
     useUpdateEvent,
 } from '@/hooks/event/useEvent';
 import { Modal } from '../common/Modal/Modal';
+import type { CalendarDay } from '@/utils/calendar/CalendarUtils';
 
-export const Calendar: React.FC = () => {
-    const { currentDate, monthDays, headerText, goToNextMonth, goToPrevMonth } =
-        useCalendar();
+interface CalendarMonthViewProps {
+    currentDate: Date;
+    monthDays: CalendarDay[];
+    onDateSelect: (date: Date) => void;
+}
+
+export const CalendarMonthView: React.FC<CalendarMonthViewProps> = ({
+    currentDate,
+    monthDays,
+    onDateSelect,
+}) => {
     const { monthEvents, isLoading } = useCalendarEvents(currentDate);
     const { calculateMonthLayout } = useCalendarLayout();
 
@@ -75,6 +82,14 @@ export const Calendar: React.FC = () => {
                             hoveredEventId={hoveredEventId}
                             onHover={handleHover}
                             onEventClick={handleEventClick}
+                            onDoubleClick={() => {
+                                // eslint-disable-next-line no-console
+                                console.log(
+                                    '날짜 셀 더블클릭 (일간 뷰 이동):',
+                                    day.date,
+                                );
+                                onDateSelect(day.date);
+                            }}
                         />
                     );
                 })}
@@ -84,12 +99,6 @@ export const Calendar: React.FC = () => {
 
     return (
         <div className="relative flex flex-col flex-1 h-full w-full bg-white">
-            {/* 캘린더 헤더 */}
-            <CalendarHeader
-                headerText={headerText}
-                onPrevMonth={goToPrevMonth}
-                onNextMonth={goToNextMonth}
-            />
             {/* 캘린더 그리드 */}
             {renderCalendarGrid()}
             <AddButton

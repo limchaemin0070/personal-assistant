@@ -1,4 +1,4 @@
-import { endOfWeek, isSameDay, startOfWeek } from 'date-fns';
+import { endOfWeek, isSameDay, startOfWeek, startOfDay } from 'date-fns';
 import { CalendarUtils } from '@/utils/calendar/CalendarUtils';
 import type { CalendarEvent, EventLayout } from '@/types/calendar';
 
@@ -164,17 +164,35 @@ export const useCalendarLayout = () => {
         return eventsByDate;
     };
 
+    /**
+     * 일간 뷰에서 특정 날짜의 이벤트 목록을 반환하는 함수
+     * 일간 뷰에서는 제한 없이 모든 이벤트를 표시합니다.
+     * @param events 전체 이벤트 목록
+     * @param targetDate 조회할 날짜
+     * @returns 해당 날짜의 이벤트 목록 (제한 없음)
+     */
+    const calculateDayLayout = (
+        events: CalendarEvent[],
+        targetDate: Date,
+    ): CalendarEvent[] => {
+        const target = startOfDay(targetDate);
+
+        return events.filter((event) => {
+            const eventStart = startOfDay(event.startDate);
+            const eventEnd = startOfDay(event.endDate);
+            return target >= eventStart && target <= eventEnd;
+        });
+    };
+
     // 별도 이슈에서 작성
 
     // 주간 뷰에서 이벤트 티켓이 표시되어야 하는 위치 계산
     // const calculateWeekLayout = () => {};
 
-    // 일간 뷰에서 이벤트 티켓이 표시되어야 하는 위치 계산
-    // const calculateDayLayout = () => {};
-
     return {
         findAvailableRow,
         calculateSpanForDate,
         calculateMonthLayout,
+        calculateDayLayout,
     };
 };

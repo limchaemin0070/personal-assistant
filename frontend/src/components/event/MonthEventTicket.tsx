@@ -1,4 +1,6 @@
 import React from 'react';
+import type { CalendarView } from '@/types/calendar';
+import { CalendarUtils } from '@/utils/calendar/CalendarUtils';
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // MonthEventTicket.tsx
@@ -9,6 +11,9 @@ interface MonthEventTicketProps {
 
     startDate: Date;
     endDate: Date;
+    startTime?: string | null; // "HH:mm" 형식
+    endTime?: string | null; // "HH:mm" 형식
+    isAllDay?: boolean; // 종일 여부
 
     row: number; // 몇 번째 줄
     span: number; // 며칠간 이어지는지
@@ -24,6 +29,9 @@ interface MonthEventTicketProps {
 
     // 클릭 이벤트 관련
     onClick?: (id: number) => void;
+
+    // 뷰 타입별 스타일
+    viewType?: CalendarView; // 'month' | 'week' | 'day'
 }
 
 export const MonthEventTicket = ({
@@ -32,6 +40,9 @@ export const MonthEventTicket = ({
     categoryColor = '#78716c', // 기본 카테고리 색상
     startDate,
     endDate,
+    startTime,
+    endTime,
+    isAllDay = false,
     row,
     span,
     isStart,
@@ -41,13 +52,10 @@ export const MonthEventTicket = ({
     isHovered,
     onHover,
     onClick,
+    viewType = 'month', // 기본값은 'month'
 }: MonthEventTicketProps) => {
-    // 향후 사용 예정인 변수들
-    const reservedForFutureUse = { startDate, endDate, isEnd };
-    // eslint-disable-next-line no-console
-    console.log(reservedForFutureUse);
-
-    const handleClick = () => {
+    const handleClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
         onClick?.(id);
     };
 
@@ -65,6 +73,7 @@ export const MonthEventTicket = ({
 
     const className = [
         'month-event-ticket',
+        `month-event-ticket-${viewType}`, // 뷰 타입별 클래스 추가
         isStart && 'is-start',
         isWeekStart && 'is-week-start',
         isWeekEnd && 'is-week-end',
@@ -72,6 +81,51 @@ export const MonthEventTicket = ({
     ]
         .filter(Boolean)
         .join(' ');
+
+    // 뷰 타입별 시간 포맷팅
+    const renderTimeDisplay = () => {
+        if (viewType === 'day') {
+            // 일간 뷰: 시작시간 제목
+            if (isAllDay) {
+                return <span className="event-time">종일</span>;
+            }
+            const formattedStartTime =
+                CalendarUtils.formatTimeDisplay(startTime);
+            return (
+                <span className="event-time">
+                    {formattedStartTime || '시간 미정'}
+                </span>
+            );
+        }
+        return null;
+    };
+
+    // 뷰 타입별 내용 렌더링
+    const renderContent = () => {
+        if (viewType === 'day') {
+            // 일간 뷰: 시간과 제목을 가로로 배치
+            return (
+                <div className="event-content-day">
+                    {renderTimeDisplay()}
+                    <div>
+                        <span className="event-title">{title}</span>
+                        <span className="event-time">
+                            {CalendarUtils.formatEventTimeRange(
+                                isAllDay,
+                                startTime,
+                                endTime,
+                            )}
+                        </span>
+                    </div>
+                </div>
+            );
+        }
+        // 월간/주간 뷰: 기존 로직 유지
+        if (isStart || isWeekStart) {
+            return <span className="event-title">{title}</span>;
+        }
+        return null;
+    };
 
     return (
         <div
@@ -84,8 +138,8 @@ export const MonthEventTicket = ({
                     '--event-ticket-category-color': categoryColor,
                     '--event-ticket-bg-color':
                         getBackgroundColor(categoryColor),
-                    gridRow: row + 1,
-                    gridColumn: `span ${span}`,
+                    gridRow: viewType === 'day' ? undefined : row + 1,
+                    gridColumn: viewType === 'day' ? undefined : `span ${span}`,
                 } as React.CSSProperties
             }
             role="button"
@@ -93,14 +147,12 @@ export const MonthEventTicket = ({
             onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
-                    handleClick();
+                    e.stopPropagation();
+                    onClick?.(id);
                 }
             }}
         >
-            {/* 시작일이거나 or 그 주의 시작(일요일)에 표시되는 이벤트일 경우 제목 표시 */}
-            {(isStart || isWeekStart) && (
-                <span className="event-title">{title}</span>
-            )}
+            {renderContent()}
         </div>
     );
 };
