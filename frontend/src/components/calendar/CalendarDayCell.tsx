@@ -10,6 +10,7 @@ interface CalendarDayCellProps {
     hoveredEventId: number | null;
     onHover: (eventId: number | null) => void;
     onEventClick: (eventId: number) => void;
+    onDoubleClick?: () => void;
 }
 
 // 이벤트 티켓 높이와 간격 상수
@@ -22,6 +23,7 @@ export const CalendarDayCell: React.FC<CalendarDayCellProps> = ({
     hoveredEventId,
     onHover,
     onEventClick,
+    onDoubleClick,
 }: CalendarDayCellProps) => {
     const dayOfWeek = day.date.getDay();
     const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
@@ -79,12 +81,23 @@ export const CalendarDayCell: React.FC<CalendarDayCellProps> = ({
         return sortedEvents.slice(0, maxVisibleEvents);
     }, [events, maxVisibleEvents]);
 
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onDoubleClick?.();
+        }
+    };
+
     return (
         <div
             ref={cellRef}
             className={`calendar-day-cell ${
                 isWeekend ? 'calendar-day-cell-weekend' : ''
             }`}
+            onDoubleClick={onDoubleClick}
+            role="button"
+            tabIndex={0}
+            onKeyDown={handleKeyDown}
         >
             <div
                 className={`calendar-day-number ${
@@ -104,6 +117,9 @@ export const CalendarDayCell: React.FC<CalendarDayCellProps> = ({
                         }
                         startDate={eventLayout.event.startDate}
                         endDate={eventLayout.event.endDate}
+                        startTime={eventLayout.event.startTime}
+                        endTime={eventLayout.event.endTime}
+                        isAllDay={eventLayout.event.isAllDay}
                         row={eventLayout.row}
                         span={eventLayout.span}
                         isStart={eventLayout.isStart}
@@ -112,6 +128,7 @@ export const CalendarDayCell: React.FC<CalendarDayCellProps> = ({
                         isHovered={hoveredEventId === eventLayout.event.id}
                         onHover={onHover}
                         onClick={onEventClick}
+                        viewType="month"
                     />
                 ))}
             </div>
