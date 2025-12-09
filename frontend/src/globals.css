@@ -577,6 +577,7 @@
         z-index: 1; /* 티켓이 border 위에 표시되도록 */
         display: grid;
         flex: 1 1 0%; /* 날짜 숫자 아래 남은 공간을 모두 차지 */
+        grid-template-columns: 100%;
         grid-auto-rows: minmax(
             14px,
             1fr
@@ -613,6 +614,7 @@
     /* 시작 티켓: 좌측 border-radius */
     .month-event-ticket.is-start {
         border-radius: 0.25rem 0 0 0.25rem;
+        margin-left: 0.25rem;
     }
 
     /* 주의 시작일 때: 좌측 여백 */
