@@ -78,6 +78,11 @@ export const useCalendarLayout = () => {
             );
 
             // 이벤트가 속해있는 날짜를 모두 순회하며 처리
+            // 멀티데이 이벤트의 경우 같은 주 내에서는 일관된 row를 유지해야 함
+            // 주 경계(일요일)에서는 레인 계산을 새로 시작해야 함
+            let assignedRow: number | null = null;
+            let currentWeekStart: Date | null = null;
+
             dateRange.forEach((date) => {
                 // 이벤트 인덱싱용 날짜 키 생성
                 const dateKey = CalendarUtils.getDateKey(date);
@@ -89,8 +94,53 @@ export const useCalendarLayout = () => {
                 // 특정 날짜의 이벤트 목록
                 const dayEvents = eventsByDate.get(dateKey)!;
 
-                // row 할당 (일자별로 계산)
-                const row = findAvailableRow(dayEvents, event);
+                // 주의 시작일 확인
+                const weekStart = startOfWeek(date, { weekStartsOn: 0 });
+                const isWeekStart = isSameDay(date, weekStart);
+
+                // 주가 바뀌었으면 assignedRow를 리셋 (새 주에서는 레인 계산을 새로 시작)
+                if (
+                    currentWeekStart === null ||
+                    !isSameDay(weekStart, currentWeekStart)
+                ) {
+                    assignedRow = null;
+                    currentWeekStart = weekStart;
+                }
+
+                // row 할당
+                // 주의 시작이거나 아직 row가 할당되지 않은 경우에는 새로 할당함
+                // 같은 주 내에서는 이미 할당된 row를 유지함 (끊김방지)
+                let row: number | null;
+                if (assignedRow === null) {
+                    // 주의 시작 또는 첫 날짜: 사용 가능한 row 찾기
+                    row = findAvailableRow(dayEvents, event);
+                    if (row !== null) {
+                        assignedRow = row; // 할당된 row 저장
+                    }
+                } else {
+                    // 같은 주 내의 이후 날짜: 이미 할당된 row 사용
+                    // 하지만 해당 날짜에 이미 같은 이벤트가 있으면 그 row 사용 (중복 방지)
+                    const existingLayout = dayEvents.find(
+                        (layout) => layout.event.id === event.id,
+                    );
+                    if (existingLayout) {
+                        row = existingLayout.row;
+                    } else {
+                        // 할당된 row가 해당 날짜에서 사용 가능한지 확인
+                        const usedRows = new Set(
+                            dayEvents.map((layout) => layout.row),
+                        );
+                        if (usedRows.has(assignedRow)) {
+                            // 할당된 row가 이미 사용 중이면 다시 찾음 (충돌
+                            row = findAvailableRow(dayEvents, event);
+                            if (row !== null) {
+                                assignedRow = row; // 새로운 row로 업데이트
+                            }
+                        } else {
+                            row = assignedRow;
+                        }
+                    }
+                }
 
                 // 최대 개수를 초과하면 이벤트를 추가하지 않음
                 if (row === null) {
@@ -105,10 +155,7 @@ export const useCalendarLayout = () => {
                     row,
                     span,
                     isStart: isSameDay(date, event.startDate),
-                    isWeekStart: isSameDay(
-                        date,
-                        startOfWeek(date, { weekStartsOn: 0 }),
-                    ),
+                    isWeekStart,
                     isEnd: isSameDay(date, event.endDate),
                 });
             });
