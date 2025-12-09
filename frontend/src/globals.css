@@ -531,8 +531,8 @@
        캘린더 스타일
        ============================================ */
 
-    /* 주차 컨테이너: 한 주의 7일을 가로로 배치하는 그리드 */
-    .calendar-week-container {
+    /* 캘린더 그리드: 전체 월의 날짜들을 7열 그리드로 배치 */
+    .calendar-grid {
         display: grid;
         flex: 1 1 0%; /* 부모 컨테이너의 남은 공간을 모두 차지 */
         grid-template-columns: repeat(

@@ -24,7 +24,12 @@ export const Modal = ({ height, children, clickEvent }: ModalProps) => {
                 tabIndex={0}
                 role="button"
             >
-                <div className="relative h-full">{children}</div>
+                <div
+                    className="relative h-full"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    {children}
+                </div>
             </div>
         </Overlay>
     );

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calander } from './Calandar';
+import { Calendar } from './Calendar';
 
 interface CalendarMainProps {
     // eslint-disable-next-line react/require-default-props
@@ -37,7 +37,7 @@ export const CalendarMain: React.FC<CalendarMainProps> = ({
                 )}
             </div>
             <div className="flex flex-1">
-                <Calander />
+                <Calendar />
             </div>
         </main>
     );

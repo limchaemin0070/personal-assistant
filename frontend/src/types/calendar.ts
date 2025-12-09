@@ -23,7 +23,7 @@ export interface CalendarDay {
  * 백엔드 Schedule 모델과 매핑됨
  */
 export interface CalendarEvent {
-    id: string | number; // schedule_id를 문자열 또는 숫자로
+    id: number; // schedule_id를 숫자로
     title: string;
     memo?: string | null;
     startDate: Date; // start_date를 Date 객체로 변환
@@ -47,6 +47,7 @@ export interface EventLayout {
     span: number; // 가로로 차지하는 칸 수 (며칠간)
     isStart: boolean; // 시작일인지
     isEnd: boolean; // 종료일인지
+    isWeekStart: boolean; // 그 주의 시작인지 (제목을 표시해야 하기 때문)
 }
 
 /**

@@ -22,15 +22,9 @@ export const useCalendar = (options: UseCalendarOptions = {}) => {
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
     // 월간 날짜 데이터
-    // 직접 사용하지 않음
     const monthDays = useMemo(() => {
         return CalendarUtils.getMonthGrid(currentDate);
     }, [currentDate]);
-
-    // 주간 날짜 데이터
-    const weekDays = useMemo(() => {
-        return CalendarUtils.groupByWeeks(monthDays);
-    }, [monthDays]);
 
     // 상단에 표시되는 년.월
     // 2025.12
@@ -50,10 +44,8 @@ export const useCalendar = (options: UseCalendarOptions = {}) => {
     return {
         currentDate,
         view,
-
-        weekDays,
+        monthDays,
         headerText,
-
         goToNextMonth,
         goToPrevMonth,
     };

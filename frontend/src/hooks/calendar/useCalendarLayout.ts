@@ -1,30 +1,6 @@
 import { endOfWeek, isSameDay, startOfWeek } from 'date-fns';
 import { CalendarUtils } from '@/utils/calendar/CalendarUtils';
-
-export interface CalendarEvent {
-    id: string | number;
-    title: string;
-    memo?: string | null;
-    startDate: Date;
-    endDate: Date;
-    startTime?: string | null;
-    endTime?: string | null;
-    isAllDay: boolean;
-    notificationEnabled?: boolean;
-    categoryColor?: string;
-    userId?: number;
-    createdAt?: Date;
-    updatedAt?: Date;
-}
-
-export interface EventLayout {
-    event: CalendarEvent;
-    row: number; // 세로 위치 (0부터 시작)
-    span: number; // 가로로 차지하는 칸 수 (며칠간)
-    isStart: boolean; // 시작일인지
-    isEnd: boolean; // 종료일인지
-    isWeekStart: boolean; // 그 주의 시작인지 (제목을 표시해야 하기 때문)
-}
+import type { CalendarEvent, EventLayout } from '@/types/calendar';
 
 export const useCalendarLayout = () => {
     // 최대 표시할 이벤트 티켓 개수
