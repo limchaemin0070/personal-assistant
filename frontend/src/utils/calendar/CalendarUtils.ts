@@ -7,6 +7,10 @@ import {
     format,
     startOfDay,
     addDays,
+    addWeeks,
+    subWeeks,
+    subDays,
+    endOfWeek,
 } from 'date-fns';
 import { ko } from 'date-fns/locale';
 
@@ -118,6 +122,18 @@ export class CalendarUtils {
     }
 
     /**
+     * 요일을 한국어로 포맷팅
+     * @param date 날짜 객체
+     * @param short 짧은 형식 여부 (기본값: false)
+     * @returns 한국어 요일 문자열
+     * @example formatDayOfWeek(new Date(2024, 0, 1)) // "월요일"
+     * @example formatDayOfWeek(new Date(2024, 0, 1), true) // "월"
+     */
+    static formatDayOfWeek(date: Date, short: boolean = false): string {
+        return this.formatKorean(date, short ? 'EEE' : 'EEEE');
+    }
+
+    /**
      * 날짜를 YYYY.MM.DD 형식으로 포맷팅
      * @example formatDateDisplay(new Date(2024, 0, 1)) // "2024.01.01"
      */
@@ -206,5 +222,99 @@ export class CalendarUtils {
         }
 
         return '';
+    }
+
+    /**
+     * 주간 뷰 네비게이션 - 다음 주로 이동
+     * @param date 현재 날짜
+     * @returns 다음 주의 시작일 (일요일)
+     * @example getNextWeek(new Date(2024, 0, 7)) // 2024-01-14 (일요일)
+     */
+    static getNextWeek(date: Date): Date {
+        const weekStart = startOfWeek(date, { weekStartsOn: 0 });
+        return addWeeks(weekStart, 1);
+    }
+
+    /**
+     * 주간 뷰 네비게이션 - 이전 주로 이동
+     * @param date 현재 날짜
+     * @returns 이전 주의 시작일 (일요일)
+     * @example getPrevWeek(new Date(2024, 0, 7)) // 2023-12-31 (일요일)
+     */
+    static getPrevWeek(date: Date): Date {
+        const weekStart = startOfWeek(date, { weekStartsOn: 0 });
+        return subWeeks(weekStart, 1);
+    }
+
+    /**
+     * 주간 뷰 네비게이션 - 주의 시작일 (일요일) 반환
+     * @param date 현재 날짜
+     * @returns 해당 주의 시작일 (일요일)
+     * @example getWeekStart(new Date(2024, 0, 10)) // 2024-01-07 (일요일)
+     */
+    static getWeekStart(date: Date): Date {
+        return startOfWeek(date, { weekStartsOn: 0 });
+    }
+
+    /**
+     * 주간 뷰 네비게이션 - 주의 종료일 (토요일) 반환
+     * @param date 현재 날짜
+     * @returns 해당 주의 종료일 (토요일)
+     * @example getWeekEnd(new Date(2024, 0, 10)) // 2024-01-13 (토요일)
+     */
+    static getWeekEnd(date: Date): Date {
+        return endOfWeek(date, { weekStartsOn: 0 });
+    }
+
+    /**
+     * 일간 뷰 네비게이션 - 다음 날로 이동
+     * @param date 현재 날짜
+     * @returns 다음 날
+     * @example getNextDay(new Date(2024, 0, 1)) // 2024-01-02
+     */
+    static getNextDay(date: Date): Date {
+        return addDays(date, 1);
+    }
+
+    /**
+     * 일간 뷰 네비게이션 - 이전 날로 이동
+     * @param date 현재 날짜
+     * @returns 이전 날
+     * @example getPrevDay(new Date(2024, 0, 1)) // 2023-12-31
+     */
+    static getPrevDay(date: Date): Date {
+        return subDays(date, 1);
+    }
+
+    /**
+     * 주간 뷰 헤더 텍스트 만들기
+     * @param date 주간 뷰의 기준 날짜 (해당 주의 아무 날짜)
+     * @returns "YYYY.MM.DD ~ YYYY.MM.DD" 형식의 문자열
+     * @example getWeekRangeText(new Date(2024, 0, 10)) // "2024.01.07 ~ 2024.01.13"
+     */
+    static getWeekRangeText(date: Date): string {
+        const weekStart = this.getWeekStart(date);
+        const weekEnd = this.getWeekEnd(date);
+        const startStr = this.formatDateDisplay(weekStart);
+        const endStr = this.formatDateDisplay(weekEnd);
+
+        // 같은 주이지만 다른 달인 경우
+        if (weekStart.getMonth() === weekEnd.getMonth()) {
+            return `${startStr} ~ ${endStr}`;
+        }
+
+        return `${startStr} ~ ${endStr}`;
+    }
+
+    /**
+     * 일간 뷰 헤더 텍스트 만들기
+     * @param date 날짜
+     * @returns "YYYY년 M월 D일 (요일)" 형식의 문자열
+     * @example getDayText(new Date(2024, 0, 1)) // "2024년 1월 1일 (월요일)"
+     */
+    static getDayText(date: Date): string {
+        const dateStr = this.formatKorean(date, 'yyyy년 M월 d일');
+        const dayOfWeek = this.formatDayOfWeek(date);
+        return `${dateStr} (${dayOfWeek})`;
     }
 }
