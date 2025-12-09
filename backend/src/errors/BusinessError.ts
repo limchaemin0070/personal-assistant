@@ -37,3 +37,9 @@ export class ScheduleNotFoundError extends CustomError {
     super(404, "SCHEDULE_NOT_FOUND", "일정을 찾을 수 없습니다.");
   }
 }
+
+export class ReminderNotFoundError extends CustomError {
+  constructor() {
+    super(404, "REMINDER_NOT_FOUND", "리마인더를 찾을 수 없습니다.");
+  }
+}
