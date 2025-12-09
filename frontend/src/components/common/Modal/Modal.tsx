@@ -1,13 +1,20 @@
 import React from 'react';
 import { Overlay } from '../Overlay/Overlay';
+import { CloseButton } from '../Button/CloseButton';
 
 interface ModalProps {
     height?: string;
     children: React.ReactNode;
     clickEvent: () => void;
+    showCloseButton?: boolean;
 }
 
-export const Modal = ({ height, children, clickEvent }: ModalProps) => {
+export const Modal = ({
+    height,
+    children,
+    clickEvent,
+    showCloseButton = true,
+}: ModalProps) => {
     const heightValue = height || 'h-[200px]';
 
     return (
@@ -34,6 +41,14 @@ export const Modal = ({ height, children, clickEvent }: ModalProps) => {
                     }}
                     role="presentation"
                 >
+                    {showCloseButton && (
+                        <CloseButton
+                            onClick={clickEvent}
+                            variant="secondary"
+                            size="lg"
+                            className="absolute top-2 right-2 z-10"
+                        />
+                    )}
                     {children}
                 </div>
             </div>

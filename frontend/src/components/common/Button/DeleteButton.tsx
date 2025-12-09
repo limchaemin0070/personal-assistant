@@ -1,6 +1,6 @@
 // TODO: 리액트 아이콘은 이후 매핑 예정
-import { IoIosTrash } from 'react-icons/io';
 import type { VariantProps } from 'class-variance-authority';
+import { MdDeleteOutline } from 'react-icons/md';
 import { buttonVariants } from './Button.style';
 import { cn } from '@/utils/cn';
 
@@ -26,7 +26,7 @@ interface DeleteButtonProps extends VariantProps<typeof buttonVariants> {
  */
 export const DeleteButton = ({
     onClick,
-    variant = 'danger',
+    variant = 'secondary',
     size = 'md',
     isLoading = false,
     disabled = false,
@@ -47,12 +47,16 @@ export const DeleteButton = ({
             onClick={onClick}
             disabled={disabled || isLoading}
             aria-label={ariaLabel}
-            className={cn(buttonVariants({ variant, size }), className)}
+            className={cn(
+                buttonVariants({ variant, size }),
+                'hover:text-red-500',
+                className,
+            )}
         >
             {isLoading ? (
                 <span className="animate-spin">⏳</span>
             ) : (
-                <IoIosTrash className={iconSize} />
+                <MdDeleteOutline className={iconSize} />
             )}
         </button>
     );

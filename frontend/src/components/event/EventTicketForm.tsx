@@ -212,7 +212,7 @@ export const EventTicketForm: React.FC<EventTicketFormProps> = ({
             <form
                 onSubmit={handleSubmit}
                 className={cn(
-                    'flex flex-col gap-4 p-6 bg-white rounded-lg shadow-sm border border-gray-200',
+                    'flex flex-col gap-4 p-6 bg-white rounded-lg',
                     className,
                 )}
             >

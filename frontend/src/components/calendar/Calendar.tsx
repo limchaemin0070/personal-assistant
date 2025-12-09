@@ -103,6 +103,7 @@ export const Calendar: React.FC = () => {
                 <Modal
                     clickEvent={closeDetailModal}
                     height="h-auto max-h-[80vh] overflow-y-auto"
+                    showCloseButton={false}
                 >
                     {selectedEvent && (
                         <EventTicketDetail
@@ -113,6 +114,7 @@ export const Calendar: React.FC = () => {
                                     onSuccess: closeDetailModal,
                                 })
                             }
+                            onClose={closeDetailModal}
                         />
                     )}
                 </Modal>
