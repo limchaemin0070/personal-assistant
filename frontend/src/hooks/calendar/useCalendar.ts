@@ -44,6 +44,9 @@ export const useCalendar = (options: UseCalendarOptions = {}) => {
     return {
         currentDate,
         view,
+        setView,
+        selectedDate,
+        setSelectedDate,
         monthDays,
         headerText,
         goToNextMonth,
