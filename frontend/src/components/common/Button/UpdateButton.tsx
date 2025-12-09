@@ -1,5 +1,5 @@
 // TODO: 리액트 아이콘은 이후 매핑 예정
-import { IoIosCreate } from 'react-icons/io';
+import { IoCreateOutline } from 'react-icons/io5';
 import type { VariantProps } from 'class-variance-authority';
 import { buttonVariants } from './Button.style';
 import { cn } from '@/utils/cn';
@@ -26,7 +26,7 @@ interface UpdateButtonProps extends VariantProps<typeof buttonVariants> {
  */
 export const UpdateButton = ({
     onClick,
-    variant = 'primary',
+    variant = 'secondary',
     size = 'md',
     isLoading = false,
     disabled = false,
@@ -47,12 +47,16 @@ export const UpdateButton = ({
             onClick={onClick}
             disabled={disabled || isLoading}
             aria-label={ariaLabel}
-            className={cn(buttonVariants({ variant, size }), className)}
+            className={cn(
+                buttonVariants({ variant, size }),
+                'hover:text-blue-500',
+                className,
+            )}
         >
             {isLoading ? (
                 <span className="animate-spin">⏳</span>
             ) : (
-                <IoIosCreate className={iconSize} />
+                <IoCreateOutline className={iconSize} />
             )}
         </button>
     );

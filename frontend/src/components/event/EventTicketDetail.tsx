@@ -2,6 +2,7 @@ import React from 'react';
 import type { CalendarEvent } from '@/types/calendar';
 import { UpdateButton } from '../common/Button/UpdateButton';
 import { DeleteButton } from '../common/Button/DeleteButton';
+import { CloseButton } from '../common/Button/CloseButton';
 import { cn } from '@/utils/cn';
 import { CalendarUtils } from '@/utils/calendar/CalendarUtils';
 
@@ -9,6 +10,7 @@ interface EventTicketDetailProps {
     event: CalendarEvent;
     onUpdate?: (event: CalendarEvent) => void;
     onDelete?: (eventId: number) => void;
+    onClose?: () => void;
     className?: string;
 }
 
@@ -27,6 +29,7 @@ export const EventTicketDetail: React.FC<EventTicketDetailProps> = ({
     event,
     onUpdate,
     onDelete,
+    onClose,
     className,
 }) => {
     // 날짜 범위 표시
@@ -81,10 +84,16 @@ export const EventTicketDetail: React.FC<EventTicketDetailProps> = ({
     return (
         <div
             className={cn(
-                'flex flex-col gap-4 p-6 bg-white rounded-lg shadow-sm border border-gray-200',
+                'flex flex-col gap-4 p-6 bg-white rounded-lg',
                 className,
             )}
             onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.stopPropagation();
+                }
+            }}
+            role="presentation"
         >
             {/* 헤더 영역 */}
             <div className="flex items-start justify-between gap-4">
@@ -109,7 +118,6 @@ export const EventTicketDetail: React.FC<EventTicketDetailProps> = ({
                     {onUpdate && (
                         <UpdateButton
                             onClick={handleUpdate}
-                            variant="primary"
                             size="md"
                             aria-label="일정 수정"
                         />
@@ -117,9 +125,16 @@ export const EventTicketDetail: React.FC<EventTicketDetailProps> = ({
                     {onDelete && (
                         <DeleteButton
                             onClick={handleDelete}
-                            variant="danger"
                             size="md"
                             aria-label="일정 삭제"
+                        />
+                    )}
+                    {onClose && (
+                        <CloseButton
+                            onClick={onClose}
+                            variant="secondary"
+                            size="lg"
+                            aria-label="닫기"
                         />
                     )}
                 </div>
