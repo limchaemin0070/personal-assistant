@@ -30,22 +30,23 @@ export const MonthEventTicket = ({
     id,
     title,
     categoryColor = '#78716c', // 기본 카테고리 색상
-
     startDate,
     endDate,
-
     row,
     span,
     isStart,
     isEnd,
-
     isWeekStart,
     isWeekEnd,
-
     isHovered,
     onHover,
     onClick,
 }: MonthEventTicketProps) => {
+    // 향후 사용 예정인 변수들
+    const reservedForFutureUse = { startDate, endDate, isEnd };
+    // eslint-disable-next-line no-console
+    console.log(reservedForFutureUse);
+
     const handleClick = () => {
         onClick?.(id);
     };
