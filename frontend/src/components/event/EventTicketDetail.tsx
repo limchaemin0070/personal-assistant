@@ -3,11 +3,12 @@ import type { CalendarEvent } from '@/types/calendar';
 import { UpdateButton } from '../common/Button/UpdateButton';
 import { DeleteButton } from '../common/Button/DeleteButton';
 import { cn } from '@/utils/cn';
+import { CalendarUtils } from '@/utils/calendar/CalendarUtils';
 
 interface EventTicketDetailProps {
     event: CalendarEvent;
     onUpdate?: (event: CalendarEvent) => void;
-    onDelete?: (eventId: string | number) => void;
+    onDelete?: (eventId: number) => void;
     className?: string;
 }
 
@@ -28,27 +29,10 @@ export const EventTicketDetail: React.FC<EventTicketDetailProps> = ({
     onDelete,
     className,
 }) => {
-    // TODO : 로직 분리
-    // 날짜 포맷팅 함수 -> utils
-    // 날짜 포맷팅 함수
-    const formatDate = (date: Date): string => {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}.${month}.${day}`;
-    };
-
-    // 시간 포맷팅 함수 (HH:mm 형식)
-    const formatTime = (time: string | null | undefined): string => {
-        if (!time) return '';
-        // "HH:mm:ss" 형식이면 "HH:mm"만 추출
-        return time.substring(0, 5);
-    };
-
     // 날짜 범위 표시
     const getDateRange = (): string => {
-        const startDateStr = formatDate(event.startDate);
-        const endDateStr = formatDate(event.endDate);
+        const startDateStr = CalendarUtils.formatDateDisplay(event.startDate);
+        const endDateStr = CalendarUtils.formatDateDisplay(event.endDate);
 
         // 같은 날짜인 경우
         if (startDateStr === endDateStr) {
@@ -64,8 +48,8 @@ export const EventTicketDetail: React.FC<EventTicketDetailProps> = ({
             return '종일';
         }
 
-        const startTime = formatTime(event.startTime);
-        const endTime = formatTime(event.endTime);
+        const startTime = CalendarUtils.formatTimeDisplay(event.startTime);
+        const endTime = CalendarUtils.formatTimeDisplay(event.endTime);
 
         if (!startTime && !endTime) {
             return '시간 미정';
@@ -91,10 +75,7 @@ export const EventTicketDetail: React.FC<EventTicketDetailProps> = ({
     };
 
     const handleDelete = () => {
-        // eslint-disable-next-line no-alert
-        if (window.confirm('정말 이 일정을 삭제하시겠습니까?')) {
-            onDelete?.(event.id);
-        }
+        onDelete?.(event.id);
     };
 
     return (
@@ -103,6 +84,7 @@ export const EventTicketDetail: React.FC<EventTicketDetailProps> = ({
                 'flex flex-col gap-4 p-6 bg-white rounded-lg shadow-sm border border-gray-200',
                 className,
             )}
+            onClick={(e) => e.stopPropagation()}
         >
             {/* 헤더 영역 */}
             <div className="flex items-start justify-between gap-4">
