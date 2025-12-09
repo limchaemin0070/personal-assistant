@@ -85,6 +85,12 @@ export const EventTicketDetail: React.FC<EventTicketDetailProps> = ({
                 className,
             )}
             onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.stopPropagation();
+                }
+            }}
+            role="presentation"
         >
             {/* 헤더 영역 */}
             <div className="flex items-start justify-between gap-4">

@@ -27,6 +27,12 @@ export const Modal = ({ height, children, clickEvent }: ModalProps) => {
                 <div
                     className="relative h-full"
                     onClick={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.stopPropagation();
+                        }
+                    }}
+                    role="presentation"
                 >
                     {children}
                 </div>

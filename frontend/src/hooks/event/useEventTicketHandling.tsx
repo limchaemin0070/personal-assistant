@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 type ModalType = 'none' | 'detail' | 'create' | 'edit';
 
@@ -43,11 +43,6 @@ export const useEventTicketHandling = (): UseEventTicketHandlingReturn => {
         modalState.type === 'detail' ? modalState.eventId : null;
     const editingEventId =
         modalState.type === 'edit' ? modalState.eventId : null;
-
-    // 디버깅용
-    useEffect(() => {
-        console.log('useEventTicketHandling modalState 변경:', modalState);
-    }, [modalState]);
 
     const handleEventClick = (eventId: number) => {
         setModalState({ type: 'detail', eventId });

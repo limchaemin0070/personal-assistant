@@ -17,8 +17,7 @@ export const useCreateEvent = () => {
             addToast('일정이 생성되었습니다.', 'success');
         },
 
-        onError: (error) => {
-            console.error('이벤트 생성 실패:', error);
+        onError: () => {
             addToast('일정 생성에 실패했습니다.', 'error');
         },
     });
@@ -42,8 +41,7 @@ export const useUpdateEvent = () => {
             addToast('일정이 수정되었습니다.', 'success');
         },
 
-        onError: (error) => {
-            console.error('이벤트 수정 실패:', error);
+        onError: () => {
             addToast('일정 수정에 실패했습니다.', 'error');
         },
     });
@@ -62,8 +60,7 @@ export const useDeleteEvent = () => {
             addToast('일정이 삭제되었습니다.', 'success');
         },
 
-        onError: (error) => {
-            console.error('이벤트 삭제 실패:', error);
+        onError: () => {
             addToast('일정 삭제에 실패했습니다.', 'error');
         },
     });
