@@ -1,6 +1,6 @@
 // components/common/forms/sections/DateRangeSection.tsx
 import { useFormContext } from 'react-hook-form';
-import { useEffect, type ChangeEvent } from 'react';
+import { useEffect } from 'react';
 import { FormDate } from '../input';
 
 interface DateRangeSectionProps {

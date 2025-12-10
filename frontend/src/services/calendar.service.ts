@@ -1,6 +1,6 @@
 import { defaultApi } from '@/utils/api';
 import type { ScheduleResponse, CalendarEvent } from '@/types/calendar';
-import type { EventTicketFormData } from '@/components/event/EventTicketForm';
+import type { EventFormData } from '@/schemas/eventSchema';
 
 export const calendarService = {
     // 특정 유저의 이벤트 조회
@@ -35,7 +35,7 @@ export const calendarService = {
     },
 
     // 일정 생성
-    async createSchedule(data: EventTicketFormData): Promise<CalendarEvent> {
+    async createSchedule(data: EventFormData): Promise<CalendarEvent> {
         const response = await defaultApi<ScheduleResponse>('/schedules', {
             method: 'POST',
             data,
@@ -71,7 +71,7 @@ export const calendarService = {
     // 일정 수정
     async updateSchedule(
         scheduleId: string | number,
-        data: EventTicketFormData,
+        data: EventFormData,
     ): Promise<CalendarEvent> {
         const response = await defaultApi<ScheduleResponse>(
             `/schedules/${scheduleId}`,
