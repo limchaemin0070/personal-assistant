@@ -24,6 +24,17 @@ export const DateRangeSection = ({
     const startDate = watch(startDateName);
     const endDate = watch(endDateName);
 
+    // 시작 날짜 변경 시 종료 날짜 자동 조정
+    const handleStartDateChange = (value: string) => {
+        if (
+            autoAdjustEndDate &&
+            endDate &&
+            new Date(value) > new Date(endDate)
+        ) {
+            setValue(endDateName, value);
+        }
+    };
+
     return (
         <div className="grid grid-cols-2 gap-4">
             <FormDate
