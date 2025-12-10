@@ -7,13 +7,9 @@ import { EventTicketForm } from '../event/EventTicketForm';
 import { CalendarUtils } from '@/utils/calendar/CalendarUtils';
 import { CalendarDayCell } from './CalendarDayCell';
 import { useEventTicketHandling } from '@/hooks/event/useEventTicketHandling';
-import {
-    useCreateEvent,
-    useDeleteEvent,
-    useUpdateEvent,
-} from '@/hooks/event/useEvent';
 import { Modal } from '../common/Modal/Modal';
 import type { CalendarDay } from '@/utils/calendar/CalendarUtils';
+import { useDeleteEvent } from '@/hooks/event/useDeleteEvent';
 
 interface CalendarMonthViewProps {
     currentDate: Date;
@@ -47,8 +43,7 @@ export const CalendarMonthView: React.FC<CalendarMonthViewProps> = ({
         closeDetailModal,
     } = useEventTicketHandling();
 
-    const createEvent = useCreateEvent();
-    const updateEvent = useUpdateEvent();
+    // TODO : 삭제 확인 모달?
     const deleteEvent = useDeleteEvent();
 
     const selectedEvent = selectedEventId
@@ -135,23 +130,7 @@ export const CalendarMonthView: React.FC<CalendarMonthViewProps> = ({
                     height="h-auto max-h-[90vh] overflow-y-auto"
                 >
                     <EventTicketForm
-                        onSubmit={(formData) => {
-                            if (editingEventId) {
-                                updateEvent.mutate(
-                                    {
-                                        eventId: editingEventId,
-                                        formData,
-                                    },
-                                    {
-                                        onSuccess: handleCancel,
-                                    },
-                                );
-                            } else {
-                                createEvent.mutate(formData, {
-                                    onSuccess: handleCancel,
-                                });
-                            }
-                        }}
+                        onSubmit={handleCancel}
                         onCancel={handleCancel}
                         initialDate={currentDate}
                         initialEvent={editingEvent}

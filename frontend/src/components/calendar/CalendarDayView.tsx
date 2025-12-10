@@ -6,13 +6,9 @@ import { EventTicketDetail } from '../event/EventTicketDetail';
 import { EventTicketForm } from '../event/EventTicketForm';
 import { CalendarUtils } from '@/utils/calendar/CalendarUtils';
 import { useEventTicketHandling } from '@/hooks/event/useEventTicketHandling';
-import {
-    useCreateEvent,
-    useDeleteEvent,
-    useUpdateEvent,
-} from '@/hooks/event/useEvent';
 import { Modal } from '../common/Modal/Modal';
 import { MonthEventTicket } from '../event/MonthEventTicket';
+import { useDeleteEvent } from '@/hooks/event/useDeleteEvent';
 
 interface CalendarDayViewProps {
     currentDate: Date;
@@ -44,8 +40,6 @@ export const CalendarDayView: React.FC<CalendarDayViewProps> = ({
         closeDetailModal,
     } = useEventTicketHandling();
 
-    const createEvent = useCreateEvent();
-    const updateEvent = useUpdateEvent();
     const deleteEvent = useDeleteEvent();
 
     const selectedEvent = selectedEventId
@@ -150,23 +144,7 @@ export const CalendarDayView: React.FC<CalendarDayViewProps> = ({
                     height="h-auto max-h-[90vh] overflow-y-auto"
                 >
                     <EventTicketForm
-                        onSubmit={(formData) => {
-                            if (editingEventId) {
-                                updateEvent.mutate(
-                                    {
-                                        eventId: editingEventId,
-                                        formData,
-                                    },
-                                    {
-                                        onSuccess: handleCancel,
-                                    },
-                                );
-                            } else {
-                                createEvent.mutate(formData, {
-                                    onSuccess: handleCancel,
-                                });
-                            }
-                        }}
+                        onSubmit={handleCancel}
                         onCancel={handleCancel}
                         initialDate={currentDate}
                         initialEvent={editingEvent}
