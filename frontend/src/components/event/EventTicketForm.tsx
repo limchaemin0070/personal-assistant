@@ -22,6 +22,7 @@ export interface EventTicketFormData {
     notification_enabled: boolean;
 }
 
+// 이벤트 티켓을 생성하는 Form
 export const EventTicketForm: React.FC<EventTicketFormProps> = ({
     onSubmit,
     onCancel,

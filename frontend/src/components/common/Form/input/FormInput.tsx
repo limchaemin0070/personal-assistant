@@ -1,4 +1,3 @@
-// components/common/forms/inputs/FormInput.tsx
 import { useFormContext, useController } from 'react-hook-form';
 import type { InputHTMLAttributes } from 'react';
 import { cn } from '@/utils/cn';

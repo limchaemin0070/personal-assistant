@@ -1,4 +1,3 @@
-// utils/timeUtils.ts
 export class TimeUtils {
     /**
      * 시간 문자열 비교

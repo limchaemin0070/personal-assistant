@@ -33,7 +33,7 @@ export const FormCheckbox = ({
                 type="checkbox"
                 id={inputId}
                 checked={field.value}
-                value={undefined}
+                value={undefined} // checkbox는 checked 사용
                 className={cn('checkbox-base', className)}
             />
             <label
