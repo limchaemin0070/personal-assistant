@@ -29,5 +29,11 @@ export type {
     ScheduleResponse,
 } from './calendar';
 
+// 리마인더 관련 타입
+export type {
+    Reminder,
+    ReminderResponse,
+} from './reminder';
+
 // Toast 관련 타입
 export type { ToastVariant, Toast, ToastStore } from './toast';
