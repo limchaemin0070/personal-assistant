@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 import {
     FormDate,
@@ -33,12 +33,23 @@ export const ReminderDateTimeSection = ({
     const [showTimeSection, setShowTimeSection] = useState(defaultShowTime);
 
     const isAllDay = watch(isAllDayName);
+    const currentTime = watch(timeName);
+
+    // 종일 체크박스 변경 시 시간 값 자동 설정
+    useEffect(() => {
+        if (!showTimeSection) return;
+
+        if (isAllDay) {
+            setValue(timeName, null);
+        } else if (!currentTime) {
+            // 시간이 없을 때만 기본값 설정
+            setValue(timeName, '09:00');
+        }
+    }, [isAllDay, showTimeSection, setValue, timeName, currentTime]);
 
     // 시간 섹션 표시
     const handleShowTime = () => {
         setShowTimeSection(true);
-        setValue(isAllDayName, false);
-        setValue(timeName, '09:00');
     };
 
     // 시간 섹션 숨김
@@ -48,23 +59,11 @@ export const ReminderDateTimeSection = ({
         setValue(timeName, null);
     };
 
-    // 종일 체크박스 변경
-    const handleAllDayChange = (checked: boolean) => {
-        if (checked) {
-            setValue(timeName, null);
-        } else {
-            setValue(timeName, '09:00');
-        }
-    };
-
     return (
         <section className="space-y-4">
             {/* 날짜 (항상 표시) */}
             <FormDate name={dateName} label={dateLabel} required={false} />
-
-            {/* 시간 섹션 토글 */}
             {!showTimeSection ? (
-                // 시간 추가 버튼
                 <button
                     type="button"
                     onClick={handleShowTime}
@@ -83,11 +82,7 @@ export const ReminderDateTimeSection = ({
                         X
                     </button>
                     {/* 종일 체크박스 */}
-                    <FormCheckbox
-                        name={isAllDayName}
-                        label="종일"
-                        onChange={(e) => handleAllDayChange(e.target.checked)}
-                    />
+                    <FormCheckbox name={isAllDayName} label="종일" />
                     {/* 시간 필드 (종일이 아닐 때만) */}
                     {!isAllDay && (
                         <FormTime

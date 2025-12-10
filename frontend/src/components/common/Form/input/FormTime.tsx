@@ -58,6 +58,7 @@ export const FormTime = ({
                 {...inputProps}
                 type="time"
                 id={inputId}
+                value={field.value ?? ''}
                 className={cn(
                     'input-base',
                     label && 'mt-2',

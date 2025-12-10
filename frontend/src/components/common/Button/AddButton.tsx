@@ -1,4 +1,4 @@
-import { IoIosAdd } from 'react-icons/io';
+import { IoIosAdd, IoIosRemove } from 'react-icons/io';
 import type { VariantProps } from 'class-variance-authority';
 import { buttonVariants } from './Button.style';
 import { cn } from '@/utils/cn';
@@ -9,6 +9,7 @@ interface AddButtonProps extends VariantProps<typeof buttonVariants> {
     disabled?: boolean;
     className?: string;
     'aria-label'?: string;
+    isActive?: boolean;
 }
 
 /**
@@ -31,6 +32,7 @@ export const AddButton = ({
     disabled = false,
     className,
     'aria-label': ariaLabel = '추가',
+    isActive = false,
 }: AddButtonProps) => {
     const iconSizes = {
         sm: 'w-5 h-5',
@@ -45,11 +47,13 @@ export const AddButton = ({
             type="button"
             onClick={onClick}
             disabled={disabled || isLoading}
-            aria-label={ariaLabel}
+            aria-label={isActive ? '닫기' : ariaLabel}
             className={cn(buttonVariants({ variant, size }), className)}
         >
             {isLoading ? (
                 <span className="animate-spin">⏳</span>
+            ) : isActive ? (
+                <IoIosRemove className={iconSize} />
             ) : (
                 <IoIosAdd className={iconSize} />
             )}
