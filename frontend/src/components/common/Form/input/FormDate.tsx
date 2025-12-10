@@ -2,7 +2,7 @@ import { useFormContext, useController } from 'react-hook-form';
 import type { InputHTMLAttributes } from 'react';
 import { cn } from '@/utils/cn';
 
-interface FormDateInputProps
+interface FormDateProps
     extends Omit<InputHTMLAttributes<HTMLInputElement>, 'name' | 'type'> {
     name: string;
     label?: string;
@@ -12,13 +12,13 @@ interface FormDateInputProps
 /**
  * React Hook Form 통합 날짜 입력 컴포넌트
  */
-export const FormDateInput = ({
+export const FormDate = ({
     name,
     label,
     helpText,
     className,
     ...inputProps
-}: FormDateInputProps) => {
+}: FormDateProps) => {
     const { control } = useFormContext();
     const {
         field,

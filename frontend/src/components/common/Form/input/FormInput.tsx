@@ -1,37 +1,38 @@
-import React from 'react';
+import { useFormContext, useController } from 'react-hook-form';
+import type { InputHTMLAttributes } from 'react';
 import { cn } from '@/utils/cn';
 
-interface FormInputProps {
-    label: string;
+interface FormInputProps
+    extends Omit<InputHTMLAttributes<HTMLInputElement>, 'name'> {
     name: string;
-    value: string;
-    onChange: (value: string) => void;
-    error?: string;
+    label?: string;
     helpText?: string;
-    required?: boolean;
-    type?: string;
-    placeholder?: string;
-    disabled?: boolean;
-    maxLength?: number;
-    autoComplete?: React.InputHTMLAttributes<HTMLInputElement>['autoComplete'];
 }
 
-export const FormInput: React.FC<FormInputProps> = ({
-    label,
+/**
+ * React Hook Form 통합 텍스트 입력 컴포넌트
+ */
+export const FormInput = ({
     name,
-    value,
-    onChange,
-    error,
+    label,
     helpText,
-    required = false,
+    className,
     type = 'text',
-    placeholder,
-    disabled,
-    maxLength,
-    autoComplete,
-}) => {
-    const errorId = `${name}-error`;
-    const helpTextId = `${name}-help`;
+    ...inputProps
+}: FormInputProps) => {
+    const { control } = useFormContext();
+    const {
+        field,
+        fieldState: { error },
+    } = useController({
+        name,
+        control,
+    });
+
+    const inputId = inputProps.id || name;
+    const errorId = `${inputId}-error`;
+    const helpTextId = `${inputId}-help`;
+
     let describedBy: string | undefined;
     if (error) {
         describedBy = errorId;
@@ -41,41 +42,39 @@ export const FormInput: React.FC<FormInputProps> = ({
 
     return (
         <div className="input-group">
-            {/* Label */}
-            <label
-                htmlFor={name}
-                className={cn(
-                    'input-label',
-                    required && 'input-label-required',
-                )}
-            >
-                {label}
-            </label>
+            {label && (
+                <label
+                    htmlFor={inputId}
+                    className={cn(
+                        'input-label',
+                        inputProps.required && 'input-label-required',
+                    )}
+                >
+                    {label}
+                </label>
+            )}
 
-            {/* Input */}
             <input
-                id={name}
-                name={name}
+                {...field}
+                {...inputProps}
                 type={type}
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-                className={cn('input-base mt-2', error && 'input-error')}
+                id={inputId}
+                className={cn(
+                    'input-base',
+                    label && 'mt-2',
+                    error && 'input-error',
+                    className,
+                )}
                 aria-invalid={!!error}
                 aria-describedby={describedBy}
-                placeholder={placeholder}
-                disabled={disabled}
-                maxLength={maxLength}
-                autoComplete={autoComplete}
             />
 
-            {/* Error Message */}
             {error && (
                 <span id={errorId} className="input-error-message" role="alert">
-                    {error}
+                    {error.message}
                 </span>
             )}
 
-            {/* Help Text */}
             {helpText && !error && (
                 <span id={helpTextId} className="input-help-text">
                     {helpText}

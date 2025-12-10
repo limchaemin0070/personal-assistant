@@ -1,79 +1,95 @@
-import React from 'react';
+import { useFormContext, useController } from 'react-hook-form';
+import type { TextareaHTMLAttributes } from 'react';
 import { cn } from '@/utils/cn';
 
-interface TextareaFieldProps {
-    label: string;
-    value: string;
-    onChange: (value: string) => void;
-    error?: string;
-    placeholder?: string;
-    maxLength?: number;
-    rows?: number;
-    disabled?: boolean;
-    id?: string;
-    name?: string;
-    showCharCount?: boolean;
+interface FormTextAreaProps
+    extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'name'> {
+    name: string;
+    label?: string;
     helpText?: string;
+    showCharCount?: boolean;
 }
 
 /**
- * 텍스트 입력 폼
- * @param param0
- * @returns
+ * React Hook Form 통합 텍스트 영역 컴포넌트
  */
-export const TextareaField: React.FC<TextareaFieldProps> = ({
-    label,
-    value,
-    onChange,
-    error,
-    placeholder,
-    maxLength,
-    rows = 3,
-    disabled,
-    id,
+export const FormTextArea = ({
     name,
-    showCharCount = false,
+    label,
     helpText,
-}) => {
-    const inputId = id || name;
-    const errorId = inputId ? `${inputId}-error` : undefined;
-    const helpTextId = inputId ? `${inputId}-help` : undefined;
-    const charCountHelp =
-        showCharCount && maxLength
-            ? `${value.length} / ${maxLength}자`
+    showCharCount = false,
+    className,
+    rows = 3,
+    maxLength,
+    ...textareaProps
+}: FormTextAreaProps) => {
+    const { control } = useFormContext();
+    const {
+        field,
+        fieldState: { error },
+    } = useController({
+        name,
+        control,
+    });
+
+    const textareaId = textareaProps.id || name;
+    const errorId = `${textareaId}-error`;
+    const helpTextId = `${textareaId}-help`;
+
+    // 문자 수 계산
+    const currentLength = field.value?.length || 0;
+    const charCountText =
+        showCharCount && maxLength && currentLength > 0
+            ? `${currentLength} / ${maxLength}자`
             : undefined;
-    const resolvedHelpText = !error ? charCountHelp || helpText : undefined;
+
+    // helpText와 charCount 중 하나 선택
+    const resolvedHelpText = !error ? charCountText || helpText : undefined;
+
     let describedBy: string | undefined;
-    if (error && errorId) {
+    if (error) {
         describedBy = errorId;
-    } else if (resolvedHelpText && helpTextId) {
+    } else if (resolvedHelpText) {
         describedBy = helpTextId;
     }
 
     return (
         <div className="input-group">
-            <label className="input-label" htmlFor={inputId}>
-                {label}
-            </label>
+            {label && (
+                <label
+                    htmlFor={textareaId}
+                    className={cn(
+                        'input-label',
+                        textareaProps.required && 'input-label-required',
+                    )}
+                >
+                    {label}
+                </label>
+            )}
+
             <textarea
-                id={inputId}
-                name={name}
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-                placeholder={placeholder}
-                className={cn('textarea-base mt-2', error && 'input-error')}
+                {...field}
+                {...textareaProps}
+                id={textareaId}
                 rows={rows}
                 maxLength={maxLength}
-                disabled={disabled}
+                className={cn(
+                    'textarea-base',
+                    label && 'mt-2',
+                    error && 'input-error',
+                    className,
+                )}
                 aria-invalid={!!error}
                 aria-describedby={describedBy}
             />
-            {error && errorId && (
+
+            {error && (
                 <span id={errorId} className="input-error-message" role="alert">
-                    {error}
+                    {error.message}
                 </span>
             )}
-            {resolvedHelpText && helpTextId && (
+
+            {resolvedHelpText && (
                 <span id={helpTextId} className="input-help-text">
                     {resolvedHelpText}
                 </span>
