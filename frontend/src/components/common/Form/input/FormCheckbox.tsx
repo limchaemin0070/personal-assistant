@@ -1,42 +1,45 @@
-import React from 'react';
+import { useFormContext, useController } from 'react-hook-form';
+import type { InputHTMLAttributes } from 'react';
+import { cn } from '@/utils/cn';
 
-interface FormCheckboxProps {
-    checked: boolean;
-    onChange: (checked: boolean) => void;
-    disabled?: boolean;
-    id?: string;
-    name?: string;
-    label?: string;
+interface FormCheckboxProps
+    extends Omit<InputHTMLAttributes<HTMLInputElement>, 'name' | 'type'> {
+    name: string;
+    label: string;
 }
 
 /**
- * 종일 체크박스 컴포넌트
- * 스케줄/리마인더에서 사용하며, 체크 시 시간 입력을 숨기는 용도
- * 알람에서는 사용하지 않음 (무조건 시간 지정 필요)
+ * React Hook Form 통합 체크박스 컴포넌트
  */
-export const FormCheckbox: React.FC<FormCheckboxProps> = ({
-    checked,
-    onChange,
-    disabled,
-    id = 'isAllDay',
-    name = 'isAllDay',
-    label = '종일',
-}) => {
+export const FormCheckbox = ({
+    name,
+    label,
+    className,
+    ...inputProps
+}: FormCheckboxProps) => {
+    const { control } = useFormContext();
+    const { field } = useController({
+        name,
+        control,
+    });
+
+    const inputId = inputProps.id || name;
+
     return (
         <div className="flex items-center gap-2">
+            <input
+                {...field}
+                {...inputProps}
+                type="checkbox"
+                id={inputId}
+                checked={field.value}
+                value={undefined}
+                className={cn('checkbox-base', className)}
+            />
             <label
-                htmlFor={id}
-                className="flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer"
+                htmlFor={inputId}
+                className="text-sm font-medium text-gray-700 cursor-pointer"
             >
-                <input
-                    id={id}
-                    name={name}
-                    type="checkbox"
-                    checked={checked}
-                    onChange={(e) => onChange(e.target.checked)}
-                    className="checkbox-base"
-                    disabled={disabled}
-                />
                 {label}
             </label>
         </div>
