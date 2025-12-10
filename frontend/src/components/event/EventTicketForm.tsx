@@ -7,6 +7,7 @@ import { FormCheckbox, FormInput, FormTextArea } from '../common/Form/input';
 import { EventDateTimeSection } from './sections/EventDateTimeSection';
 import { useCreateEvent } from '@/hooks/event/useCreateEvent';
 import { useUpdateEvent } from '@/hooks/event/useUpdateEvent';
+import type { EventFormData } from '@/schemas/eventSchema';
 
 interface EventTicketFormProps {
     onSubmit: () => void;
@@ -33,7 +34,7 @@ export const EventTicketForm: React.FC<EventTicketFormProps> = ({
         initialDate,
     });
 
-    const handleSubmit = form.handleSubmit(async (formData) => {
+    const handleSubmit = form.handleSubmit(async (formData: EventFormData) => {
         try {
             if (isEditMode) {
                 await updateEvent.mutateAsync({
