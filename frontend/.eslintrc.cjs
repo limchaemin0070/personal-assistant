@@ -4,13 +4,7 @@ module.exports = {
         es2021: true,
         node: true,
     },
-    extends: [
-        'airbnb',
-        'airbnb-typescript',
-        'airbnb/hooks',
-        'plugin:@typescript-eslint/recommended',
-        'plugin:prettier/recommended',
-    ],
+    extends: ['airbnb', 'airbnb-typescript', 'airbnb/hooks', 'plugin:@typescript-eslint/recommended', 'plugin:prettier/recommended', 'plugin:storybook/recommended'],
     parser: '@typescript-eslint/parser',
     parserOptions: {
         ecmaVersion: 'latest',

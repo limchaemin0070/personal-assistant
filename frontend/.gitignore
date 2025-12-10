@@ -33,3 +33,5 @@ dist-ssr
 ### Lighthouse 
 .lighthouseci
 lhci_reports
+*storybook.log
+storybook-static
