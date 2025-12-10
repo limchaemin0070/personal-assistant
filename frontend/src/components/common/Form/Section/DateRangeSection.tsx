@@ -1,6 +1,6 @@
 // components/common/forms/sections/DateRangeSection.tsx
 import { useFormContext } from 'react-hook-form';
-import type { ChangeEvent } from 'react';
+import { useEffect, type ChangeEvent } from 'react';
 import { FormDate } from '../input';
 
 interface DateRangeSectionProps {
@@ -25,15 +25,12 @@ export const DateRangeSection = ({
     const endDate = watch(endDateName);
 
     // 시작 날짜 변경 시 종료 날짜 자동 조정
-    const handleStartDateChange = (value: string) => {
-        if (
-            autoAdjustEndDate &&
-            endDate &&
-            new Date(value) > new Date(endDate)
-        ) {
-            setValue(endDateName, value);
+    useEffect(() => {
+        if (!autoAdjustEndDate || !startDate || !endDate) return;
+        if (new Date(startDate) > new Date(endDate)) {
+            setValue(endDateName, startDate);
         }
-    };
+    }, [startDate, endDate, autoAdjustEndDate, endDateName, setValue]);
 
     return (
         <div className="grid grid-cols-2 gap-4">
@@ -41,9 +38,6 @@ export const DateRangeSection = ({
                 name={startDateName}
                 label={startLabel}
                 required={required}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                    handleStartDateChange(e.target.value);
-                }}
             />
             <FormDate
                 name={endDateName}
