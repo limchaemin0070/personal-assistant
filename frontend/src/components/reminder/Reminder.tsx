@@ -12,8 +12,8 @@ export const Reminder: React.FC = () => {
     );
 
     const handleAdd = useCallback((): void => {
-        setFormMode('create');
-    }, [setFormMode]);
+        setFormMode((prevMode) => (prevMode === 'create' ? 'none' : 'create'));
+    }, []);
 
     const handleCancel = useCallback((): void => {
         setFormMode('none');
@@ -50,7 +50,12 @@ export const Reminder: React.FC = () => {
 
     return (
         <div className="space-y-4">
-            <AddButton onClick={handleAdd} className="" size="md" />
+            <AddButton
+                onClick={handleAdd}
+                className=""
+                size="md"
+                isActive={formMode === 'create'}
+            />
             {renderFormSection()}
             <div className="rounded-md bg-gray-50 p-3 text-sm text-gray-600">
                 리마인더 목록이 여기에 표시됩니다

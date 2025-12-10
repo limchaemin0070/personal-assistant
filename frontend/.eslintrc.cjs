@@ -68,6 +68,7 @@ module.exports = {
         '**/*stories*',
         '.storybook',
         '.yarn',
+        'vitest.shims.d.ts',
     ],
     overrides: [
         {
