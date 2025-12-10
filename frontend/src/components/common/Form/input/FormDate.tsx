@@ -1,75 +1,80 @@
-import React from 'react';
+import { useFormContext, useController } from 'react-hook-form';
+import type { InputHTMLAttributes } from 'react';
 import { cn } from '@/utils/cn';
 
-interface DateInputProps {
-    label: string;
-    value: string;
-    onChange: (value: string) => void;
-    error?: string;
-    required?: boolean;
-    min?: string;
-    disabled?: boolean;
-    id?: string;
-    name?: string;
+interface FormDateInputProps
+    extends Omit<InputHTMLAttributes<HTMLInputElement>, 'name' | 'type'> {
+    name: string;
+    label?: string;
     helpText?: string;
 }
 
 /**
- * 날짜 입력 폼
- * @param param0
- * @returns
+ * React Hook Form 통합 날짜 입력 컴포넌트
  */
-export const DateInput: React.FC<DateInputProps> = ({
-    label,
-    value,
-    onChange,
-    error,
-    required = false,
-    min,
-    disabled,
-    id,
+export const FormDateInput = ({
     name,
+    label,
     helpText,
-}) => {
-    const inputId = id || name;
-    const errorId = inputId ? `${inputId}-error` : undefined;
-    const helpTextId = inputId ? `${inputId}-help` : undefined;
+    className,
+    ...inputProps
+}: FormDateInputProps) => {
+    const { control } = useFormContext();
+    const {
+        field,
+        fieldState: { error },
+    } = useController({
+        name,
+        control,
+    });
+
+    const inputId = inputProps.id || name;
+    const errorId = `${inputId}-error`;
+    const helpTextId = `${inputId}-help`;
+
     let describedBy: string | undefined;
-    if (error && errorId) {
+    if (error) {
         describedBy = errorId;
-    } else if (helpText && helpTextId) {
+    } else if (helpText) {
         describedBy = helpTextId;
     }
 
     return (
         <div className="input-group">
-            <label
-                htmlFor={inputId}
-                className={cn(
-                    'input-label',
-                    required && 'input-label-required',
-                )}
-            >
-                {label}
-            </label>
+            {label && (
+                <label
+                    htmlFor={inputId}
+                    className={cn(
+                        'input-label',
+                        inputProps.required && 'input-label-required',
+                    )}
+                >
+                    {label}
+                </label>
+            )}
+
             <input
-                id={inputId}
-                name={name}
+                {...field}
+                {...inputProps}
                 type="date"
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-                className={cn('input-base mt-2', error && 'input-error')}
-                min={min}
-                disabled={disabled}
+                id={inputId}
+                className={cn(
+                    'input-base',
+                    label && 'mt-2',
+                    error && 'input-error',
+                    className,
+                )}
                 aria-invalid={!!error}
                 aria-describedby={describedBy}
             />
-            {error && errorId && (
+
+            {error && (
                 <span id={errorId} className="input-error-message" role="alert">
-                    {error}
+                    {error.message}
                 </span>
             )}
-            {helpText && !error && helpTextId && (
+
+            {helpText && !error && (
                 <span id={helpTextId} className="input-help-text">
                     {helpText}
                 </span>
