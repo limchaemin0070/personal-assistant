@@ -6,7 +6,11 @@ import { ReminderItem } from './ReminderItem';
 import { useReminder } from '@/hooks/reminder/useReminder';
 import { CalendarUtils } from '@/utils/calendar/CalendarUtils';
 
-export const ReminderList = () => {
+interface ReminderListProps {
+    onEditReminder: (reminder: Reminder) => void;
+}
+
+export const ReminderList = ({ onEditReminder }: ReminderListProps) => {
     const { data: reminders = [], isLoading } = useReminder();
 
     // 날짜별로 그룹핑
@@ -28,8 +32,6 @@ export const ReminderList = () => {
                 });
             }
         });
-
-        console.log(result);
 
         return result;
     }, [reminders]);
@@ -67,6 +69,7 @@ export const ReminderList = () => {
                             <ReminderItem
                                 key={reminder.id}
                                 reminder={reminder}
+                                onEditReminder={onEditReminder}
                             />
                         ))}
                     </div>
