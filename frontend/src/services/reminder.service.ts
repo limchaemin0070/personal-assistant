@@ -114,6 +114,14 @@ export const reminderService = {
         };
     },
 
+    // 리마인더 완료 상태 토글
+    async toggleComplete(reminderId: number, isCompleted: boolean) {
+        return defaultApi(`/reminders/${reminderId}/complete`, {
+            method: 'PATCH',
+            data: { isCompleted },
+        });
+    },
+
     // 리마인더 삭제
     async deleteReminder(reminderId: string | number): Promise<void> {
         await defaultApi(`/reminders/${reminderId}`, {
