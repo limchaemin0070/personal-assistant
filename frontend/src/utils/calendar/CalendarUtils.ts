@@ -164,14 +164,16 @@ export class CalendarUtils {
 
     /**
      * Date 객체 또는 시간 문자열을 "오전 9:00", "오후 5:00" 형식으로 포맷팅
-     * @param dateOrTime Date 객체 또는 "HH:mm" 형식의 시간 문자열
+     * @param dateOrTime Date 객체 또는 "HH:mm" 또는 "HH:mm:ss" 형식의 시간 문자열
      * @returns "오전/오후 H:mm" 형식의 시간 문자열, 또는 그대로 반환 (종일 등)
      * @example formatTimeKorean(new Date(2024, 0, 1, 9, 0)) // "오전 9:00"
      * @example formatTimeKorean(new Date(2024, 0, 1, 17, 0)) // "오후 5:00"
      * @example formatTimeKorean(new Date(2024, 0, 1, 0, 0)) // "오전 12:00"
      * @example formatTimeKorean(new Date(2024, 0, 1, 12, 0)) // "오후 12:00"
      * @example formatTimeKorean("09:00") // "오전 9:00"
+     * @example formatTimeKorean("09:00:00") // "오전 9:00"
      * @example formatTimeKorean("17:00") // "오후 5:00"
+     * @example formatTimeKorean("17:00:00") // "오후 5:00"
      * @example formatTimeKorean("종일") // "종일"
      */
     static formatTimeKorean(dateOrTime: Date | string): string {
@@ -182,8 +184,8 @@ export class CalendarUtils {
                 return dateOrTime;
             }
 
-            // "HH:mm" 형식인지 확인
-            const timePattern = /^(\d{1,2}):(\d{2})$/;
+            // "HH:mm" 또는 "HH:mm:ss" 형식인지 확인
+            const timePattern = /^(\d{1,2}):(\d{2})(?::\d{2})?$/;
             const match = dateOrTime.match(timePattern);
             if (!match) {
                 return dateOrTime; // 형식이 맞지 않으면 그대로 반환
