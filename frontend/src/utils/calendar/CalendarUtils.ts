@@ -163,6 +163,69 @@ export class CalendarUtils {
     }
 
     /**
+     * Date 객체 또는 시간 문자열을 "오전 9:00", "오후 5:00" 형식으로 포맷팅
+     * @param dateOrTime Date 객체 또는 "HH:mm" 형식의 시간 문자열
+     * @returns "오전/오후 H:mm" 형식의 시간 문자열, 또는 그대로 반환 (종일 등)
+     * @example formatTimeKorean(new Date(2024, 0, 1, 9, 0)) // "오전 9:00"
+     * @example formatTimeKorean(new Date(2024, 0, 1, 17, 0)) // "오후 5:00"
+     * @example formatTimeKorean(new Date(2024, 0, 1, 0, 0)) // "오전 12:00"
+     * @example formatTimeKorean(new Date(2024, 0, 1, 12, 0)) // "오후 12:00"
+     * @example formatTimeKorean("09:00") // "오전 9:00"
+     * @example formatTimeKorean("17:00") // "오후 5:00"
+     * @example formatTimeKorean("종일") // "종일"
+     */
+    static formatTimeKorean(dateOrTime: Date | string): string {
+        // 문자열인 경우
+        if (typeof dateOrTime === 'string') {
+            // "종일" 같은 특수 문자열은 그대로 반환
+            if (dateOrTime === '종일' || dateOrTime === '-') {
+                return dateOrTime;
+            }
+
+            // "HH:mm" 형식인지 확인
+            const timePattern = /^(\d{1,2}):(\d{2})$/;
+            const match = dateOrTime.match(timePattern);
+            if (!match) {
+                return dateOrTime; // 형식이 맞지 않으면 그대로 반환
+            }
+
+            const hours = parseInt(match[1], 10);
+            const minutes = parseInt(match[2], 10);
+
+            const ampm = hours < 12 ? '오전' : '오후';
+
+            let displayHours: number;
+            if (hours === 0) {
+                displayHours = 12;
+            } else if (hours > 12) {
+                displayHours = hours - 12;
+            } else {
+                displayHours = hours;
+            }
+
+            const displayMinutes = minutes.toString().padStart(2, '0');
+            return `${ampm} ${displayHours}:${displayMinutes}`;
+        }
+
+        // Date 객체인 경우
+        const hours = dateOrTime.getHours();
+        const minutes = dateOrTime.getMinutes();
+        const ampm = hours < 12 ? '오전' : '오후';
+
+        let displayHours: number;
+        if (hours === 0) {
+            displayHours = 12;
+        } else if (hours > 12) {
+            displayHours = hours - 12;
+        } else {
+            displayHours = hours;
+        }
+
+        const displayMinutes = minutes.toString().padStart(2, '0');
+        return `${ampm} ${displayHours}:${displayMinutes}`;
+    }
+
+    /**
      * 이벤트 날짜 범위를 표시용 문자열로 포맷팅
      * 같은 날짜면 하나만, 다르면 범위로 표시
      * @param startDate 시작 날짜
