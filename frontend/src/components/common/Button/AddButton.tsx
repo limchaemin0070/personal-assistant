@@ -50,13 +50,9 @@ export const AddButton = ({
             aria-label={isActive ? '닫기' : ariaLabel}
             className={cn(buttonVariants({ variant, size }), className)}
         >
-            {isLoading ? (
-                <span className="animate-spin">⏳</span>
-            ) : isActive ? (
-                <IoIosRemove className={iconSize} />
-            ) : (
-                <IoIosAdd className={iconSize} />
-            )}
+            {isLoading && <span className="animate-spin">⏳</span>}
+            {!isLoading && isActive && <IoIosRemove className={iconSize} />}
+            {!isLoading && !isActive && <IoIosAdd className={iconSize} />}
         </button>
     );
 };

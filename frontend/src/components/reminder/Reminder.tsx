@@ -56,7 +56,7 @@ export const Reminder: React.FC = () => {
                 );
             case 'none':
                 return (
-                    <div className="rounded-md p-3 text-sm text-gray-600">
+                    <div className="rounded-md text-sm text-gray-600">
                         <ReminderList onEditReminder={handleEditReminder} />
                     </div>
                 );
@@ -66,7 +66,7 @@ export const Reminder: React.FC = () => {
     };
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-1 p-1">
             <AddButton
                 onClick={handleAdd}
                 className=""

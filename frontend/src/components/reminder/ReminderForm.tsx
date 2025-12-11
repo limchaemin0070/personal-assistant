@@ -1,8 +1,9 @@
 import React from 'react';
 import { FormProvider } from 'react-hook-form';
+import { BsBell, BsBellSlash } from 'react-icons/bs';
 import { cn } from '@/utils/cn';
 import { useReminderForm } from '@/hooks/reminder/useReminderForm';
-import { FormCheckbox, FormInput } from '../common/Form/input';
+import { FormInput, FormToggle } from '../common/Form/input';
 import { useCreateReminder } from '@/hooks/reminder/useCreateReminder';
 import { useUpdateReminder } from '@/hooks/reminder/useUpdateReminder';
 import type { ReminderFormData } from '@/schemas/reminderSchema';
@@ -40,6 +41,8 @@ export const ReminderForm: React.FC<ReminderFormProps> = ({
         initialReminder,
         initialDate,
     });
+
+    const isNotificationEnabled = form.watch('notification_enabled');
 
     const handleSubmit = form.handleSubmit(
         async (formData: ReminderFormData) => {
@@ -79,61 +82,67 @@ export const ReminderForm: React.FC<ReminderFormProps> = ({
             <FormProvider {...form}>
                 <form
                     onSubmit={handleSubmit}
-                    className={cn('flex flex-col gap-4 p-2', className)}
+                    className={cn('flex flex-col gap-2 p-2', className)}
                 >
-                    <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                    <h2 className="text-md font-semibold text-gray-900 mb-2">
                         {isEditMode ? '리마인더 수정' : '새 리마인더'}
                     </h2>
-                    {/* 제목 */}
-                    <FormInput
-                        name="title"
-                        placeholder="제목을 입력하세요"
-                        required
-                        maxLength={255}
-                        disabled={form.formState.isSubmitting}
-                    />
-
-                    {/* 날짜/시간 섹션 */}
-                    <ReminderDateTimeSection />
-
-                    {/* 알림 설정 */}
-                    <FormCheckbox
-                        name="notification_enabled"
-                        label="알림 설정"
-                        disabled={form.formState.isSubmitting}
-                    />
-                    {/* Root 에러 */}
-                    {form.formState.errors.root && (
-                        <div className="text-sm text-red-500">
-                            {form.formState.errors.root.message}
+                    <div className="space-y-2">
+                        {' '}
+                        <FormInput
+                            name="title"
+                            placeholder="제목"
+                            required
+                            maxLength={255}
+                            disabled={form.formState.isSubmitting}
+                            className="p-3 border-none"
+                        />
+                        <ReminderDateTimeSection />
+                        <div className="flex items-center gap-2">
+                            {isNotificationEnabled ? (
+                                <BsBell className="shrink-0" />
+                            ) : (
+                                <BsBellSlash className="shrink-0" />
+                            )}
+                            <FormToggle
+                                name="notification_enabled"
+                                label="알람 설정"
+                                size="sm"
+                                labelPosition="left"
+                                disabled={form.formState.isSubmitting}
+                            />
                         </div>
-                    )}
-                    {/* 버튼 영역 */}
-                    <div className="flex gap-2 pt-2 border-t border-gray-200">
-                        {onCancel && (
+                        {form.formState.errors.root && (
+                            <div className="text-sm text-red-500">
+                                {form.formState.errors.root.message}
+                            </div>
+                        )}
+                        <div className="flex gap-2 pt-2">
+                            {onCancel && (
+                                <button
+                                    type="button"
+                                    onClick={onCancel}
+                                    className="btn-secondary btn-full"
+                                    disabled={form.formState.isSubmitting}
+                                >
+                                    취소
+                                </button>
+                            )}
                             <button
-                                type="button"
-                                onClick={onCancel}
-                                className="btn-secondary btn-full"
+                                type="submit"
+                                className="btn-primary-filled btn-full"
                                 disabled={form.formState.isSubmitting}
                             >
-                                취소
+                                {(() => {
+                                    if (form.formState.isSubmitting) {
+                                        return isEditMode
+                                            ? '수정 중...'
+                                            : '생성 중...';
+                                    }
+                                    return isEditMode ? '수정' : '제출';
+                                })()}
                             </button>
-                        )}
-                        <button
-                            type="submit"
-                            className="btn-primary-filled btn-full"
-                            disabled={form.formState.isSubmitting}
-                        >
-                            {(() => {
-                                if (form.formState.isSubmitting) {
-                                    return isEditMode
-                                        ? '수정 중...'
-                                        : '생성 중...';
-                                }
-                                return isEditMode ? '수정' : '제출';
-                            })()}
-                        </button>
+                        </div>
                     </div>
                 </form>
             </FormProvider>
