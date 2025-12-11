@@ -11,27 +11,17 @@ interface RightSidebarProps {
 }
 
 export const RightSidebar: React.FC<RightSidebarProps> = ({ onClose }) => {
-    const [activeTab, setActiveTab] = useState<RightSidebarTab>('alarm');
+    const [activeTab, setActiveTab] = useState<RightSidebarTab>('reminder');
 
     return (
         <Sidebar
-            // title="알람 & 리마인더"
+            title=""
             width="lg"
             borderPosition="left"
             onClose={onClose}
+            showCloseButton={false}
             headerActions={
                 <div className="flex gap-1 rounded-md bg-gray-100 p-1">
-                    <button
-                        type="button"
-                        onClick={() => setActiveTab('alarm')}
-                        className={`rounded px-3 py-1 text-sm font-medium transition-colors ${
-                            activeTab === 'alarm'
-                                ? 'bg-white text-gray-900 shadow-sm'
-                                : 'text-gray-600 hover:text-gray-900'
-                        }`}
-                    >
-                        알람
-                    </button>
                     <button
                         type="button"
                         onClick={() => setActiveTab('reminder')}
@@ -42,6 +32,17 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({ onClose }) => {
                         }`}
                     >
                         리마인더
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setActiveTab('alarm')}
+                        className={`rounded px-3 py-1 text-sm font-medium transition-colors ${
+                            activeTab === 'alarm'
+                                ? 'bg-white text-gray-900 shadow-sm'
+                                : 'text-gray-600 hover:text-gray-900'
+                        }`}
+                    >
+                        알람
                     </button>
                 </div>
             }

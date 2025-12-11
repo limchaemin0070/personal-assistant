@@ -1,44 +1,117 @@
 @import 'tailwindcss';
 
-@layer base {
-    *,
-    *::before,
-    *::after {
-        box-sizing: border-box;
-    }
+/* ============================================
+   CSS 변수 정의 (라이트 테마)
+   ============================================ */
+:root {
+    /* 기본 색상 팔레트 */
+    --color-sample-blue: #3b82f6;
 
-    html {
-        font-family: sans-serif;
-        height: 100%;
-        -webkit-text-size-adjust: 100%;
-    }
+    /* 의미적 색상 시스템 - 라이트 테마 */
+    /* Primary 색상 */
+    --color-primary: 37 99 235; /* blue-600 */
+    --color-primary-hover: 29 78 216; /* blue-700 */
+    --color-primary-light: 239 246 255; /* blue-50 */
 
-    body {
-        margin: 0;
-        height: 100%;
-        width: 100%;
-        background-color: rgb(249 250 251);
-        color: rgb(17 24 39);
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-    }
+    /* Secondary 색상 */
+    --color-secondary: 229 231 235; /* gray-200 */
+    --color-secondary-hover: 209 213 219; /* gray-300 */
 
-    #root {
-        min-width: 375px;
-        width: 100%;
-        background-color: white;
-        min-height: 100vh;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        color: rgb(17 24 39);
-    }
+    /* Danger 색상 */
+    --color-danger: 220 38 38; /* red-600 */
+    --color-danger-hover: 185 28 28; /* red-700 */
 
-    :root {
-        --color-sample-blue: #3b82f6;
-    }
+    /* Success 색상 */
+    --color-success: 22 163 74; /* green-600 */
+    --color-success-light: 34 197 94; /* green-500 */
+
+    /* Warning 색상 */
+    --color-warning: 245 158 11; /* amber-500 */
+
+    /* Info 색상 */
+    --color-info: 6 182 212; /* cyan-500 */
+
+    /* 배경 색상 */
+    --color-background: 255 255 255; /* white */
+    --color-background-secondary: 249 250 251; /* gray-50 */
+    --color-background-tertiary: 243 244 246; /* gray-100 */
+
+    /* 텍스트 색상 */
+    --color-text-primary: 17 24 39; /* gray-900 */
+    --color-text-secondary: 55 65 81; /* gray-700 */
+    --color-text-tertiary: 107 114 128; /* gray-500 */
+    --color-text-disabled: 156 163 175; /* gray-400 */
+    --color-text-inverse: 255 255 255; /* white */
+
+    /* 테두리 색상 */
+    --color-border: 209 213 219; /* gray-300 */
+    --color-border-light: 229 231 235; /* gray-200 */
+    --color-border-hover: 156 163 175; /* gray-400 */
+
+    /* 그림자 색상 */
+    --color-shadow: 0 0 0;
+
+    /* 그라디언트 */
+    --gradient-primary-start: 59 130 246; /* blue-500 */
+    --gradient-primary-end: 147 51 234; /* purple-500 */
+
+    --gradient-sunset-start: 251 146 60; /* orange-400 */
+    --gradient-sunset-end: 239 68 68; /* red-500 */
+
+    --gradient-ocean-start: 6 182 212; /* cyan-500 */
+    --gradient-ocean-end: 59 130 246; /* blue-500 */
+
+    --gradient-forest-start: 34 197 94; /* green-500 */
+    --gradient-forest-end: 16 185 129; /* teal-500 */
+
+    --gradient-purple-start: 168 85 247; /* purple-500 */
+    --gradient-purple-end: 236 72 153; /* pink-500 */
+
+    --gradient-gold-start: 251 191 36; /* amber-400 */
+    --gradient-gold-end: 245 158 11; /* amber-500 */
 }
 
+/* 다크 모드 테마 */
+[data-theme='dark'],
+.dark {
+    /* Primary 색상 */
+    --color-primary: 59 130 246; /* blue-500 */
+    --color-primary-hover: 96 165 250; /* blue-400 */
+    --color-primary-light: 30 58 138; /* blue-900 */
+
+    /* Secondary 색상 */
+    --color-secondary: 55 65 81; /* gray-700 */
+    --color-secondary-hover: 75 85 99; /* gray-600 */
+
+    /* Danger 색상 */
+    --color-danger: 239 68 68; /* red-500 */
+    --color-danger-hover: 248 113 113; /* red-400 */
+
+    /* Success 색상 */
+    --color-success: 34 197 94; /* green-500 */
+    --color-success-light: 74 222 128; /* green-400 */
+
+    /* 배경 색상 */
+    --color-background: 17 24 39; /* gray-900 */
+    --color-background-secondary: 31 41 55; /* gray-800 */
+    --color-background-tertiary: 55 65 81; /* gray-700 */
+
+    /* 텍스트 색상 */
+    --color-text-primary: 243 244 246; /* gray-100 */
+    --color-text-secondary: 209 213 219; /* gray-300 */
+    --color-text-tertiary: 156 163 175; /* gray-400 */
+    --color-text-disabled: 107 114 128; /* gray-500 */
+    --color-text-inverse: 17 24 39; /* gray-900 */
+
+    /* 테두리 색상 */
+    --color-border: 75 85 99; /* gray-600 */
+    --color-border-light: 55 65 81; /* gray-700 */
+    --color-border-hover: 107 114 128; /* gray-500 */
+}
+
+/* ============================================
+   Tailwind v4 @theme 블록
+   ============================================ */
 @theme {
     /* 반응형 breakpoint */
     --breakpoint-xs: 375px;
@@ -48,25 +121,7 @@
     --breakpoint-xl: 1280px;
     --breakpoint-2xl: 1536px;
 
-    /* 색상 */
-    --gradient-primary-start: rgb(59 130 246);
-    --gradient-primary-end: rgb(147 51 234);
-
-    --gradient-sunset-start: rgb(251 146 60);
-    --gradient-sunset-end: rgb(239 68 68);
-
-    --gradient-ocean-start: rgb(6 182 212);
-    --gradient-ocean-end: rgb(59 130 246);
-
-    --gradient-forest-start: rgb(34 197 94);
-    --gradient-forest-end: rgb(16 185 129);
-
-    --gradient-purple-start: rgb(168 85 247);
-    --gradient-purple-end: rgb(236 72 153);
-
-    --gradient-gold-start: rgb(251 191 36);
-    --gradient-gold-end: rgb(245 158 11);
-
+    /* 색상 팔레트 - Tailwind 유틸리티 클래스로 사용 가능 */
     --color-gray-100: #f3f4f6;
     --color-gray-200: #e5e7eb;
     --color-gray-300: #d1d5db;
@@ -108,11 +163,57 @@
     --color-stone-950: #141211;
 }
 
+/* ============================================
+   Base 스타일
+   ============================================ */
+@layer base {
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+    }
+
+    html {
+        font-family: sans-serif;
+        height: 100%;
+        -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+        margin: 0;
+        height: 100%;
+        width: 100%;
+        background-color: rgb(var(--color-background-secondary));
+        color: rgb(var(--color-text-primary));
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    #root {
+        min-width: 375px;
+        width: 100%;
+        background-color: rgb(var(--color-background));
+        min-height: 100vh;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        color: rgb(var(--color-text-primary));
+    }
+}
+
+/* ============================================
+   Components 스타일
+   ============================================ */
 @layer components {
+    /* ============================================
+       버튼 스타일
+       ============================================ */
+
+    /* Primary 버튼 - Filled */
     .btn-primary-filled {
         padding: 0.75rem 1.5rem;
-        background-color: #2563eb;
-        color: white;
+        background-color: rgb(var(--color-primary));
+        color: rgb(var(--color-text-inverse));
         font-weight: 600;
         border-radius: 0.5rem;
         transition: all 0.2s;
@@ -121,9 +222,9 @@
     }
 
     .btn-primary-filled:hover {
-        background-color: #1d4ed8;
+        background-color: rgb(var(--color-primary-hover));
         transform: translateY(-1px);
-        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        box-shadow: 0 4px 6px -1px rgb(var(--color-shadow) / 0.1);
     }
 
     .btn-primary-filled:active {
@@ -131,7 +232,7 @@
     }
 
     .btn-primary-filled:disabled {
-        background-color: #d1d5db;
+        background-color: rgb(var(--color-border));
         cursor: not-allowed;
         opacity: 0.6;
     }
@@ -140,31 +241,31 @@
     .btn-primary-outlined {
         padding: 0.75rem 1.5rem;
         background-color: transparent;
-        color: #2563eb;
+        color: rgb(var(--color-primary));
         font-weight: 600;
         border-radius: 0.5rem;
-        border: 2px solid #2563eb;
+        border: 2px solid rgb(var(--color-primary));
         transition: all 0.2s;
         cursor: pointer;
     }
 
     .btn-primary-outlined:hover {
-        background-color: #eff6ff;
-        border-color: #1d4ed8;
-        color: #1d4ed8;
+        background-color: rgb(var(--color-primary-light));
+        border-color: rgb(var(--color-primary-hover));
+        color: rgb(var(--color-primary-hover));
     }
 
     .btn-primary-outlined:disabled {
-        border-color: #d1d5db;
-        color: #9ca3af;
+        border-color: rgb(var(--color-border));
+        color: rgb(var(--color-text-disabled));
         cursor: not-allowed;
     }
 
     /* Secondary 버튼 */
     .btn-secondary {
         padding: 0.75rem 1.5rem;
-        background-color: #e5e7eb;
-        color: #1f2937;
+        background-color: rgb(var(--color-secondary));
+        color: rgb(var(--color-text-primary));
         font-weight: 500;
         border-radius: 0.5rem;
         transition: all 0.2s;
@@ -173,7 +274,7 @@
     }
 
     .btn-secondary:hover {
-        background-color: #d1d5db;
+        background-color: rgb(var(--color-secondary-hover));
     }
 
     .btn-secondary:disabled {
@@ -184,8 +285,8 @@
     /* Danger 버튼 */
     .btn-danger {
         padding: 0.75rem 1.5rem;
-        background-color: #dc2626;
-        color: white;
+        background-color: rgb(var(--color-danger));
+        color: rgb(var(--color-text-inverse));
         font-weight: 600;
         border-radius: 0.5rem;
         transition: all 0.2s;
@@ -194,11 +295,11 @@
     }
 
     .btn-danger:hover {
-        background-color: #b91c1c;
+        background-color: rgb(var(--color-danger-hover));
     }
 
     .btn-danger:disabled {
-        background-color: #d1d5db;
+        background-color: rgb(var(--color-border));
         cursor: not-allowed;
         opacity: 0.6;
     }
@@ -224,7 +325,7 @@
     .btn-sample-blue {
         padding: 0.75rem 1.5rem;
         background-color: var(--color-sample-blue);
-        color: white;
+        color: rgb(var(--color-text-inverse));
         font-weight: 600;
         border-radius: 0.5rem;
         transition: all 0.2s;
@@ -238,18 +339,23 @@
     }
 
     .btn-sample-blue:disabled {
-        background-color: #d1d5db;
+        background-color: rgb(var(--color-border));
         cursor: not-allowed;
         opacity: 0.6;
     }
 
+    /* 그라디언트 배경 */
     .bg-gradient-primary {
         background: linear-gradient(
             135deg,
-            var(--gradient-primary-start),
-            var(--gradient-primary-end)
+            rgb(var(--gradient-primary-start)),
+            rgb(var(--gradient-primary-end))
         );
     }
+
+    /* ============================================
+       입력 필드 스타일
+       ============================================ */
 
     /* 기본 입력 필드 */
     .input-base {
@@ -257,26 +363,26 @@
         padding: 0.75rem 1rem;
         font-size: 1rem;
         line-height: 1.5;
-        color: rgb(17 24 39);
-        background-color: white;
-        border: 1px solid rgb(209 213 219);
+        color: rgb(var(--color-text-primary));
+        background-color: rgb(var(--color-background));
+        border: 1px solid rgb(var(--color-border));
         border-radius: 0.5rem;
         transition: all 0.2s;
         outline: none;
     }
 
     .input-base::placeholder {
-        color: rgb(156 163 175);
+        color: rgb(var(--color-text-disabled));
     }
 
     .input-base:focus {
-        border-color: rgb(59 130 246);
-        box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
+        border-color: rgb(var(--color-primary));
+        box-shadow: 0 0 0 3px rgb(var(--color-primary) / 0.1);
     }
 
     .input-base:disabled {
-        background-color: rgb(243 244 246);
-        color: rgb(156 163 175);
+        background-color: rgb(var(--color-background-tertiary));
+        color: rgb(var(--color-text-disabled));
         cursor: not-allowed;
     }
 
@@ -286,17 +392,17 @@
         padding: 0.75rem 1rem;
         font-size: 1rem;
         line-height: 1.5;
-        color: rgb(17 24 39);
-        background-color: white;
-        border: 1px solid rgb(239 68 68);
+        color: rgb(var(--color-text-primary));
+        background-color: rgb(var(--color-background));
+        border: 1px solid rgb(var(--color-danger));
         border-radius: 0.5rem;
         transition: all 0.2s;
         outline: none;
     }
 
     .input-error:focus {
-        border-color: rgb(220 38 38);
-        box-shadow: 0 0 0 3px rgb(239 68 68 / 0.1);
+        border-color: rgb(var(--color-danger-hover));
+        box-shadow: 0 0 0 3px rgb(var(--color-danger) / 0.1);
     }
 
     /* 성공 상태 입력 필드 */
@@ -305,17 +411,17 @@
         padding: 0.75rem 1rem;
         font-size: 1rem;
         line-height: 1.5;
-        color: rgb(17 24 39);
-        background-color: white;
-        border: 1px solid rgb(34 197 94);
+        color: rgb(var(--color-text-primary));
+        background-color: rgb(var(--color-background));
+        border: 1px solid rgb(var(--color-success-light));
         border-radius: 0.5rem;
         transition: all 0.2s;
         outline: none;
     }
 
     .input-success:focus {
-        border-color: rgb(22 163 74);
-        box-shadow: 0 0 0 3px rgb(34 197 94 / 0.1);
+        border-color: rgb(var(--color-success));
+        box-shadow: 0 0 0 3px rgb(var(--color-success-light) / 0.1);
     }
 
     /* 큰 입력 필드 */
@@ -345,14 +451,14 @@
         display: block;
         font-size: 0.875rem;
         font-weight: 500;
-        color: rgb(55 65 81);
+        color: rgb(var(--color-text-secondary));
         margin-bottom: 0.5rem;
     }
 
     /* 필수 표시 */
     .input-label-required::after {
         content: '*';
-        color: rgb(239 68 68);
+        color: rgb(var(--color-danger));
         margin-left: 0.25rem;
     }
 
@@ -360,7 +466,7 @@
     .input-error-message {
         display: block;
         font-size: 0.875rem;
-        color: rgb(239 68 68);
+        color: rgb(var(--color-danger));
         margin-top: 0.5rem;
     }
 
@@ -368,7 +474,7 @@
     .input-help-text {
         display: block;
         font-size: 0.875rem;
-        color: rgb(107 114 128);
+        color: rgb(var(--color-text-tertiary));
         margin-top: 0.5rem;
     }
 
@@ -376,7 +482,7 @@
     .input-success-message {
         display: block;
         font-size: 0.875rem;
-        color: rgb(34 197 94);
+        color: rgb(var(--color-success-light));
         margin-top: 0.5rem;
     }
 
@@ -394,7 +500,7 @@
         left: 0.75rem;
         top: 50%;
         transform: translateY(-50%);
-        color: rgb(156 163 175);
+        color: rgb(var(--color-text-disabled));
         pointer-events: none;
     }
 
@@ -403,7 +509,7 @@
         right: 0.75rem;
         top: 50%;
         transform: translateY(-50%);
-        color: rgb(156 163 175);
+        color: rgb(var(--color-text-disabled));
     }
 
     /* Textarea 스타일 */
@@ -412,9 +518,9 @@
         padding: 0.75rem 1rem;
         font-size: 1rem;
         line-height: 1.5;
-        color: rgb(17 24 39);
-        background-color: white;
-        border: 1px solid rgb(209 213 219);
+        color: rgb(var(--color-text-primary));
+        background-color: rgb(var(--color-background));
+        border: 1px solid rgb(var(--color-border));
         border-radius: 0.5rem;
         transition: all 0.2s;
         outline: none;
@@ -423,12 +529,12 @@
     }
 
     .textarea-base::placeholder {
-        color: rgb(156 163 175);
+        color: rgb(var(--color-text-disabled));
     }
 
     .textarea-base:focus {
-        border-color: rgb(59 130 246);
-        box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
+        border-color: rgb(var(--color-primary));
+        box-shadow: 0 0 0 3px rgb(var(--color-primary) / 0.1);
     }
 
     /* Select 스타일 */
@@ -437,9 +543,9 @@
         padding: 0.75rem 1rem;
         font-size: 1rem;
         line-height: 1.5;
-        color: rgb(17 24 39);
-        background-color: white;
-        border: 1px solid rgb(209 213 219);
+        color: rgb(var(--color-text-primary));
+        background-color: rgb(var(--color-background));
+        border: 1px solid rgb(var(--color-border));
         border-radius: 0.5rem;
         transition: all 0.2s;
         outline: none;
@@ -453,16 +559,16 @@
     }
 
     .select-base:focus {
-        border-color: rgb(59 130 246);
-        box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
+        border-color: rgb(var(--color-primary));
+        box-shadow: 0 0 0 3px rgb(var(--color-primary) / 0.1);
     }
 
     /* Checkbox 스타일 */
     .checkbox-base {
         width: 1.25rem;
         height: 1.25rem;
-        color: rgb(59 130 246);
-        border: 1px solid rgb(209 213 219);
+        color: rgb(var(--color-primary));
+        border: 1px solid rgb(var(--color-border));
         border-radius: 0.25rem;
         cursor: pointer;
         transition: all 0.2s;
@@ -470,22 +576,22 @@
 
     .checkbox-base:focus {
         outline: none;
-        box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
+        box-shadow: 0 0 0 3px rgb(var(--color-primary) / 0.1);
     }
 
     /* Radio 스타일 */
     .radio-base {
         width: 1.25rem;
         height: 1.25rem;
-        color: rgb(59 130 246);
-        border: 1px solid rgb(209 213 219);
+        color: rgb(var(--color-primary));
+        border: 1px solid rgb(var(--color-border));
         cursor: pointer;
         transition: all 0.2s;
     }
 
     .radio-base:focus {
         outline: none;
-        box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
+        box-shadow: 0 0 0 3px rgb(var(--color-primary) / 0.1);
     }
 
     /* Floating Label 스타일 */
@@ -497,15 +603,15 @@
         width: 100%;
         padding: 1.25rem 1rem 0.5rem;
         font-size: 1rem;
-        border: 1px solid rgb(209 213 219);
+        border: 1px solid rgb(var(--color-border));
         border-radius: 0.5rem;
         transition: all 0.2s;
         outline: none;
     }
 
     .input-floating:focus {
-        border-color: rgb(59 130 246);
-        box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
+        border-color: rgb(var(--color-primary));
+        box-shadow: 0 0 0 3px rgb(var(--color-primary) / 0.1);
     }
 
     .label-floating {
@@ -514,7 +620,7 @@
         top: 50%;
         transform: translateY(-50%);
         font-size: 1rem;
-        color: rgb(156 163 175);
+        color: rgb(var(--color-text-disabled));
         pointer-events: none;
         transition: all 0.2s;
     }
@@ -523,7 +629,7 @@
     .input-floating:not(:placeholder-shown) ~ .label-floating {
         top: 0.75rem;
         font-size: 0.75rem;
-        color: rgb(59 130 246);
+        color: rgb(var(--color-primary));
         transform: translateY(0);
     }
 
@@ -601,7 +707,7 @@
         padding: 0.125rem 0.375rem; /* 위아래 패딩 */
         border-radius: 0;
         background-color: var(--event-ticket-bg-color, var(--color-stone-200));
-        color: var(--event-ticket-text-color, rgb(17 24 39));
+        color: var(--event-ticket-text-color, rgb(var(--color-text-primary)));
         font-size: 0.75rem;
         line-height: 1.5; /* 줄 높이 증가로 글자 잘림 방지 */
         overflow: hidden;
@@ -677,7 +783,7 @@
     .event-time {
         display: inline-block;
         font-size: 0.75rem;
-        color: rgb(107 114 128);
+        color: rgb(var(--color-text-tertiary));
         margin-right: 0.5rem;
     }
 
@@ -688,17 +794,17 @@
         padding: 0.75rem 1rem;
         border-radius: 0.5rem;
         margin-bottom: 0.5rem;
-        border: 1px solid rgb(229 231 235);
+        border: 1px solid rgb(var(--color-border-light));
         background-color: var(--event-ticket-bg-color, var(--color-stone-50));
         white-space: normal;
         overflow: visible;
-        box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        box-shadow: 0 1px 2px 0 rgb(var(--color-shadow) / 0.05);
     }
 
     .month-event-ticket-day:hover {
         box-shadow:
-            0 4px 6px -1px rgb(0 0 0 / 0.1),
-            0 2px 4px -2px rgb(0 0 0 / 0.1);
+            0 4px 6px -1px rgb(var(--color-shadow) / 0.1),
+            0 2px 4px -2px rgb(var(--color-shadow) / 0.1);
         transform: translateY(-1px);
     }
 
@@ -712,14 +818,14 @@
     .month-event-ticket-day .event-time {
         flex-shrink: 0;
         font-weight: 600;
-        color: rgb(75 85 99);
+        color: rgb(var(--color-text-secondary));
         min-width: 60px;
     }
 
     .month-event-ticket-day .event-title {
         flex: 1;
         font-weight: 500;
-        color: rgb(17 24 39);
+        color: rgb(var(--color-text-primary));
         white-space: normal;
         word-break: break-word;
     }
@@ -732,4 +838,37 @@
     .month-event-ticket-day.is-start .event-title {
         padding-left: 0;
     }
+}
+
+/* ============================================
+   Toast 애니메이션
+   ============================================ */
+@keyframes toast-slide-in {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes toast-slide-out {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+}
+
+.animate-toast-slide-in {
+    animation: toast-slide-in 0.3s ease-out forwards;
+}
+
+.animate-toast-slide-out {
+    animation: toast-slide-out 0.3s ease-in forwards;
 }

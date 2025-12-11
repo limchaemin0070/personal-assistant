@@ -1,5 +1,5 @@
 import React from 'react';
-import { IoMdAlarm } from 'react-icons/io';
+import { LuPanelRight } from 'react-icons/lu';
 import { CalendarMonthView } from './CalendarMonthView';
 import { CalendarDayView } from './CalendarDayView';
 import { CalendarWeekView } from './CalendarWeekView';
@@ -93,7 +93,7 @@ export const CalendarMain: React.FC<CalendarMainProps> = ({
                         onClick={onToggleRightSidebar}
                         className="rounded-md p-1 text-gray-600 hover:bg-gray-100"
                     >
-                        <IoMdAlarm />
+                        <LuPanelRight />
                     </button>
                 )}
             </div>

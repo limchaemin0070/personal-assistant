@@ -11,6 +11,8 @@ interface SidebarProps {
     children: React.ReactNode;
     // eslint-disable-next-line react/require-default-props
     headerActions?: React.ReactNode;
+    // eslint-disable-next-line react/require-default-props
+    showCloseButton?: boolean;
 }
 
 const widthMap = {
@@ -31,6 +33,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     onClose,
     children,
     headerActions,
+    showCloseButton = true,
 }) => {
     return (
         <aside
@@ -43,7 +46,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     </h2>
                     <div className="flex items-center gap-2">
                         {headerActions}
-                        {onClose && (
+                        {onClose && showCloseButton && (
                             <button
                                 type="button"
                                 onClick={onClose}

@@ -30,12 +30,7 @@ export const useToastStore = create<ToastStore>((set) => ({
         set((state) => ({
             toasts: [...state.toasts, { id, message, variant }],
         }));
-
-        setTimeout(() => {
-            set((state) => ({
-                toasts: state.toasts.filter((toast) => toast.id !== id),
-            }));
-        }, 2000);
+        // 자동 제거는 Toast 컴포넌트에서 애니메이션과 함께 처리됩니다
     },
     removeToast: (id) =>
         set((state) => ({
