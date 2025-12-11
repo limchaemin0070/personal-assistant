@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { AddButton } from '../common/Button/AddButton';
 import { ReminderForm } from './ReminderForm';
+import { ReminderList } from './ReminderList';
 
 // none : 기본 리스트 조회
 type ReminderFormMode = 'none' | 'create' | 'edit';
@@ -43,6 +44,11 @@ export const Reminder: React.FC = () => {
                     />
                 );
             case 'none':
+                return (
+                    <div className="rounded-md p-3 text-sm text-gray-600">
+                        <ReminderList />
+                    </div>
+                );
             default:
                 return null;
         }
@@ -57,9 +63,6 @@ export const Reminder: React.FC = () => {
                 isActive={formMode === 'create'}
             />
             {renderFormSection()}
-            <div className="rounded-md bg-gray-50 p-3 text-sm text-gray-600">
-                리마인더 목록이 여기에 표시됩니다
-            </div>
         </div>
     );
 };
