@@ -39,6 +39,16 @@ interface DeleteReminderResult {
   message: string;
 }
 
+interface UpdateReminderCompleteParams {
+  reminder_id: number;
+  user_id: number;
+  is_completed: boolean;
+}
+
+interface UpdateReminderCompleteResult {
+  reminder: Reminder;
+}
+
 class ReminderService {
   // 유저ID로 리마인더 목록 조회
   async getRemindersByUserId(
@@ -119,6 +129,35 @@ class ReminderService {
     }
     if (params.notification_enabled !== undefined)
       updateData.notification_enabled = params.notification_enabled;
+
+    await reminder.update(updateData);
+
+    return { reminder };
+  }
+
+  // 리마인더 완료 상태만 업데이트
+  async updateReminderComplete(
+    params: UpdateReminderCompleteParams
+  ): Promise<UpdateReminderCompleteResult> {
+    const reminder = await this.findReminderByIdAndUserId(
+      params.reminder_id,
+      params.user_id
+    );
+
+    if (!reminder) {
+      throw new ReminderNotFoundError();
+    }
+
+    // 완료 상태와 completed_at 업데이트
+    const updateData: any = {
+      is_completed: params.is_completed,
+    };
+
+    if (params.is_completed === true) {
+      updateData.completed_at = new Date();
+    } else {
+      updateData.completed_at = null;
+    }
 
     await reminder.update(updateData);
 
