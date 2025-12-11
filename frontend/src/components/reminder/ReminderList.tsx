@@ -7,17 +7,28 @@ import { useReminder } from '@/hooks/reminder/useReminder';
 import { CalendarUtils } from '@/utils/calendar/CalendarUtils';
 
 interface ReminderListProps {
+    filterCompleted: boolean;
     onEditReminder: (reminder: Reminder) => void;
 }
 
-export const ReminderList = ({ onEditReminder }: ReminderListProps) => {
+export const ReminderList = ({
+    onEditReminder,
+    filterCompleted,
+}: ReminderListProps) => {
     const { data: reminders = [], isLoading } = useReminder();
 
     // 날짜별로 그룹핑
     const grouped = useMemo(() => {
+        // 완료 상태만 보기
+        // TODO : 추후에 카테고라이징 / 기타 필터 / 검색 기능 추가 시 백엔드에서 처리
+        console.log(filterCompleted);
+        const filteredReminders = filterCompleted
+            ? reminders.filter((reminder) => reminder.isCompleted)
+            : reminders;
+
         const result: { date: string | null; items: Reminder[] }[] = [];
 
-        reminders.forEach((reminder) => {
+        filteredReminders.forEach((reminder) => {
             const lastGroup = result[result.length - 1];
             if (!reminder.date) return;
             const currentDate = CalendarUtils.formatDateDisplay(reminder.date);
@@ -34,7 +45,7 @@ export const ReminderList = ({ onEditReminder }: ReminderListProps) => {
         });
 
         return result;
-    }, [reminders]);
+    }, [reminders, filterCompleted]);
 
     if (isLoading) {
         return <div className="p-4">로딩 중...</div>;
