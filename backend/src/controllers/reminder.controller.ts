@@ -7,6 +7,7 @@ import { ValidationError } from "../errors/ValidationError";
 import {
   validateCreateReminderPayload,
   validateUpdateReminderPayload,
+  validateUpdateReminderCompletePayload,
 } from "../utils/validation/reminderValidator";
 
 // 유저ID로 리마인더 목록 조회
@@ -141,6 +142,41 @@ export const updateReminder = asyncHandler(
   }
 );
 
+// 리마인더 완료 상태만 업데이트 (PATCH)
+export const patchReminderComplete = asyncHandler(
+  async (req: Request, res: Response) => {
+    const userId = req.user?.userId;
+    const reminderId = parseInt(req.params.id);
+
+    if (!userId) {
+      throw new UserNotFoundError();
+    }
+
+    if (isNaN(reminderId)) {
+      throw new ValidationError("유효하지 않은 리마인더 ID입니다.", "id");
+    }
+
+    const { isCompleted } = req.body;
+
+    // 입력값 검증
+    validateUpdateReminderCompletePayload({ isCompleted });
+
+    const { reminder } = await reminderService.updateReminderComplete({
+      reminder_id: reminderId,
+      user_id: userId,
+      is_completed: isCompleted,
+    });
+
+    res.status(200).json(
+      buildSuccess(
+        "REMINDER_COMPLETE_UPDATED",
+        "리마인더 완료 상태가 변경되었습니다.",
+        reminder
+      )
+    );
+  }
+);
+
 // 리마인더 삭제
 export const deleteReminder = asyncHandler(
   async (req: Request, res: Response) => {
@@ -165,4 +201,5 @@ export const deleteReminder = asyncHandler(
     );
   }
 );
+
 

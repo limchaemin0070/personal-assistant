@@ -21,6 +21,10 @@ export interface UpdateReminderPayload {
   notification_enabled?: boolean;
 }
 
+export interface UpdateReminderCompletePayload {
+  isCompleted: boolean;
+}
+
 // 날짜 형식 검증 (YYYY-MM-DD)
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -164,5 +168,23 @@ export const validateUpdateReminderPayload = (
         "time"
       );
     }
+  }
+};
+
+// 리마인더 완료 상태 업데이트 검증
+export const validateUpdateReminderCompletePayload = (
+  payload: UpdateReminderCompletePayload
+) => {
+  const { isCompleted } = payload;
+
+  if (isCompleted === undefined) {
+    throw new ValidationError("완료 상태를 입력해주세요.", "isCompleted");
+  }
+
+  if (typeof isCompleted !== "boolean") {
+    throw new ValidationError(
+      "완료 상태는 불린 값이어야 합니다.",
+      "isCompleted"
+    );
   }
 };
