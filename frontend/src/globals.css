@@ -693,6 +693,7 @@
         align-content: start; /* 이벤트들을 위쪽부터 배치 */
         gap: 0.125rem; /* 이벤트 간 간격 (2px) */
         overflow: hidden; /* 넘치는 이벤트는 숨김 */
+        margin: 0 -1px;
     }
 
     /* ============================================
@@ -841,34 +842,25 @@
 }
 
 /* ============================================
-   Toast 애니메이션
+   스크롤바 숨기기 (스크롤 기능은 유지)
    ============================================ */
-@keyframes toast-slide-in {
-    from {
-        transform: translateY(-100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
+/* Webkit 브라우저 (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
 }
 
-@keyframes toast-slide-out {
-    from {
-        transform: translateY(0);
-        opacity: 1;
-    }
-    to {
-        transform: translateY(-100%);
-        opacity: 0;
-    }
+::-webkit-scrollbar-track {
+    display: none;
 }
 
-.animate-toast-slide-in {
-    animation: toast-slide-in 0.3s ease-out forwards;
+::-webkit-scrollbar-thumb {
+    display: none;
 }
 
-.animate-toast-slide-out {
-    animation: toast-slide-out 0.3s ease-in forwards;
+/* Firefox & IE 10+ */
+* {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }

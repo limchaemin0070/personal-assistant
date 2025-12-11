@@ -3,3 +3,4 @@ export { FormTextArea } from './FormTextArea';
 export { FormCheckbox } from './FormCheckbox';
 export { FormDate } from './FormDate';
 export { FormTime } from './FormTime';
+export { FormToggle } from './FormToggle';

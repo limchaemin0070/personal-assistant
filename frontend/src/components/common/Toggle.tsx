@@ -8,6 +8,7 @@ interface ToggleProps {
     label: string;
     className?: string;
     size?: 'sm' | 'md' | 'lg';
+    labelPosition?: 'left' | 'right';
 }
 
 /**
@@ -21,6 +22,7 @@ export const Toggle = ({
     label,
     className = '',
     size = 'md',
+    labelPosition = 'right',
 }: ToggleProps) => {
     const id = useId();
 
@@ -44,6 +46,31 @@ export const Toggle = ({
 
     const sizeConfig = sizeClasses[size];
 
+    const toggleButton = (
+        <div
+            className={cn(
+                'relative rounded-full transition-colors duration-200',
+                sizeConfig.track,
+                checked ? 'bg-blue-500' : 'bg-gray-300',
+                disabled && 'cursor-not-allowed',
+            )}
+        >
+            <div
+                className={cn(
+                    'absolute top-0.5 rounded-full bg-white shadow-md transition-transform duration-200',
+                    sizeConfig.thumb,
+                    sizeConfig.translate,
+                )}
+            />
+        </div>
+    );
+
+    const labelElement = (
+        <span className="text-sm font-medium text-gray-700 select-none">
+            {label}
+        </span>
+    );
+
     return (
         <label
             htmlFor={id}
@@ -61,25 +88,17 @@ export const Toggle = ({
                 disabled={disabled}
                 className="sr-only"
             />
-            <div
-                className={cn(
-                    'relative rounded-full transition-colors duration-200',
-                    sizeConfig.track,
-                    checked ? 'bg-blue-500' : 'bg-gray-300',
-                    disabled && 'cursor-not-allowed',
-                )}
-            >
-                <div
-                    className={cn(
-                        'absolute top-0.5 rounded-full bg-white shadow-md transition-transform duration-200',
-                        sizeConfig.thumb,
-                        sizeConfig.translate,
-                    )}
-                />
-            </div>
-            <span className="text-sm font-medium text-gray-700 select-none">
-                {label}
-            </span>
+            {labelPosition === 'left' ? (
+                <>
+                    {labelElement}
+                    {toggleButton}
+                </>
+            ) : (
+                <>
+                    {toggleButton}
+                    {labelElement}
+                </>
+            )}
         </label>
     );
 };
