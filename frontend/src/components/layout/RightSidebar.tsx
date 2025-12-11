@@ -15,7 +15,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({ onClose }) => {
 
     return (
         <Sidebar
-            title="알람 & 리마인더"
+            // title="알람 & 리마인더"
             width="lg"
             borderPosition="left"
             onClose={onClose}

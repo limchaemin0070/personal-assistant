@@ -2,6 +2,8 @@ import React, { useCallback, useState } from 'react';
 import { AddButton } from '../common/Button/AddButton';
 import { ReminderForm } from './ReminderForm';
 import { ReminderList } from './ReminderList';
+import type { Reminder as ReminderType } from '@/types';
+import { useReminder } from '@/hooks/reminder/useReminder';
 
 // none : 기본 리스트 조회
 type ReminderFormMode = 'none' | 'create' | 'edit';
@@ -11,9 +13,11 @@ export const Reminder: React.FC = () => {
     const [editingReminderId, setEditingReminderId] = useState<number | null>(
         null,
     );
+    const { data: reminders = [] } = useReminder();
 
     const handleAdd = useCallback((): void => {
         setFormMode((prevMode) => (prevMode === 'create' ? 'none' : 'create'));
+        setEditingReminderId(null);
     }, []);
 
     const handleCancel = useCallback((): void => {
@@ -25,6 +29,13 @@ export const Reminder: React.FC = () => {
         setFormMode('none');
         setEditingReminderId(null);
     }, []);
+
+    const handleEditReminder = useCallback((reminder: ReminderType): void => {
+        setFormMode('edit');
+        setEditingReminderId(reminder.id);
+    }, []);
+
+    const editingReminder = reminders.find((r) => r.id === editingReminderId);
 
     const renderFormSection = (): React.ReactElement | null => {
         switch (formMode) {
@@ -40,13 +51,13 @@ export const Reminder: React.FC = () => {
                     <ReminderForm
                         onSubmit={handleSubmit}
                         onCancel={handleCancel}
-                        initialReminder={null}
+                        initialReminder={editingReminder || null}
                     />
                 );
             case 'none':
                 return (
                     <div className="rounded-md p-3 text-sm text-gray-600">
-                        <ReminderList />
+                        <ReminderList onEditReminder={handleEditReminder} />
                     </div>
                 );
             default:

@@ -9,12 +9,9 @@ export const ReminderSidebar: React.FC<ReminderSidebarProps> = ({
     onClose,
 }) => {
     return (
-        <aside className="w-80 shrink-0 border-l border-gray-200 bg-white">
+        <aside className="w-120 shrink-0 border-l border-gray-200 bg-white">
             <div className="flex h-full flex-col p-4">
                 <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-lg font-semibold text-gray-900">
-                        알람 & 리마인더
-                    </h2>
                     {onClose && (
                         <button
                             type="button"
