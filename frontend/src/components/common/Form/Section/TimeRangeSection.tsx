@@ -17,12 +17,12 @@ interface TimeRangeSectionProps {
 }
 
 export const TimeRangeSection = ({
-    startTimeName = 'start_date',
-    endTimeName = 'end_date',
+    startTimeName = 'start_time',
+    endTimeName = 'end_time',
     startDateName = 'start_date',
     endDateName = 'end_date',
-    startLabel = '시작 날짜',
-    endLabel = '종료 날짜',
+    startLabel = '시작 시간',
+    endLabel = '끝나는 시간',
     required = true,
     autoAdjustEndTime = true,
     minDurationMinutes = 60,
