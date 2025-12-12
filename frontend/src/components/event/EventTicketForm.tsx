@@ -1,9 +1,10 @@
 import React from 'react';
 import { FormProvider } from 'react-hook-form';
+import { BsBell, BsBellSlash } from 'react-icons/bs';
 import { cn } from '@/utils/cn';
 import type { CalendarEvent } from '@/types/calendar';
 import { useEventForm } from '@/hooks/event/useEventForm';
-import { FormCheckbox, FormInput, FormTextArea } from '../common/Form/input';
+import { FormInput, FormTextArea, FormToggle } from '../common/Form/input';
 import { EventDateTimeSection } from './sections/EventDateTimeSection';
 import { useCreateEvent } from '@/hooks/event/useCreateEvent';
 import { useUpdateEvent } from '@/hooks/event/useUpdateEvent';
@@ -76,7 +77,7 @@ export const EventTicketForm: React.FC<EventTicketFormProps> = ({
                     )}
                 >
                     <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                        {isEditMode ? '일정 수정' : '새 일정 만들기'}
+                        {isEditMode ? '일정 수정' : '새 일정'}
                     </h2>
 
                     {/* 제목 */}
@@ -104,9 +105,13 @@ export const EventTicketForm: React.FC<EventTicketFormProps> = ({
                     <EventDateTimeSection />
 
                     {/* 알림 설정 */}
-                    <FormCheckbox
+                    <FormToggle
                         name="notification_enabled"
                         label="알림 설정"
+                        activeIcon={<BsBell />}
+                        inactiveIcon={<BsBellSlash />}
+                        size="sm"
+                        labelPosition="left"
                         disabled={form.formState.isSubmitting}
                     />
 
@@ -118,7 +123,7 @@ export const EventTicketForm: React.FC<EventTicketFormProps> = ({
                     )}
 
                     {/* 버튼 영역 */}
-                    <div className="flex gap-2 pt-2 border-t border-gray-200">
+                    <div className="flex gap-2 pt-2">
                         {onCancel && (
                             <button
                                 type="button"

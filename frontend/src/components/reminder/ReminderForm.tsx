@@ -42,8 +42,6 @@ export const ReminderForm: React.FC<ReminderFormProps> = ({
         initialDate,
     });
 
-    const isNotificationEnabled = form.watch('notification_enabled');
-
     const handleSubmit = form.handleSubmit(
         async (formData: ReminderFormData) => {
             try {
@@ -99,14 +97,11 @@ export const ReminderForm: React.FC<ReminderFormProps> = ({
                         />
                         <ReminderDateTimeSection />
                         <div className="flex items-center gap-2">
-                            {isNotificationEnabled ? (
-                                <BsBell className="shrink-0" />
-                            ) : (
-                                <BsBellSlash className="shrink-0" />
-                            )}
                             <FormToggle
                                 name="notification_enabled"
-                                label="알람 설정"
+                                label="알림 설정"
+                                activeIcon={<BsBell />}
+                                inactiveIcon={<BsBellSlash />}
                                 size="sm"
                                 labelPosition="left"
                                 disabled={form.formState.isSubmitting}
