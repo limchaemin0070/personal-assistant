@@ -6,6 +6,7 @@ interface CalendarHeaderProps {
     headerText: string;
     onPrevMonth: () => void;
     onNextMonth: () => void;
+    view: CalendarView;
     setView: (view: CalendarView) => void;
 }
 
@@ -15,6 +16,7 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
     headerText,
     onPrevMonth,
     onNextMonth,
+    view,
     setView,
 }: CalendarHeaderProps) => {
     return (
@@ -33,7 +35,7 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
                 <h3 className="text-2xl font-semibold">{headerText}</h3>
             </div>
             {/* 캘린더 뷰 변경 컨트롤러 */}
-            <SelectViewDropdown setView={setView} />
+            <SelectViewDropdown view={view} setView={setView} />
         </div>
     );
 };
