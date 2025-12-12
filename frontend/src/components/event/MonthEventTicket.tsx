@@ -37,7 +37,8 @@ interface MonthEventTicketProps {
 export const MonthEventTicket = ({
     id,
     title,
-    categoryColor = '#78716c', // 기본 카테고리 색상
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    categoryColor: _categoryColor, // 카테고리 색상 (향후 카테고리 기능 추가 시 사용 예정)
     startDate: _startDate,
     endDate: _endDate,
     startTime,
@@ -59,18 +60,6 @@ export const MonthEventTicket = ({
         onClick?.(id);
     };
 
-    // 카테고리 색상에 따른 배경색 계산 (연한 색상)
-    const getBackgroundColor = (color: string): string => {
-        // HEX 색상을 RGB로 변환
-        const hex = color.replace('#', '');
-        const r = parseInt(hex.substring(0, 2), 16);
-        const g = parseInt(hex.substring(2, 4), 16);
-        const b = parseInt(hex.substring(4, 6), 16);
-
-        // 연한 배경색 생성 (투명도 적용)
-        return `rgba(${r}, ${g}, ${b}, 0.15)`;
-    };
-
     const className = [
         'month-event-ticket',
         `month-event-ticket-${viewType}`, // 뷰 타입별 클래스 추가
@@ -82,10 +71,10 @@ export const MonthEventTicket = ({
         .filter(Boolean)
         .join(' ');
 
-    // 뷰 타입별 시간 포맷팅
+    // 뷰 타입별 시간 포맷팅 (일간 뷰에서만 좌측 시간 표시)
     const renderTimeDisplay = () => {
         if (viewType === 'day') {
-            // 일간 뷰: 시작시간 제목
+            // 일간 뷰: 시작시간 표시
             if (isAllDay) {
                 return <span className="event-time">종일</span>;
             }
@@ -120,7 +109,24 @@ export const MonthEventTicket = ({
                 </div>
             );
         }
-        // 월간/주간 뷰: 기존 로직 유지
+        if (viewType === 'week') {
+            // 주간 뷰: 제목과 시간 범위만 표시 (좌측 시간 표시 없음)
+            return (
+                <div className="event-content-day">
+                    <div>
+                        <span className="event-title">{title}</span>
+                        <span className="event-time">
+                            {CalendarUtils.formatEventTimeRange(
+                                isAllDay,
+                                startTime,
+                                endTime,
+                            )}
+                        </span>
+                    </div>
+                </div>
+            );
+        }
+        // 월간 뷰: 기존 로직 유지
         if (isStart || isWeekStart) {
             return <span className="event-title">{title}</span>;
         }
@@ -135,11 +141,14 @@ export const MonthEventTicket = ({
             className={className}
             style={
                 {
-                    '--event-ticket-category-color': categoryColor,
-                    '--event-ticket-bg-color':
-                        getBackgroundColor(categoryColor),
-                    gridRow: viewType === 'day' ? undefined : row + 1,
-                    gridColumn: viewType === 'day' ? undefined : `span ${span}`,
+                    gridRow:
+                        viewType === 'day' || viewType === 'week'
+                            ? undefined
+                            : row + 1,
+                    gridColumn:
+                        viewType === 'day' || viewType === 'week'
+                            ? undefined
+                            : `span ${span}`,
                 } as React.CSSProperties
             }
             role="button"

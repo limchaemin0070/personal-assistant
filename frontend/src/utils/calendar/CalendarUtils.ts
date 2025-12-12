@@ -13,6 +13,7 @@ import {
     endOfWeek,
 } from 'date-fns';
 import { ko } from 'date-fns/locale';
+import type { CalendarEvent } from '@/types/calendar';
 
 export interface CalendarDay {
     date: Date;
@@ -381,5 +382,51 @@ export class CalendarUtils {
         const dateStr = this.formatKorean(date, 'yyyy년 M월 d일');
         const dayOfWeek = this.formatDayOfWeek(date);
         return `${dateStr} (${dayOfWeek})`;
+    }
+
+    /**
+     * 일간 뷰용 이벤트 시간순 정렬
+     * 리마인더처럼 종일 이벤트를 먼저 표시하고, 이후 시작 시간 순으로 정렬합니다.
+     * @param events 정렬할 이벤트 배열
+     * @returns 정렬된 이벤트 배열
+     * @example
+     * // 정렬 순서:
+     * // 1. 종일 이벤트 (시작 날짜 순)
+     * // 2. 시간이 있는 이벤트 (시작 시간 순)
+     * // 3. 시간이 없는 이벤트 (시작 날짜 순)
+     */
+    static sortEventsByTime(events: CalendarEvent[]): CalendarEvent[] {
+        return [...events].sort((a, b) => {
+            // 1. 종일 이벤트가 먼저
+            if (a.isAllDay && !b.isAllDay) return -1;
+            if (!a.isAllDay && b.isAllDay) return 1;
+
+            // 둘 다 종일이거나 둘 다 종일이 아닌 경우
+            if (a.isAllDay && b.isAllDay) {
+                // 종일 이벤트는 시작 날짜 순으로 정렬
+                return a.startDate.getTime() - b.startDate.getTime();
+            }
+
+            // 둘 다 종일이 아닌 경우
+            // 2. 시작 시간이 있는 이벤트가 먼저
+            const aHasTime = !!(a.startTime && !a.isAllDay);
+            const bHasTime = !!(b.startTime && !b.isAllDay);
+
+            if (aHasTime && !bHasTime) return -1;
+            if (!aHasTime && bHasTime) return 1;
+
+            // 둘 다 시간이 있으면 시간 순으로 정렬
+            if (aHasTime && bHasTime) {
+                const timeCompare = (a.startTime || '').localeCompare(
+                    b.startTime || '',
+                );
+                if (timeCompare !== 0) return timeCompare;
+                // 시간이 같으면 시작 날짜 순
+                return a.startDate.getTime() - b.startDate.getTime();
+            }
+
+            // 둘 다 시간이 없으면 시작 날짜 순으로 정렬
+            return a.startDate.getTime() - b.startDate.getTime();
+        });
     }
 }
