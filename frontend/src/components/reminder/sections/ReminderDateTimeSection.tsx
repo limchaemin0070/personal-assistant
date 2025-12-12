@@ -50,15 +50,14 @@ export const ReminderDateTimeSection = ({
                 required={false}
                 className="p-3 border-none"
             />
-            <div className="flex items-center gap-2">
-                <IoTimeOutline className="shrink-0" />
-                <FormToggle
-                    name={isAllDayName}
-                    label="하루 종일"
-                    size="sm"
-                    labelPosition="left"
-                />
-            </div>
+            <FormToggle
+                name={isAllDayName}
+                label="하루 종일"
+                activeIcon={<IoTimeOutline />}
+                inactiveIcon={<IoTimeOutline />}
+                size="sm"
+                labelPosition="left"
+            />
             {!isAllDay && (
                 <FormTime
                     name={timeName}

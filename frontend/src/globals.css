@@ -452,7 +452,7 @@
         font-size: 0.875rem;
         font-weight: 500;
         color: rgb(var(--color-text-secondary));
-        margin-bottom: 0.5rem;
+        /* margin-bottom: 0.5rem; */
     }
 
     /* 필수 표시 */
@@ -490,7 +490,7 @@
     .input-group {
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
+        /* gap: 0.5rem; */
         margin-bottom: 1rem;
     }
 

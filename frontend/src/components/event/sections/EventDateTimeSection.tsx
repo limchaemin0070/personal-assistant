@@ -54,15 +54,14 @@ export const EventDateTimeSection = () => {
                 endDateName="end_date"
                 autoAdjustEndDate
             />
-            <div className="flex items-center gap-2">
-                <IoTimeOutline className="shrink-0" />
-                <FormToggle
-                    name="is_all_day"
-                    label="하루 종일"
-                    size="sm"
-                    labelPosition="left"
-                />
-            </div>
+            <FormToggle
+                name="is_all_day"
+                label="하루 종일"
+                activeIcon={<IoTimeOutline />}
+                inactiveIcon={<IoTimeOutline />}
+                size="sm"
+                labelPosition="left"
+            />
             {!isAllDay && (
                 <TimeRangeSection
                     startTimeName="start_time"
