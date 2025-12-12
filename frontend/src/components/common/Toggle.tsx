@@ -1,4 +1,5 @@
 import { useId } from 'react';
+import type { ReactNode } from 'react';
 import { cn } from '@/utils/cn';
 
 interface ToggleProps {
@@ -6,6 +7,8 @@ interface ToggleProps {
     onCheckedChange: (checked: boolean) => void;
     disabled?: boolean;
     label: string;
+    activeIcon?: ReactNode;
+    inactiveIcon?: ReactNode;
     className?: string;
     size?: 'sm' | 'md' | 'lg';
     labelPosition?: 'left' | 'right';
@@ -20,6 +23,8 @@ export const Toggle = ({
     onCheckedChange,
     disabled = false,
     label,
+    activeIcon,
+    inactiveIcon,
     className = '',
     size = 'md',
     labelPosition = 'right',
@@ -65,9 +70,19 @@ export const Toggle = ({
         </div>
     );
 
+    const currentIcon = checked ? activeIcon : inactiveIcon;
+    const hasIcon = activeIcon || inactiveIcon;
+
     const labelElement = (
         <span className="text-sm font-medium text-gray-700 select-none">
-            {label}
+            {hasIcon && currentIcon ? (
+                <span className="flex items-center gap-2">
+                    <span className="shrink-0">{currentIcon}</span>
+                    {label}
+                </span>
+            ) : (
+                label
+            )}
         </span>
     );
 

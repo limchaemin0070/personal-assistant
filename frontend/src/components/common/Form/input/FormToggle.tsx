@@ -1,5 +1,5 @@
 import { useFormContext, useController } from 'react-hook-form';
-import type { InputHTMLAttributes } from 'react';
+import type { InputHTMLAttributes, ReactNode } from 'react';
 import { cn } from '@/utils/cn';
 
 interface FormToggleProps
@@ -9,6 +9,8 @@ interface FormToggleProps
     > {
     name: string;
     label: string;
+    activeIcon?: ReactNode;
+    inactiveIcon?: ReactNode;
     size?: 'sm' | 'md' | 'lg';
     labelPosition?: 'left' | 'right';
 }
@@ -20,6 +22,8 @@ interface FormToggleProps
 export const FormToggle = ({
     name,
     label,
+    activeIcon,
+    inactiveIcon,
     className,
     size = 'md',
     labelPosition = 'right',
@@ -71,9 +75,19 @@ export const FormToggle = ({
         </div>
     );
 
+    const currentIcon = field.value ? activeIcon : inactiveIcon;
+    const hasIcon = activeIcon || inactiveIcon;
+
     const labelElement = (
         <span className="text-sm font-medium text-gray-700 select-none">
-            {label}
+            {hasIcon && currentIcon ? (
+                <span className="flex items-center gap-2">
+                    <span className="shrink-0">{currentIcon}</span>
+                    {label}
+                </span>
+            ) : (
+                label
+            )}
         </span>
     );
 
