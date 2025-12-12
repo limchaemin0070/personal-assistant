@@ -1,37 +1,52 @@
 import React from 'react';
+import { cn } from '@/utils/cn';
 import type { CalendarView } from '@/hooks/calendar/useCalendar';
 
 interface SelectViewDropdownProps {
+    view: CalendarView;
     setView: (view: CalendarView) => void;
 }
 
-// TODO : 추후 드롭다운이나 토글 형태로 변경
+// 공통 버튼 스타일
+const viewButtonBaseStyles =
+    'px-2 py-1 text-sm rounded transition-colors duration-200 cursor-pointer';
+
+// 선택된 뷰 버튼 스타일
+const viewButtonActiveStyles = 'bg-gray-200 font-medium text-gray-900';
+
+// 비선택된 뷰 버튼 스타일
+const viewButtonInactiveStyles = 'hover:bg-gray-100 text-gray-600';
+
 export const SelectViewDropdown: React.FC<SelectViewDropdownProps> = ({
+    view,
     setView,
 }) => {
+    const views: { value: CalendarView; label: string }[] = [
+        { value: 'month', label: '월' },
+        { value: 'week', label: '주' },
+        { value: 'day', label: '일' },
+    ];
+
     return (
         <div className="flex gap-0.5">
-            <button
-                type="button"
-                onClick={() => setView('month')}
-                className="px-2 py-1 text-sm rounded hover:bg-gray-100"
-            >
-                월
-            </button>
-            <button
-                type="button"
-                onClick={() => setView('week')}
-                className="px-2 py-1 text-sm rounded hover:bg-gray-100"
-            >
-                주
-            </button>
-            <button
-                type="button"
-                onClick={() => setView('day')}
-                className="px-2 py-1 text-sm rounded hover:bg-gray-100"
-            >
-                일
-            </button>
+            {views.map((viewOption) => {
+                const isActive = view === viewOption.value;
+                return (
+                    <button
+                        key={viewOption.value}
+                        type="button"
+                        onClick={() => setView(viewOption.value)}
+                        className={cn(
+                            viewButtonBaseStyles,
+                            isActive
+                                ? viewButtonActiveStyles
+                                : viewButtonInactiveStyles,
+                        )}
+                    >
+                        {viewOption.label}
+                    </button>
+                );
+            })}
         </div>
     );
 };

@@ -85,6 +85,7 @@ export const CalendarMain: React.FC<CalendarMainProps> = ({
                     headerText={headerText}
                     onPrevMonth={handlePrev}
                     onNextMonth={handleNext}
+                    view={view}
                     setView={setView}
                 />
                 {onToggleRightSidebar && (
