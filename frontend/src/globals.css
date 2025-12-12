@@ -653,6 +653,22 @@
         min-height: 0; /* 그리드 아이템이 올바르게 축소되도록 */
     }
 
+    .calendar-grid-header {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        /* 요일 헤더 스타일 */
+    }
+
+    /* 요일 헤더: 각 요일 텍스트를 표시하는 영역 (가운데 정렬) */
+    .calendar-weekday-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.5rem;
+        font-weight: 500;
+        color: var(--color-stone-600);
+    }
+
     /* 날짜 셀: 각 날짜를 표시하는 기본 스타일 */
     .calendar-day-cell {
         position: relative;
