@@ -43,28 +43,13 @@ export const ReminderDateTimeSection = ({
         }
     }, [isAllDay, setValue, timeName, currentTime]);
 
-    // // 시간 섹션 표시
-    // const handleShowTime = () => {
-    //     setShowTimeSection(true);
-    // };
-
-    // // 시간 섹션 숨김
-    // const handleHideTime = () => {
-    //     setShowTimeSection(false);
-    //     setValue(isAllDayName, true);
-    //     setValue(timeName, null);
-    // };
-
     return (
         <section className="space-y-4">
-            {/* 날짜 (항상 표시) */}
             <FormDate
                 name={dateName}
                 required={false}
                 className="p-3 border-none"
             />
-
-            {/* 종일 체크박스 */}
             <div className="flex items-center gap-2">
                 <IoTimeOutline className="shrink-0" />
                 <FormToggle
