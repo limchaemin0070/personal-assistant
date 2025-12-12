@@ -11,6 +11,7 @@ import { Modal } from '../common/Modal/Modal';
 import type { CalendarDay } from '@/utils/calendar/CalendarUtils';
 import { useDeleteEvent } from '@/hooks/event/useDeleteEvent';
 
+const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
 interface CalendarMonthViewProps {
     currentDate: Date;
     monthDays: CalendarDay[];
@@ -94,6 +95,13 @@ export const CalendarMonthView: React.FC<CalendarMonthViewProps> = ({
 
     return (
         <div className="relative flex flex-col flex-1 h-full w-full bg-white">
+            <div className="calendar-grid-header">
+                {weekDays.map((day) => (
+                    <div key={day} className="calendar-weekday-header">
+                        {day}
+                    </div>
+                ))}
+            </div>
             {/* 캘린더 그리드 */}
             {renderCalendarGrid()}
             <AddButton
