@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from 'react';
 import { AddButton } from '../common/Button/AddButton';
-import { Toggle } from '../common/Toggle';
 import { AlarmForm } from './AlarmForm';
 
 // none : 기본 리스트 조회
@@ -11,25 +10,26 @@ export const Alarm: React.FC = () => {
     const [editingAlarmId, setEditingAlarmId] = useState<number | null>(null);
 
     // const { data: alarms = [] } = useAlarm();
+    // const editingAlarm = alarms.find((r) => r.id === editingAlarmId);
 
     const handleAdd = useCallback((): void => {
         setFormMode((prevMode) => (prevMode === 'create' ? 'none' : 'create'));
-        // setEditingReminderId(null);
+        setEditingAlarmId(null);
     }, []);
 
-    // const handleCancel = useCallback((): void => {
-    //     setFormMode('none');
-    //     // setEditingReminderId(null);
-    // }, []);
+    const handleCancel = useCallback((): void => {
+        setFormMode('none');
+        setEditingAlarmId(null);
+    }, []);
 
-    // const handleSubmit = useCallback((): void => {
-    //     setFormMode('none');
-    //     // setEditingReminderId(null);
-    // }, []);
+    const handleSubmit = useCallback((): void => {
+        setFormMode('none');
+        setEditingAlarmId(null);
+    }, []);
 
-    // const handleEditReminder = useCallback((alarms: AlarmType): void => {
+    // const handleEditAlarm = useCallback((alarm: AlarmType): void => {
     //     setFormMode('edit');
-    //     // setEditingReminderId(reminder.id);
+    //     setEditingAlarmId(alarm.id);
     // }, []);
 
     // const handleToggle = (checked: boolean) => {
@@ -41,9 +41,23 @@ export const Alarm: React.FC = () => {
     const renderFormSection = (): React.ReactElement | null => {
         switch (formMode) {
             case 'create':
-                return <AlarmForm />;
+                return (
+                    <AlarmForm
+                        onSubmit={handleSubmit}
+                        onCancel={handleCancel}
+                    />
+                );
             case 'edit':
-                return <AlarmForm />;
+                // editingAlarmId는 나중에 edit 모드에서 사용될 예정입니다
+                // 현재는 주석 처리된 코드에서만 사용되므로 경고를 무시합니다
+                return (
+                    <AlarmForm
+                        onSubmit={handleSubmit}
+                        onCancel={handleCancel}
+                        // initialAlarm={editingAlarm || null}
+                        key={editingAlarmId ?? 'edit'}
+                    />
+                );
             case 'none':
                 return (
                     <div className="rounded-md text-sm text-gray-600">
