@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Sidebar } from './Sidebar';
 import { AlarmContent } from '@/components/alarm/AlarmContent';
 import { Reminder } from '@/components/reminder/Reminder';
+import { Alarm } from '../alarm/Alarm';
 
 type RightSidebarTab = 'alarm' | 'reminder';
 
@@ -47,7 +48,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({ onClose }) => {
                 </div>
             }
         >
-            {activeTab === 'alarm' ? <AlarmContent /> : <Reminder />}
+            {activeTab === 'alarm' ? <Alarm /> : <Reminder />}
         </Sidebar>
     );
 };

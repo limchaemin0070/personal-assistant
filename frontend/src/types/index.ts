@@ -35,5 +35,11 @@ export type {
     ReminderResponse,
 } from './reminder';
 
+// 알람 관련 타입
+export type {
+    Alarm,
+    AlarmResponse,
+} from './alarm';
+
 // Toast 관련 타입
 export type { ToastVariant, Toast, ToastStore } from './toast';
