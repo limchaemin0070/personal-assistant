@@ -5,6 +5,7 @@ import authRoutes from "./routes/auth.routes";
 import userRoutes from "./routes/user.routes";
 import scheduleRoutes from "./routes/schedule.routes";
 import reminderRoutes from "./routes/reminder.routes";
+import alarmRoutes from "./routes/alarm.routes";
 import { errorHandler } from "./middleware/errorHandler";
 import cookieParser from "cookie-parser";
 
@@ -36,6 +37,7 @@ app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
 app.use("/schedules", scheduleRoutes);
 app.use("/reminders", reminderRoutes);
+app.use("/alarms", alarmRoutes);
 
 // 404 핸들러 - 등록되지 않은 라우트 처리
 app.use((req: Request, res: Response) => {
