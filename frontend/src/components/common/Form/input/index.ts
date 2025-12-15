@@ -4,3 +4,4 @@ export { FormCheckbox } from './FormCheckbox';
 export { FormDate } from './FormDate';
 export { FormTime } from './FormTime';
 export { FormToggle } from './FormToggle';
+export { FormSelectDropdown } from './FormSelectDropdown';
