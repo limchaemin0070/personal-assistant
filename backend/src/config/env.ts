@@ -22,6 +22,8 @@ interface EnvVariables {
   JWT_REFRESH_SECRET: string;
   JWT_ACCESS_EXPIRES_IN: string;
   JWT_REFRESH_EXPIRES_IN: string;
+
+  REDIS_URL?: string;
 }
 
 function validateEnv(): EnvVariables {
@@ -81,6 +83,8 @@ function validateEnv(): EnvVariables {
     JWT_REFRESH_SECRET: getEnv("JWT_REFRESH_SECRET", "test-refresh-secret-key"),
     JWT_ACCESS_EXPIRES_IN: getEnv("JWT_ACCESS_EXPIRES_IN", "15m"),
     JWT_REFRESH_EXPIRES_IN: getEnv("JWT_REFRESH_EXPIRES_IN", "7d"),
+
+    REDIS_URL: getEnv("REDIS_URL", ""),
   };
 }
 
