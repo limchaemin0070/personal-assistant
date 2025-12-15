@@ -44,6 +44,8 @@ export const createAlarm = asyncHandler(async (req: Request, res: Response) => {
   const {
     schedule_id,
     reminder_id,
+    title,
+    date,
     time,
     is_repeat = false,
     repeat_days,
@@ -55,6 +57,8 @@ export const createAlarm = asyncHandler(async (req: Request, res: Response) => {
   validateCreateAlarmPayload({
     schedule_id,
     reminder_id,
+    title,
+    date,
     time,
     is_repeat,
     repeat_days,
@@ -66,6 +70,8 @@ export const createAlarm = asyncHandler(async (req: Request, res: Response) => {
     user_id: userId,
     schedule_id: schedule_id ?? null,
     reminder_id: reminder_id ?? null,
+    title: title ?? null,
+    date: date ?? null,
     time,
     is_repeat,
     repeat_days: repeat_days ?? null,
@@ -94,6 +100,8 @@ export const updateAlarm = asyncHandler(async (req: Request, res: Response) => {
   const {
     schedule_id,
     reminder_id,
+    title,
+    date,
     time,
     is_repeat,
     repeat_days,
@@ -105,6 +113,8 @@ export const updateAlarm = asyncHandler(async (req: Request, res: Response) => {
   validateUpdateAlarmPayload({
     schedule_id,
     reminder_id,
+    title,
+    date,
     time,
     is_repeat,
     repeat_days,
@@ -119,6 +129,8 @@ export const updateAlarm = asyncHandler(async (req: Request, res: Response) => {
 
   if (schedule_id !== undefined) updateParams.schedule_id = schedule_id ?? null;
   if (reminder_id !== undefined) updateParams.reminder_id = reminder_id ?? null;
+  if (title !== undefined) updateParams.title = title ?? null;
+  if (date !== undefined) updateParams.date = date ?? null;
   if (time !== undefined) updateParams.time = time;
   if (is_repeat !== undefined) updateParams.is_repeat = is_repeat;
   if (repeat_days !== undefined) updateParams.repeat_days = repeat_days ?? null;

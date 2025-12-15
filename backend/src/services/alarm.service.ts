@@ -9,6 +9,8 @@ interface CreateAlarmParams {
   user_id: number;
   schedule_id?: number | null;
   reminder_id?: number | null;
+  title?: string | null;
+  date?: string | null;
   time: string;
   is_repeat: boolean;
   repeat_days?: number[] | null;
@@ -25,6 +27,8 @@ interface UpdateAlarmParams {
   user_id: number;
   schedule_id?: number | null;
   reminder_id?: number | null;
+  title?: string;
+  date?: string | null;
   time?: string;
   is_repeat?: boolean;
   repeat_days?: number[] | null;
@@ -67,9 +71,13 @@ class AlarmService {
       user_id: params.user_id,
       schedule_id: params.schedule_id ?? null,
       reminder_id: params.reminder_id ?? null,
+      title: params.title ?? null,
+      date: params.date ?? null,
       time: params.time,
       is_repeat: params.is_repeat,
-      repeat_days: params.repeat_days ? JSON.stringify(params.repeat_days) : null,
+      repeat_days: params.repeat_days
+        ? JSON.stringify(params.repeat_days)
+        : null,
       is_active: params.is_active,
       alarm_type: params.alarm_type,
     });
@@ -110,6 +118,12 @@ class AlarmService {
     }
     if (params.reminder_id !== undefined) {
       updateData.reminder_id = params.reminder_id ?? null;
+    }
+    if (params.title !== undefined) {
+      updateData.title = params.title ?? null;
+    }
+    if (params.date !== undefined) {
+      updateData.date = params.date ?? null;
     }
     if (params.time !== undefined) {
       updateData.time = params.time;
@@ -169,7 +183,30 @@ class AlarmService {
 
     return { message: "알람이 삭제되었습니다." };
   }
+
+  // reminder_id로 알람 조회
+  async findAlarmByReminderId(reminderId: number): Promise<Alarm | null> {
+    const alarm = await Alarm.findOne({
+      where: {
+        reminder_id: reminderId,
+      },
+    });
+
+    return alarm;
+  }
+
+  // reminder_id로 알람 삭제
+  async deleteAlarmByReminderId(
+    reminderId: number
+  ): Promise<DeleteAlarmResult> {
+    const alarm = await this.findAlarmByReminderId(reminderId);
+
+    if (alarm) {
+      await alarm.destroy();
+    }
+
+    return { message: "알람이 삭제되었습니다." };
+  }
 }
 
 export const alarmService = new AlarmService();
-
