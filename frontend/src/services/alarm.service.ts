@@ -146,6 +146,14 @@ export const alarmService = {
         };
     },
 
+    // 알람 활성 상태 토글
+    async toggleActive(alarmId: number, isActive: boolean) {
+        return defaultApi(`/alarms/${alarmId}/active`, {
+            method: 'PATCH',
+            data: { isActive },
+        });
+    },
+
     // 알람 삭제
     async deleteAlarm(alarmId: string | number): Promise<void> {
         await defaultApi(`/alarms/${alarmId}`, {

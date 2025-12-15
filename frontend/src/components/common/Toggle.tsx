@@ -12,6 +12,7 @@ interface ToggleProps {
     className?: string;
     size?: 'sm' | 'md' | 'lg';
     labelPosition?: 'left' | 'right';
+    'aria-label'?: string;
 }
 
 /**
@@ -28,6 +29,7 @@ export const Toggle = ({
     className = '',
     size = 'md',
     labelPosition = 'right',
+    'aria-label': ariaLabel,
 }: ToggleProps) => {
     const id = useId();
 
@@ -86,11 +88,14 @@ export const Toggle = ({
         </span>
     );
 
+    const hasLabel = label.trim().length > 0 || hasIcon;
+
     return (
         <label
             htmlFor={id}
             className={cn(
-                'inline-flex items-center gap-3 cursor-pointer',
+                'inline-flex items-center cursor-pointer',
+                hasLabel && 'gap-3',
                 disabled && 'opacity-50 cursor-not-allowed',
                 className,
             )}
@@ -102,16 +107,17 @@ export const Toggle = ({
                 onChange={(e) => onCheckedChange(e.target.checked)}
                 disabled={disabled}
                 className="sr-only"
+                aria-label={ariaLabel || label}
             />
             {labelPosition === 'left' ? (
                 <>
-                    {labelElement}
+                    {hasLabel && labelElement}
                     {toggleButton}
                 </>
             ) : (
                 <>
                     {toggleButton}
-                    {labelElement}
+                    {hasLabel && labelElement}
                 </>
             )}
         </label>
