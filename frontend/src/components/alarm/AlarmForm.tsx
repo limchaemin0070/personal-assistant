@@ -5,6 +5,8 @@ import { FormInput, FormTime } from '../common/Form/input';
 import type { AlarmFormData } from '@/schemas/alarmSchema';
 import { AlarmDateSection } from './sections/AlarmDateSection';
 import { useAlarmForm } from '@/hooks/alarm/useAlarmForm';
+import { useCreateAlarm } from '@/hooks/alarm/useCreateAlarm';
+import { useUpdateAlarm } from '@/hooks/alarm/useUpdateAlarm';
 import type { Alarm } from '@/types/alarm';
 
 interface AlarmFormProps {
@@ -22,6 +24,9 @@ export const AlarmForm: React.FC<AlarmFormProps> = ({
     initialAlarm,
     className,
 }) => {
+    const createAlarm = useCreateAlarm();
+    const updateAlarm = useUpdateAlarm();
+
     const isEditMode = !!initialAlarm;
 
     const form = useAlarmForm({
@@ -29,12 +34,27 @@ export const AlarmForm: React.FC<AlarmFormProps> = ({
         initialDate,
     });
 
-    // 스켈레톤: 폼 미리보기를 위한 임시 구현
     const handleSubmit = form.handleSubmit(async (formData: AlarmFormData) => {
-        // eslint-disable-next-line no-console
-        console.log('알람 폼 제출 (스켈레톤):', formData);
-        // 실제 구현은 나중에 추가 예정
-        onSubmit?.();
+        try {
+            if (isEditMode) {
+                await updateAlarm.mutateAsync({
+                    alarmId: initialAlarm.id,
+                    formData,
+                });
+            } else {
+                await createAlarm.mutateAsync(formData);
+            }
+            // handleCancel - 제출한 다음 제출모달 닫음
+            onSubmit?.();
+        } catch (error) {
+            // TODO : 콘솔 제거
+            // eslint-disable-next-line no-console
+            console.error('알람 저장 실패:', error);
+            // form.setError('root', {
+            //     type: 'manual',
+            //     message: '알람 저장에 실패했습니다.',
+            // });
+        }
     });
 
     return (

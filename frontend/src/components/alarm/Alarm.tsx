@@ -1,7 +1,9 @@
 import React, { useCallback, useState } from 'react';
 import { AddButton } from '../common/Button/AddButton';
-import { Toggle } from '../common/Toggle';
 import { AlarmForm } from './AlarmForm';
+import { AlarmList } from './AlarmList';
+import type { Alarm as AlarmType } from '@/types/alarm';
+import { useAlarm } from '@/hooks/alarm/useAlarm';
 
 // none : 기본 리스트 조회
 type AlarmFormMode = 'none' | 'create' | 'edit';
@@ -10,44 +12,51 @@ export const Alarm: React.FC = () => {
     const [formMode, setFormMode] = useState<AlarmFormMode>('none');
     const [editingAlarmId, setEditingAlarmId] = useState<number | null>(null);
 
-    // const { data: alarms = [] } = useAlarm();
+    const { data: alarms = [] } = useAlarm();
+    const editingAlarm = alarms.find((r) => r.id === editingAlarmId);
 
     const handleAdd = useCallback((): void => {
         setFormMode((prevMode) => (prevMode === 'create' ? 'none' : 'create'));
-        // setEditingReminderId(null);
+        setEditingAlarmId(null);
     }, []);
 
-    // const handleCancel = useCallback((): void => {
-    //     setFormMode('none');
-    //     // setEditingReminderId(null);
-    // }, []);
+    const handleCancel = useCallback((): void => {
+        setFormMode('none');
+        setEditingAlarmId(null);
+    }, []);
 
-    // const handleSubmit = useCallback((): void => {
-    //     setFormMode('none');
-    //     // setEditingReminderId(null);
-    // }, []);
+    const handleSubmit = useCallback((): void => {
+        setFormMode('none');
+        setEditingAlarmId(null);
+    }, []);
 
-    // const handleEditReminder = useCallback((alarms: AlarmType): void => {
-    //     setFormMode('edit');
-    //     // setEditingReminderId(reminder.id);
-    // }, []);
-
-    // const handleToggle = (checked: boolean) => {
-    //     // setFilterCompleted(checked);
-    // };
-
-    // const editingAlarm = alarms.find((r) => r.id === editingAlarmId);
+    const handleEditAlarm = useCallback((alarm: AlarmType): void => {
+        setFormMode('edit');
+        setEditingAlarmId(alarm.id);
+    }, []);
 
     const renderFormSection = (): React.ReactElement | null => {
         switch (formMode) {
             case 'create':
-                return <AlarmForm />;
+                return (
+                    <AlarmForm
+                        onSubmit={handleSubmit}
+                        onCancel={handleCancel}
+                    />
+                );
             case 'edit':
-                return <AlarmForm />;
+                return (
+                    <AlarmForm
+                        onSubmit={handleSubmit}
+                        onCancel={handleCancel}
+                        initialAlarm={editingAlarm || null}
+                        key={editingAlarmId ?? 'edit'}
+                    />
+                );
             case 'none':
                 return (
                     <div className="rounded-md text-sm text-gray-600">
-                        {/* <AlarmList /> */}
+                        <AlarmList onEditAlarm={handleEditAlarm} />
                     </div>
                 );
             default:
