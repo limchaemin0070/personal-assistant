@@ -19,6 +19,9 @@ interface AlarmAttributes {
   //   1. 베이직 - 월 수 금 반복 알람 등 이벤트와 무관
   //   2. 이벤트 - 특정 이벤트나 일정 등에 부착하여 실행되는 일회성 알람
   alarm_type: "basic" | "event";
+  next_trigger_at?: Date | null;
+  last_triggered_at?: Date | null;
+  trigger_count?: number;
   created_at?: Date;
   updated_at?: Date;
 }
@@ -35,6 +38,9 @@ class Alarm extends Model<AlarmAttributes> implements AlarmAttributes {
   public repeat_days!: string | null;
   public is_active!: boolean;
   public alarm_type!: "basic" | "event";
+  public next_trigger_at!: Date | null;
+  public last_triggered_at!: Date | null;
+  public trigger_count!: number;
   public readonly created_at!: Date;
   public readonly updated_at!: Date;
 }
@@ -103,6 +109,19 @@ Alarm.init(
       type: DataTypes.ENUM("basic", "event"),
       allowNull: false,
     },
+    next_trigger_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    last_triggered_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    trigger_count: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
   },
   {
     sequelize,
@@ -126,6 +145,10 @@ Alarm.init(
       {
         fields: ["is_active"],
         name: "idx_alarms_is_active",
+      },
+      {
+        fields: ["next_trigger_at"],
+        name: "idx_alarms_next_trigger_at",
       },
     ],
   }

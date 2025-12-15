@@ -10,12 +10,15 @@ interface CreateAlarmParams {
   schedule_id?: number | null;
   reminder_id?: number | null;
   title?: string | null;
-  date?: string | null;
+  date?: string | Date | null;
   time: string;
   is_repeat: boolean;
   repeat_days?: number[] | null;
   is_active: boolean;
   alarm_type: "basic" | "event";
+  next_trigger_at?: Date | null;
+  last_triggered_at?: Date | null;
+  trigger_count?: number;
 }
 
 interface CreateAlarmResult {
@@ -28,12 +31,15 @@ interface UpdateAlarmParams {
   schedule_id?: number | null;
   reminder_id?: number | null;
   title?: string;
-  date?: string | null;
+  date?: string | Date | null;
   time?: string;
   is_repeat?: boolean;
   repeat_days?: number[] | null;
   is_active?: boolean;
   alarm_type?: "basic" | "event";
+  next_trigger_at?: Date | null;
+  last_triggered_at?: Date | null;
+  trigger_count?: number;
 }
 
 interface UpdateAlarmResult {
@@ -72,7 +78,7 @@ class AlarmService {
       schedule_id: params.schedule_id ?? null,
       reminder_id: params.reminder_id ?? null,
       title: params.title ?? null,
-      date: params.date ?? null,
+      date: params.date ? new Date(params.date) : null,
       time: params.time,
       is_repeat: params.is_repeat,
       repeat_days: params.repeat_days
@@ -80,6 +86,9 @@ class AlarmService {
         : null,
       is_active: params.is_active,
       alarm_type: params.alarm_type,
+      next_trigger_at: params.next_trigger_at ?? null,
+      last_triggered_at: params.last_triggered_at ?? null,
+      trigger_count: params.trigger_count ?? 0,
     });
 
     return { alarm };
@@ -123,7 +132,7 @@ class AlarmService {
       updateData.title = params.title ?? null;
     }
     if (params.date !== undefined) {
-      updateData.date = params.date ?? null;
+      updateData.date = params.date ? new Date(params.date) : null;
     }
     if (params.time !== undefined) {
       updateData.time = params.time;
@@ -141,6 +150,15 @@ class AlarmService {
     }
     if (params.alarm_type !== undefined) {
       updateData.alarm_type = params.alarm_type;
+    }
+    if (params.next_trigger_at !== undefined) {
+      updateData.next_trigger_at = params.next_trigger_at;
+    }
+    if (params.last_triggered_at !== undefined) {
+      updateData.last_triggered_at = params.last_triggered_at;
+    }
+    if (params.trigger_count !== undefined) {
+      updateData.trigger_count = params.trigger_count;
     }
 
     await alarm.update(updateData);
