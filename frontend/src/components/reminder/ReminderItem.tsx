@@ -11,7 +11,6 @@ import {
 } from './ReminderItem.style';
 import { cn } from '@/utils/cn';
 import { DeleteButton } from '../common/Button/DeleteButton';
-import { UpdateButton } from '../common/Button/UpdateButton';
 
 type ReminderItemProps = {
     reminder: Reminder;
@@ -35,12 +34,19 @@ export const ReminderItem: React.FC<ReminderItemProps> = ({
         });
     };
 
-    const handleEdit = () => {
+    const handleItemClick = () => {
         onEditReminder(reminder);
     };
 
     const handleDelete = () => {
         deleteReminder.mutateAsync(reminder.id);
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleItemClick();
+        }
     };
 
     const status = isCompleted ? 'completed' : 'incomplete';
@@ -49,17 +55,23 @@ export const ReminderItem: React.FC<ReminderItemProps> = ({
         <div
             className={cn(
                 reminderItemVariants({ status }),
-                'flex flex-row justify-between gap-2',
+                'flex flex-row justify-between gap-2 cursor-pointer',
             )}
+            onClick={handleItemClick}
+            onKeyDown={handleKeyDown}
+            role="button"
+            tabIndex={0}
         >
             <div className="flex flex-row gap-4 min-w-0 flex-1">
-                <Checkbox
-                    checked={isCompleted}
-                    onCheckedChange={handleToggleComplete}
-                    disabled={
-                        updateReminder.isPending || deleteReminder.isPending
-                    }
-                />
+                <div onClick={(e) => e.stopPropagation()} role="presentation">
+                    <Checkbox
+                        checked={isCompleted}
+                        onCheckedChange={handleToggleComplete}
+                        disabled={
+                            updateReminder.isPending || deleteReminder.isPending
+                        }
+                    />
+                </div>
                 <div className="flex flex-col min-w-0 flex-1 overflow-hidden">
                     <span className={reminderTitleVariants({ status })}>
                         {title}
@@ -69,13 +81,11 @@ export const ReminderItem: React.FC<ReminderItemProps> = ({
                     </span>
                 </div>
             </div>
-            <div className="flex gap-2 shrink-0">
-                <UpdateButton
-                    onClick={handleEdit}
-                    size="sm"
-                    aria-label="일정 수정"
-                    disabled={deleteReminder.isPending}
-                />
+            <div
+                className="flex gap-2 shrink-0"
+                onClick={(e) => e.stopPropagation()}
+                role="presentation"
+            >
                 <DeleteButton
                     onClick={handleDelete}
                     size="sm"
