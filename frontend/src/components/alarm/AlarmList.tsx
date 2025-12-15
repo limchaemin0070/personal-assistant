@@ -58,7 +58,7 @@ export const AlarmList = ({ onEditAlarm }: AlarmListProps) => {
 
     return (
         <div className="space-y-1">
-            <div className="divide-y divide-gray-200">
+            <div className="divide-y divide-gray-200 space-y-2">
                 {sortedAlarms.map((alarm) => (
                     <AlarmItem
                         key={alarm.id}
@@ -70,4 +70,3 @@ export const AlarmList = ({ onEditAlarm }: AlarmListProps) => {
         </div>
     );
 };
-
