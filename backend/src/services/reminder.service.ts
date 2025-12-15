@@ -1,5 +1,6 @@
 import { Reminder } from "../models/Reminder.model";
 import { ReminderNotFoundError } from "../errors/BusinessError";
+import { alarmService } from "./alarm.service";
 
 interface GetRemindersByUserIdResult {
   reminders: Reminder[];
@@ -50,6 +51,17 @@ interface UpdateReminderCompleteResult {
 }
 
 class ReminderService {
+  // 날짜를 YYYY-MM-DD 형식 문자열로 변환하는 헬퍼 함수
+  private formatDateToString(date: Date | string | null): string | null {
+    if (!date) return null;
+    if (typeof date === "string") {
+      // 이미 문자열인 경우 (YYYY-MM-DD 형식)
+      return date;
+    }
+    // Date 객체인 경우
+    return date.toISOString().split("T")[0] as string;
+  }
+
   // 유저ID로 리마인더 목록 조회
   async getRemindersByUserId(
     userId: number
@@ -76,8 +88,29 @@ class ReminderService {
       date: params.date ?? null,
       time: params.time ?? null,
       is_all_day: params.is_all_day,
+      is_completed: false,
       notification_enabled: params.notification_enabled,
     });
+
+    // 알림이 활성화되고 날짜와 시간이 있는 경우 알람 생성
+    if (
+      params.notification_enabled &&
+      params.date &&
+      params.time &&
+      !params.is_all_day
+    ) {
+      await alarmService.createAlarm({
+        user_id: params.user_id,
+        reminder_id: reminder.reminder_id!,
+        title: params.title,
+        date: this.formatDateToString(params.date),
+        time: params.time,
+        is_repeat: false,
+        repeat_days: null,
+        is_active: true,
+        alarm_type: "event",
+      });
+    }
 
     return { reminder };
   }
@@ -110,6 +143,11 @@ class ReminderService {
       throw new ReminderNotFoundError();
     }
 
+    // 기존 알람 조회
+    const existingAlarm = await alarmService.findAlarmByReminderId(
+      params.reminder_id
+    );
+
     // 업데이트할 필드만 설정
     const updateData: any = {};
     if (params.title !== undefined) updateData.title = params.title;
@@ -131,6 +169,56 @@ class ReminderService {
       updateData.notification_enabled = params.notification_enabled;
 
     await reminder.update(updateData);
+
+    // 알람 처리 로직
+    const finalDate = params.date !== undefined ? params.date : reminder.date;
+    const finalTime = params.time !== undefined ? params.time : reminder.time;
+    const finalIsAllDay =
+      params.is_all_day !== undefined ? params.is_all_day : reminder.is_all_day;
+    const finalNotificationEnabled =
+      params.notification_enabled !== undefined
+        ? params.notification_enabled
+        : reminder.notification_enabled;
+
+    const shouldHaveAlarm =
+      finalNotificationEnabled && finalDate && finalTime && !finalIsAllDay;
+
+    if (shouldHaveAlarm) {
+      // 알람이 있어야 하는 경우
+      if (existingAlarm) {
+        // 기존 알람 업데이트
+        await alarmService.updateAlarm({
+          alarm_id: existingAlarm.alarm_id,
+          user_id: params.user_id,
+          reminder_id: params.reminder_id,
+          title: params.title !== undefined ? params.title : reminder.title,
+          date: this.formatDateToString(finalDate),
+          time: finalTime!,
+          is_repeat: false,
+          repeat_days: null,
+          is_active: true,
+          alarm_type: "event",
+        });
+      } else {
+        // 새 알람 생성
+        await alarmService.createAlarm({
+          user_id: params.user_id,
+          reminder_id: params.reminder_id,
+          title: params.title !== undefined ? params.title : reminder.title,
+          date: this.formatDateToString(finalDate),
+          time: finalTime!,
+          is_repeat: false,
+          repeat_days: null,
+          is_active: true,
+          alarm_type: "event",
+        });
+      }
+    } else {
+      // 알람이 없어야 하는 경우 - 기존 알람 삭제
+      if (existingAlarm) {
+        await alarmService.deleteAlarm(existingAlarm.alarm_id, params.user_id);
+      }
+    }
 
     return { reminder };
   }
@@ -174,6 +262,9 @@ class ReminderService {
     if (!reminder) {
       throw new ReminderNotFoundError();
     }
+
+    // 연결된 알람 삭제
+    await alarmService.deleteAlarmByReminderId(reminderId);
 
     await reminder.destroy();
 
