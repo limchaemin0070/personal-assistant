@@ -9,6 +9,8 @@ interface AlarmAttributes {
   user_id: number;
   schedule_id?: number | null;
   reminder_id?: number | null;
+  title?: string | null;
+  date?: Date | null;
   time: string;
   is_repeat: boolean;
   repeat_days?: string | null;
@@ -26,6 +28,8 @@ class Alarm extends Model<AlarmAttributes> implements AlarmAttributes {
   public user_id!: number;
   public schedule_id!: number | null;
   public reminder_id!: number | null;
+  public title!: string | null;
+  public date!: Date | null;
   public time!: string;
   public is_repeat!: boolean;
   public repeat_days!: string | null;
@@ -65,6 +69,17 @@ Alarm.init(
         model: "Reminders",
         key: "reminder_id",
       },
+    },
+    title: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+      validate: {
+        len: [0, 255],
+      },
+    },
+    date: {
+      type: DataTypes.DATEONLY,
+      allowNull: true,
     },
     time: {
       type: DataTypes.TIME,

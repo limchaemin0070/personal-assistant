@@ -80,8 +80,7 @@ export const AlarmForm: React.FC<AlarmFormProps> = ({
                         <AlarmDateSection />
                         <FormInput
                             name="title"
-                            placeholder="알람 이름"
-                            required
+                            placeholder="알람 이름 (선택사항)"
                             maxLength={255}
                             disabled={form.formState.isSubmitting}
                             className="p-3 border-none"

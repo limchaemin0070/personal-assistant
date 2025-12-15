@@ -5,6 +5,8 @@ import { ValidationError } from "../../errors/ValidationError";
 export interface CreateAlarmPayload {
   schedule_id?: number | null;
   reminder_id?: number | null;
+  title?: string;
+  date?: string | null;
   time?: string;
   is_repeat?: boolean;
   repeat_days?: number[] | null;
@@ -15,6 +17,8 @@ export interface CreateAlarmPayload {
 export interface UpdateAlarmPayload {
   schedule_id?: number | null;
   reminder_id?: number | null;
+  title?: string;
+  date?: string | null;
   time?: string;
   is_repeat?: boolean;
   repeat_days?: number[] | null;
@@ -124,10 +128,28 @@ export const validateIntegerOrThrow = (
   }
 };
 
+// 제목 검증 (선택사항)
+export const validateTitleOrThrow = (title?: string | null) => {
+  // title이 제공된 경우에만 검증
+  if (title !== undefined && title !== null) {
+    if (typeof title !== "string") {
+      throw new ValidationError("알람 제목은 문자열이어야 합니다.", "title");
+    }
+    if (title.length > 255) {
+      throw new ValidationError(
+        "알람 제목은 최대 255자까지 가능합니다.",
+        "title"
+      );
+    }
+  }
+};
+
 export const validateCreateAlarmPayload = (payload: CreateAlarmPayload) => {
   const {
     schedule_id,
     reminder_id,
+    title,
+    date,
     time,
     is_repeat,
     repeat_days,
@@ -138,6 +160,9 @@ export const validateCreateAlarmPayload = (payload: CreateAlarmPayload) => {
   // 필수 필드 검증
   validateTimeOrThrow(time);
   validateAlarmTypeOrThrow(alarm_type);
+  
+  // 선택 필드 검증
+  validateTitleOrThrow(title);
 
   // 선택 필드 검증
   validateIntegerOrThrow(schedule_id, "schedule_id", true);
@@ -202,6 +227,8 @@ export const validateUpdateAlarmPayload = (payload: UpdateAlarmPayload) => {
   const {
     schedule_id,
     reminder_id,
+    title,
+    date,
     time,
     is_repeat,
     repeat_days,
@@ -210,6 +237,9 @@ export const validateUpdateAlarmPayload = (payload: UpdateAlarmPayload) => {
   } = payload;
 
   // 제공된 필드만 검증
+  if (title !== undefined) {
+    validateTitleOrThrow(title);
+  }
   if (time !== undefined) {
     validateTimeOrThrow(time);
   }

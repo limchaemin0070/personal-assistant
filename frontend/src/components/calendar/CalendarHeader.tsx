@@ -1,6 +1,10 @@
+import React from 'react';
 import { SlArrowLeft, SlArrowRight } from 'react-icons/sl';
 import type { CalendarView } from '@/hooks/calendar/useCalendar';
-import { SelectViewDropdown } from './SelectViewDropdown';
+import {
+    SelectDropdown,
+    type SelectOption,
+} from '@/components/common/SelectDropdown';
 
 interface CalendarHeaderProps {
     headerText: string;
@@ -19,6 +23,12 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
     view,
     setView,
 }: CalendarHeaderProps) => {
+    const views: SelectOption<CalendarView>[] = [
+        { value: 'month', label: '월' },
+        { value: 'week', label: '주' },
+        { value: 'day', label: '일' },
+    ];
+
     return (
         <div className="flex flex-row items-center justify-between w-full gap-5">
             <div className="flex flex-row items-center gap-5">
@@ -35,7 +45,12 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
                 <h3 className="text-2xl font-semibold">{headerText}</h3>
             </div>
             {/* 캘린더 뷰 변경 컨트롤러 */}
-            <SelectViewDropdown view={view} setView={setView} />
+            <SelectDropdown
+                options={views}
+                value={view}
+                onChange={(newView) => setView(newView as CalendarView)}
+                multiple={false}
+            />
         </div>
     );
 };

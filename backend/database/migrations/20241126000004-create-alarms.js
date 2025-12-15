@@ -43,6 +43,14 @@ module.exports = {
           onDelete: "CASCADE",
           onUpdate: "CASCADE",
         },
+        title: {
+          type: Sequelize.STRING(255),
+          allowNull: false,
+        },
+        date: {
+          type: Sequelize.DATEONLY,
+          allowNull: true,
+        },
         time: {
           type: Sequelize.TIME,
           allowNull: false,
@@ -87,17 +95,14 @@ module.exports = {
 
     await queryInterface.sequelize.query(`
       ALTER TABLE Alarms 
-      ADD CONSTRAINT Alarms_chk_alarm_type CHECK (
-        (alarm_type = 'basic' AND schedule_id IS NULL AND reminder_id IS NULL) OR
-        (alarm_type = 'event' AND (
-          (schedule_id IS NOT NULL AND reminder_id IS NULL) OR
-          (schedule_id IS NULL AND reminder_id IS NOT NULL)
-        ))
-      ),
       ADD CONSTRAINT Alarms_chk_repeat CHECK (
         is_repeat = FALSE OR repeat_days IS NOT NULL
-      )
+      ),
+      ADD CONSTRAINT Alarms_chk_title_length CHECK (CHAR_LENGTH(title) >= 1)
     `);
+    // 주의: Alarms_chk_alarm_type 제약 조건은 MySQL 8.0.16+에서 외래 키로 참조되는 컬럼을 
+    // CHECK 제약 조건에서 사용할 수 없어 제거되었습니다. 
+    // 대신 애플리케이션 레벨(alarmValidator.ts)에서 검증합니다.
 
     await queryInterface.addIndex("Alarms", ["user_id"], {
       name: "idx_alarms_user_id",

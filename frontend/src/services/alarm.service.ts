@@ -48,7 +48,7 @@ export const alarmService = {
             is_active: boolean;
             alarm_type: 'basic' | 'event';
         } = {
-            title: data.title,
+            title: data.title || '',
             date: data.date || null,
             time: data.time,
             is_repeat: isRepeat,

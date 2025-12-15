@@ -28,6 +28,7 @@ export interface AlarmResponse {
     schedule_id?: number | null;
     reminder_id?: number | null;
     title?: string;
+    date?: string | null; // ISO date string
     time: string;
     is_repeat: boolean;
     repeat_days?: string | null; // JSON string
