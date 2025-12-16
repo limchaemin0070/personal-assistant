@@ -7,7 +7,7 @@ import {
   enableKeyspaceNotifications,
   disconnectRedis,
 } from "./config/redis";
-import { schedulerService } from "./services/notification/scheduler.service";
+import alarmWorker from "./queue/alarm.worker";
 
 console.log("🔍 환경변수 확인:");
 console.log("REDIS_URL:", process.env.REDIS_URL ? "설정됨" : "없음");
@@ -44,13 +44,8 @@ const connectRedis = async () => {
     // Keyspace Notifications 활성화 (알람 만료 이벤트 감지용)
     await enableKeyspaceNotifications();
 
-    // // Redis 스케줄러 초기화
-    // console.log("🔍 Redis 스케줄러 초기화 중...");
-    // await RedisScheduler.initialize();
-
-    // // 알람 복구 (서버 재시작 시 활성 알람 재스케줄링)
-    // console.log("🔍 알람 복구 중...");
-    // await AlarmService.recoverAlarms();
+    // BullMQ Worker 초기화 (자동으로 시작됨)
+    console.log("✅ BullMQ Alarm Worker 초기화 완료");
 
     console.log("✅ Redis 초기화 완료\n");
   } catch (error) {
@@ -72,6 +67,11 @@ const setupGracefulShutdown = (server: any) => {
     });
 
     try {
+      // BullMQ Worker 종료
+      console.log("🔄 BullMQ Worker 종료 중...");
+      await alarmWorker.close();
+      console.log("✅ BullMQ Worker 종료 완료");
+
       // Redis 연결 종료
       await disconnectRedis();
 
@@ -119,9 +119,6 @@ export const startServer = async () => {
 
     // Redis 연결 및 초기화
     await connectRedis();
-
-    // 스케줄링
-    await schedulerService.initialize();
 
     // HTTP 서버 시작
     const server = app.listen(env.PORT, () => {

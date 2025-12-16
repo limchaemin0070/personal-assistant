@@ -46,3 +46,29 @@ export interface NotificationData {
   timestamp: string;
   alarmType: string;
 }
+
+// ===================================================================
+
+export interface AlarmJobData {
+  type: "SEND_ALARM" | "CHECK_SCHEDULED_ALARMS" | "CLEANUP_OLD_ALARMS";
+  data?: {
+    alarmId?: number;
+    userId?: number;
+    message?: string;
+    triggerTime?: Date;
+  };
+}
+
+export interface SSEMessage {
+  type: "ALARM" | "CONNECTED" | "HEARTBEAT";
+  data?: any;
+  timestamp?: Date;
+}
+
+export interface ScheduledAlarm {
+  id: number;
+  userId: number;
+  message: string;
+  triggerTime: Date;
+  status: "PENDING" | "SENT" | "FAILED";
+}
