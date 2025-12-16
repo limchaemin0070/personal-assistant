@@ -96,40 +96,39 @@ class AlarmTriggerService {
    * 알람 실행 프로세스 전체 처리
    */
   async processAlarm(alarmId: number, currentTime: Date): Promise<void> {
-    // 1. DB에서 알람 조회
+    // DB에서 알람 조회
     const alarm = await Alarm.findByPk(alarmId);
 
     if (!alarm) {
       // 알람이 없으면 스케줄에서 제거
-      await alarmSchedulerService.removeAlarmFromSchedule(alarmId);
+      await alarmSchedulerService.cancelAlarm(alarmId);
       return;
     }
 
-    // 2. 트리거 가능 여부 검증
+    // 트리거 가능 여부 검증
     if (!this.canTrigger(alarm)) {
       // 트리거 불가능하면 스케줄에서 제거
-      await alarmSchedulerService.removeAlarmFromSchedule(alarmId);
+      await alarmSchedulerService.cancelAlarm(alarmId);
       return;
     }
 
-    // 3. 알람 트리거 실행 (알림 발송)
+    // 알람 트리거 실행 (알림 발송)
     await this.triggerAlarm(alarm);
 
-    // 4. 재스케줄링 처리
+    // 재스케줄링
     if (this.shouldReschedule(alarm)) {
       const nextTriggerTime = await this.rescheduleAlarm(alarm, currentTime);
 
       if (nextTriggerTime) {
         // 다음 실행 시간이 있으면 스케줄에 등록
         await alarmSchedulerService.scheduleAlarmAt(alarmId, nextTriggerTime);
-        await alarmSchedulerService.saveAlarmMetadata(alarm);
       } else {
         // 더 이상 반복 없으면 완료 처리 및 스케줄에서 제거
-        await alarmSchedulerService.removeAlarmFromSchedule(alarmId);
+        await alarmSchedulerService.cancelAlarm(alarmId);
       }
     } else {
       // 재스케줄링 불필요하면 스케줄에서 제거
-      await alarmSchedulerService.removeAlarmFromSchedule(alarmId);
+      await alarmSchedulerService.cancelAlarm(alarmId);
     }
   }
 }

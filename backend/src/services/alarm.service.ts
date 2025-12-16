@@ -175,7 +175,7 @@ class AlarmService {
     await alarm.update(updateData);
 
     // 기존 알람 정리
-    await alarmSchedulerService.cancelAlarm(alarm);
+    await alarmSchedulerService.cancelAlarm(alarm.alarm_id!);
     if (alarm.is_active) {
       await this.scheduleAlarm(alarm);
     }
@@ -202,7 +202,7 @@ class AlarmService {
 
     if (!alarm.is_active) {
       // 비활성화 시 스케줄 제거
-      await alarmSchedulerService.cancelAlarm(alarm);
+      await alarmSchedulerService.cancelAlarm(alarm.alarm_id!);
     } else {
       // 다시 활성화 시 재스케줄
       await this.scheduleAlarm(alarm);
@@ -222,7 +222,7 @@ class AlarmService {
       throw new AlarmNotFoundError();
     }
 
-    await alarmSchedulerService.cancelAlarm(alarm);
+    await alarmSchedulerService.cancelAlarm(alarm.alarm_id!);
 
     await alarm.destroy();
 
@@ -250,12 +250,11 @@ class AlarmService {
       return;
     }
 
-    // Redis에 스케줄 등록
+    // BullMQ에 스케줄 등록
     await alarmSchedulerService.scheduleAlarmAt(
       alarm.alarm_id,
       nextTriggerTime
     );
-    await alarmSchedulerService.saveAlarmMetadata(alarm);
 
     // MySQL에 다음 실행 시간 저장
     await alarm.update({ next_trigger_at: nextTriggerTime });
