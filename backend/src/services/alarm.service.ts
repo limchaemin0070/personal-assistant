@@ -1,6 +1,7 @@
 import { Alarm } from "../models/Alarm.model";
 import { AlarmNotFoundError } from "../errors/BusinessError";
-import { schedulerService } from "./notification/scheduler.service";
+import { alarmSchedulerService } from "./notification/alarm-scheduler.service";
+import { alarmTriggerService } from "./notification/alarm-trigger.service";
 
 interface GetAlarmsByUserIdResult {
   alarms: Alarm[];
@@ -95,7 +96,7 @@ class AlarmService {
     // 활성 알람 스케줄링
     if (alarm.is_active) {
       try {
-        await schedulerService.scheduleAlarm(alarm);
+        await this.scheduleAlarm(alarm);
       } catch (error) {
         console.error("Scheduler failed:", error);
       }
@@ -174,9 +175,9 @@ class AlarmService {
     await alarm.update(updateData);
 
     // 기존 알람 정리
-    await schedulerService.cancelAlarm(alarm);
+    await alarmSchedulerService.cancelAlarm(alarm);
     if (alarm.is_active) {
-      await schedulerService.scheduleAlarm(alarm);
+      await this.scheduleAlarm(alarm);
     }
 
     return { alarm };
@@ -201,10 +202,10 @@ class AlarmService {
 
     if (!alarm.is_active) {
       // 비활성화 시 스케줄 제거
-      await schedulerService.cancelAlarm(alarm);
+      await alarmSchedulerService.cancelAlarm(alarm);
     } else {
       // 다시 활성화 시 재스케줄
-      await schedulerService.scheduleAlarm(alarm);
+      await this.scheduleAlarm(alarm);
     }
 
     return { alarm };
@@ -221,11 +222,43 @@ class AlarmService {
       throw new AlarmNotFoundError();
     }
 
-    await schedulerService.cancelAlarm(alarm);
+    await alarmSchedulerService.cancelAlarm(alarm);
 
     await alarm.destroy();
 
     return { message: "알람이 삭제되었습니다." };
+  }
+
+  /**
+   * 알람 스케줄링 (내부 헬퍼 메서드)
+   * 알람 생성/수정 시 초기 스케줄링을 담당
+   */
+  private async scheduleAlarm(alarm: Alarm): Promise<void> {
+    // 트리거 가능 여부 검증
+    if (!alarmTriggerService.canTrigger(alarm)) {
+      return;
+    }
+
+    // 다음 트리거 시간 계산 (AlarmTriggerService 재사용)
+    const nextTriggerTime = alarmTriggerService.calculateNextTriggerTime(
+      alarm,
+      new Date()
+    );
+
+    // 시간 계산 실패 시 종료
+    if (!nextTriggerTime) {
+      return;
+    }
+
+    // Redis에 스케줄 등록
+    await alarmSchedulerService.scheduleAlarmAt(
+      alarm.alarm_id,
+      nextTriggerTime
+    );
+    await alarmSchedulerService.saveAlarmMetadata(alarm);
+
+    // MySQL에 다음 실행 시간 저장
+    await alarm.update({ next_trigger_at: nextTriggerTime });
   }
 
   // reminder_id로 알람 조회

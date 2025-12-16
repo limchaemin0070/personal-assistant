@@ -7,7 +7,7 @@ import {
   enableKeyspaceNotifications,
   disconnectRedis,
 } from "./config/redis";
-import { schedulerService } from "./services/notification/scheduler.service";
+import { alarmCronService } from "./services/notification/alarm-cron.service";
 
 console.log("🔍 환경변수 확인:");
 console.log("REDIS_URL:", process.env.REDIS_URL ? "설정됨" : "없음");
@@ -120,8 +120,8 @@ export const startServer = async () => {
     // Redis 연결 및 초기화
     await connectRedis();
 
-    // 스케줄링
-    await schedulerService.initialize();
+    // 알람 Cron 서비스 초기화
+    await alarmCronService.initialize();
 
     // HTTP 서버 시작
     const server = app.listen(env.PORT, () => {
