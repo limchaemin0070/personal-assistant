@@ -17,12 +17,22 @@ class AlarmTriggerService {
       return false;
     }
 
-    const repeatDays = normalizeRepeatDays(alarm.repeat_days);
-    if (!alarm.is_repeat || repeatDays.length === 0) {
-      return false;
+    // 반복 알람인 경우
+    if (alarm.is_repeat) {
+      const repeatDays = normalizeRepeatDays(alarm.repeat_days);
+      if (repeatDays.length === 0) {
+        return false;
+      }
+      return true;
     }
 
-    return true;
+    // 일회성 이벤트 알람인 경우 (date와 time이 있어야 함)
+    // TODO : 그러나 Date와 Time이 없을 경우 애초에 트리거가 되면 안됨 (알람 데베에서 제거)
+    if (alarm.alarm_type === "event" && alarm.date && alarm.time) {
+      return true;
+    }
+
+    return false;
   }
 
   /**
@@ -46,17 +56,29 @@ class AlarmTriggerService {
     alarm: Alarm,
     currentTime: Date = new Date()
   ): Date | null {
-    const repeatDays = normalizeRepeatDays(alarm.repeat_days);
-
-    if (!repeatDays || repeatDays.length === 0) {
-      return null;
+    // 반복 알람인 경우
+    if (alarm.is_repeat) {
+      const repeatDays = normalizeRepeatDays(alarm.repeat_days);
+      if (!repeatDays || repeatDays.length === 0) {
+        return null;
+      }
+      return TimeCalculator.calculateNextTriggerTime(
+        alarm.time,
+        repeatDays,
+        currentTime
+      );
     }
 
-    return TimeCalculator.calculateNextTriggerTime(
-      alarm.time,
-      repeatDays,
-      currentTime
-    );
+    // 일회성 이벤트 알람인 경우
+    if (alarm.alarm_type === "event" && alarm.date && alarm.time) {
+      const dateString =
+        alarm.date instanceof Date
+          ? alarm.date.toISOString().split("T")[0]
+          : alarm.date;
+      return TimeCalculator.calculateEventTriggerTime(alarm.time, dateString);
+    }
+
+    return null;
   }
 
   /**
@@ -117,6 +139,7 @@ class AlarmTriggerService {
 
     // 재스케줄링
     if (this.shouldReschedule(alarm)) {
+      // 반복 알람인 경우: 재스케줄링 (DB 업데이트 포함)
       const nextTriggerTime = await this.rescheduleAlarm(alarm, currentTime);
 
       if (nextTriggerTime) {
@@ -127,7 +150,12 @@ class AlarmTriggerService {
         await alarmSchedulerService.cancelAlarm(alarmId);
       }
     } else {
-      // 재스케줄링 불필요하면 스케줄에서 제거
+      // 일회성 알람인 경우: 트리거 정보 기록 후 비활성화
+      await alarm.update({
+        last_triggered_at: currentTime,
+        trigger_count: (alarm.trigger_count || 0) + 1,
+        is_active: false,
+      });
       await alarmSchedulerService.cancelAlarm(alarmId);
     }
   }
