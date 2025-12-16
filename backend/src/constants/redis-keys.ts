@@ -30,3 +30,29 @@ export const REDIS_KEYS = {
    */
   alarmHistory: (userId: number | string): string => `alarm:history:${userId}`,
 } as const;
+
+/**
+ * BullMQ 큐 관련 상수
+ */
+export const QUEUE_CONSTANTS = {
+  /**
+   * 알람 큐 이름
+   */
+  ALARM_QUEUE_NAME: "alarms",
+
+  /**
+   * 알람 Job ID 생성 함수
+   * @param alarmId 알람 ID
+   * @returns Job ID (예: "alarm-123")
+   */
+  alarmJobId: (alarmId: number | string): string => `alarm-${alarmId}`,
+
+  /**
+   * Job 타입 상수
+   */
+  JOB_TYPES: {
+    SEND_ALARM: "SEND_ALARM",
+    CHECK_SCHEDULED_ALARMS: "CHECK_SCHEDULED_ALARMS",
+    CLEANUP_OLD_ALARMS: "CLEANUP_OLD_ALARMS",
+  } as const,
+} as const;
