@@ -92,10 +92,10 @@ class AlarmService {
       trigger_count: params.trigger_count ?? 0,
     });
 
-    // 기본 베이직 타입 알림
-    if (alarm.alarm_type === "basic" && alarm.is_active) {
+    // 활성 알람 스케줄링
+    if (alarm.is_active) {
       try {
-        await schedulerService.scheduleBasicAlarm(alarm);
+        await schedulerService.scheduleAlarm(alarm);
       } catch (error) {
         console.error("Scheduler failed:", error);
       }
@@ -175,8 +175,8 @@ class AlarmService {
 
     // 기존 알람 정리
     await schedulerService.cancelAlarm(alarm);
-    if (alarm.alarm_type === "basic" && alarm.is_active) {
-      await schedulerService.scheduleBasicAlarm(alarm);
+    if (alarm.is_active) {
+      await schedulerService.scheduleAlarm(alarm);
     }
 
     return { alarm };
@@ -202,9 +202,9 @@ class AlarmService {
     if (!alarm.is_active) {
       // 비활성화 시 스케줄 제거
       await schedulerService.cancelAlarm(alarm);
-    } else if (alarm.alarm_type === "basic") {
-      // 다시 활성 + basic이면 재스케줄
-      await schedulerService.scheduleBasicAlarm(alarm);
+    } else {
+      // 다시 활성화 시 재스케줄
+      await schedulerService.scheduleAlarm(alarm);
     }
 
     return { alarm };

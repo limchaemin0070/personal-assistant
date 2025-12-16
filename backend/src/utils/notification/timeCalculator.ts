@@ -35,10 +35,10 @@ export class TimeCalculator {
   }
 
   /**
-   * Basic 알람 다음 트리거 시간 계산
-   * Basic 알람 : 요일로 반복되는 알람들
+   * 알람 다음 트리거 시간 계산
+   * 요일로 반복되는 알람들
    */
-  static calculateBasicNextTriggerTime(
+  static calculateNextTriggerTime(
     time: string,
     repeatDays: number[],
     fromDate: Date = new Date()

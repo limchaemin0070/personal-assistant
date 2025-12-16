@@ -1,48 +1,53 @@
 import { redisClient, redisPublisher } from "../../config/redis";
 import { Alarm } from "../../models";
-
-interface AlarmData {
-  alarmId: number;
-  userId: number;
-  title: string;
-  message: string;
-  // 스케줄/리마인더와 무관한 독립 알람을 위해 null/undefined 허용
-  scheduleId?: number | null;
-  reminderId?: number | null;
-  timestamp: string;
-  alarmType: string;
-}
+import {
+  AlarmData,
+  AlarmKind,
+  AlarmTransportPayload,
+} from "../../types/notification";
+import { REDIS_KEYS } from "../../constants/redis-keys";
+import { AlarmSender } from "./sender";
 
 /**
- * 알람 발송 서비스
- * 다양한 채널을 통한 알람 전송 관리
- * 현재는 브라우저에 기본 팝업 + 소리 알람만 제공함
+ * 알림 발송 서비스
  */
 class NotificationService {
-  /**
-   * 알람 트리거 (메인 진입점)
-   */
-  async triggerAlarm(alarm: Alarm): Promise<void> {
-    // logger.info(`🔔 알람 트리거: ${alarm.alarm_id} - ${alarm.title}`);
+  constructor(private senders: AlarmSender[]) {
+    if (senders.length === 0) {
+      throw new Error("최소 하나의 AlarmSender가 필요합니다.");
+    }
+  }
 
+  /**
+   * 알림 발송
+   */
+  async sendNotification(alarm: Alarm): Promise<void> {
     const alarmData = this.buildAlarmData(alarm);
+    const payload: AlarmTransportPayload = {
+      type: "ALARM_TRIGGER",
+      data: alarmData,
+    };
 
     try {
-      // 다양한 채널로 발송
-      await Promise.all([this.sendPubSub(alarmData)]);
+      await Promise.all(
+        this.senders.map((sender) =>
+          sender.send(payload).catch((error) => {
+            console.error(`[${sender.name}] 전송 실패:`, error);
+            throw error;
+          })
+        )
+      );
 
-      // 히스토리 저장
       await this.saveHistory(alarmData);
-
-      //   logger.success(`알람 트리거 완료: ${alarm.alarm_id}`);
     } catch (error) {
-      //   logger.error(`알람 트리거 실패: ${alarm.alarm_id}`, error);
       throw error;
     }
   }
 
   /**
    * 알람 데이터 빌드
+   * 도메인 모델(Alarm)을 AlarmData DTO로 변환
+   * @returns AlarmData - buildAlarmData는 항상 AlarmData를 반환
    */
   private buildAlarmData(alarm: Alarm): AlarmData {
     return {
@@ -53,62 +58,48 @@ class NotificationService {
       scheduleId: alarm.schedule_id ?? null,
       reminderId: alarm.reminder_id ?? null,
       timestamp: new Date().toISOString(),
-      alarmType: alarm.alarm_type,
+      alarmKind: alarm.alarm_type as AlarmKind,
     };
   }
 
   /**
-   * Pub/Sub 발송
+   * Redis에 히스토리 저장
    */
-  private async sendPubSub(data: AlarmData): Promise<void> {
-    await redisPublisher.publish(
-      `alarm:trigger:user:${data.userId}`,
-      JSON.stringify({
-        type: "ALARM_TRIGGER",
-        data,
-      })
-    );
-  }
-
-  /**
-   * TODO : 푸시알림 발송 로직 구현 [제외]
-   */
-  //   private async sendPush(data: AlarmData): Promise<void> {
-  //     // FCM, APNS 등
-  //     // logger.info("Push 알림 발송 (미구현)");
-  //   }
-
-  /**
-   * 히스토리 저장
-   */
-  private async saveHistory(data: AlarmData): Promise<void> {
+  private async saveHistory(alarmData: AlarmData): Promise<void> {
+    const historyKey = REDIS_KEYS.alarmHistory(alarmData.userId);
     await redisClient.lpush(
-      `alarm:history:${data.userId}`,
+      historyKey,
       JSON.stringify({
-        ...data,
+        ...alarmData,
         triggeredAt: new Date().toISOString(),
       })
     );
 
     // 최근 100개만 유지
-    await redisClient.ltrim(`alarm:history:${data.userId}`, 0, 99);
+    await redisClient.ltrim(historyKey, 0, 99);
   }
 
   /**
-   * 테스트 알람 발송
+   * 테스트 알림 발송
    */
-  async sendTestAlarm(userId: number, title: string): Promise<void> {
+  async sendTestNotification(userId: number, title: string): Promise<void> {
     const testData: AlarmData = {
       alarmId: 0,
       userId,
       title,
-      message: "테스트 알람입니다",
+      message: "테스트 알림입니다",
       timestamp: new Date().toISOString(),
-      alarmType: "test",
+      alarmKind: "basic",
     };
 
-    await this.sendPubSub(testData);
+    const payload: AlarmTransportPayload = {
+      type: "ALARM_TRIGGER",
+      data: testData,
+    };
+
+    await Promise.all(this.senders.map((s) => s.send(payload)));
   }
 }
 
-export default new NotificationService();
+import { createAlarmSenders } from "./sender";
+export default new NotificationService(createAlarmSenders());
