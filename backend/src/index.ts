@@ -7,6 +7,7 @@ import {
   enableKeyspaceNotifications,
   disconnectRedis,
 } from "./config/redis";
+import { schedulerService } from "./services/notification/scheduler.service";
 
 console.log("🔍 환경변수 확인:");
 console.log("REDIS_URL:", process.env.REDIS_URL ? "설정됨" : "없음");
@@ -113,13 +114,16 @@ export const startServer = async () => {
     console.log(`📌 환경: ${env.NODE_ENV}`);
     console.log(`📌 포트: ${env.PORT}\n`);
 
-    // 1. MySQL 연결
+    // MySQL 연결
     await connectDB();
 
-    // 2. Redis 연결 및 초기화
+    // Redis 연결 및 초기화
     await connectRedis();
 
-    // 3. HTTP 서버 시작
+    // 스케줄링
+    await schedulerService.initialize();
+
+    // HTTP 서버 시작
     const server = app.listen(env.PORT, () => {
       console.log("═══════════════════════════════════════");
       console.log(`✅ 서버 시작 완료`);
@@ -128,7 +132,7 @@ export const startServer = async () => {
       console.log("═══════════════════════════════════════\n");
     });
 
-    // 4. Graceful Shutdown 설정
+    // Graceful Shutdown 설정
     setupGracefulShutdown(server);
   } catch (error) {
     console.error("❌ 서버 시작 실패:", error);
