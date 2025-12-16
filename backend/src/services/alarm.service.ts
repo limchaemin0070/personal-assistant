@@ -1,5 +1,6 @@
 import { Alarm } from "../models/Alarm.model";
 import { AlarmNotFoundError } from "../errors/BusinessError";
+import { schedulerService } from "./notification/scheduler.service";
 
 interface GetAlarmsByUserIdResult {
   alarms: Alarm[];
@@ -10,12 +11,15 @@ interface CreateAlarmParams {
   schedule_id?: number | null;
   reminder_id?: number | null;
   title?: string | null;
-  date?: string | null;
+  date?: string | Date | null;
   time: string;
   is_repeat: boolean;
   repeat_days?: number[] | null;
   is_active: boolean;
   alarm_type: "basic" | "event";
+  next_trigger_at?: Date | null;
+  last_triggered_at?: Date | null;
+  trigger_count?: number;
 }
 
 interface CreateAlarmResult {
@@ -28,12 +32,15 @@ interface UpdateAlarmParams {
   schedule_id?: number | null;
   reminder_id?: number | null;
   title?: string;
-  date?: string | null;
+  date?: string | Date | null;
   time?: string;
   is_repeat?: boolean;
   repeat_days?: number[] | null;
   is_active?: boolean;
   alarm_type?: "basic" | "event";
+  next_trigger_at?: Date | null;
+  last_triggered_at?: Date | null;
+  trigger_count?: number;
 }
 
 interface UpdateAlarmResult {
@@ -72,7 +79,7 @@ class AlarmService {
       schedule_id: params.schedule_id ?? null,
       reminder_id: params.reminder_id ?? null,
       title: params.title ?? null,
-      date: params.date ?? null,
+      date: params.date ? new Date(params.date) : null,
       time: params.time,
       is_repeat: params.is_repeat,
       repeat_days: params.repeat_days
@@ -80,7 +87,19 @@ class AlarmService {
         : null,
       is_active: params.is_active,
       alarm_type: params.alarm_type,
+      next_trigger_at: params.next_trigger_at ?? null,
+      last_triggered_at: params.last_triggered_at ?? null,
+      trigger_count: params.trigger_count ?? 0,
     });
+
+    // 기본 베이직 타입 알림
+    if (alarm.alarm_type === "basic" && alarm.is_active) {
+      try {
+        await schedulerService.scheduleBasicAlarm(alarm);
+      } catch (error) {
+        console.error("Scheduler failed:", error);
+      }
+    }
 
     return { alarm };
   }
@@ -123,7 +142,7 @@ class AlarmService {
       updateData.title = params.title ?? null;
     }
     if (params.date !== undefined) {
-      updateData.date = params.date ?? null;
+      updateData.date = params.date ? new Date(params.date) : null;
     }
     if (params.time !== undefined) {
       updateData.time = params.time;
@@ -142,8 +161,23 @@ class AlarmService {
     if (params.alarm_type !== undefined) {
       updateData.alarm_type = params.alarm_type;
     }
+    if (params.next_trigger_at !== undefined) {
+      updateData.next_trigger_at = params.next_trigger_at;
+    }
+    if (params.last_triggered_at !== undefined) {
+      updateData.last_triggered_at = params.last_triggered_at;
+    }
+    if (params.trigger_count !== undefined) {
+      updateData.trigger_count = params.trigger_count;
+    }
 
     await alarm.update(updateData);
+
+    // 기존 알람 정리
+    await schedulerService.cancelAlarm(alarm);
+    if (alarm.alarm_type === "basic" && alarm.is_active) {
+      await schedulerService.scheduleBasicAlarm(alarm);
+    }
 
     return { alarm };
   }
@@ -165,6 +199,14 @@ class AlarmService {
       is_active: params.is_active,
     });
 
+    if (!alarm.is_active) {
+      // 비활성화 시 스케줄 제거
+      await schedulerService.cancelAlarm(alarm);
+    } else if (alarm.alarm_type === "basic") {
+      // 다시 활성 + basic이면 재스케줄
+      await schedulerService.scheduleBasicAlarm(alarm);
+    }
+
     return { alarm };
   }
 
@@ -178,6 +220,8 @@ class AlarmService {
     if (!alarm) {
       throw new AlarmNotFoundError();
     }
+
+    await schedulerService.cancelAlarm(alarm);
 
     await alarm.destroy();
 

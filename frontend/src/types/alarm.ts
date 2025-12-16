@@ -15,6 +15,9 @@ export interface Alarm {
     is_repeat: boolean;
     is_active: boolean;
     userId?: number; // user_id
+    next_trigger_at?: Date | null;
+    last_triggered_at?: Date | null;
+    trigger_count?: number;
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -34,6 +37,9 @@ export interface AlarmResponse {
     repeat_days?: string | null; // JSON string
     is_active: boolean;
     alarm_type: 'basic' | 'event';
+    next_trigger_at?: string | null;
+    last_triggered_at?: string | null;
+    trigger_count?: number;
     created_at?: string;
     updated_at?: string;
 }

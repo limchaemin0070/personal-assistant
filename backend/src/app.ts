@@ -8,6 +8,7 @@ import reminderRoutes from "./routes/reminder.routes";
 import alarmRoutes from "./routes/alarm.routes";
 import { errorHandler } from "./middleware/errorHandler";
 import cookieParser from "cookie-parser";
+import notificationRoutes from "./routes/notification.routes";
 
 const app = express();
 
@@ -38,6 +39,7 @@ app.use("/users", userRoutes);
 app.use("/schedules", scheduleRoutes);
 app.use("/reminders", reminderRoutes);
 app.use("/alarms", alarmRoutes);
+app.use("/notification", notificationRoutes);
 
 // 404 핸들러 - 등록되지 않은 라우트 처리
 app.use((req: Request, res: Response) => {
