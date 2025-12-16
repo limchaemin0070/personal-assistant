@@ -1,5 +1,6 @@
 import { Alarm } from "../models/Alarm.model";
 import { AlarmNotFoundError } from "../errors/BusinessError";
+import { schedulerService } from "./notification/scheduler.service";
 
 interface GetAlarmsByUserIdResult {
   alarms: Alarm[];
@@ -91,6 +92,15 @@ class AlarmService {
       trigger_count: params.trigger_count ?? 0,
     });
 
+    // 기본 베이직 타입 알림
+    if (alarm.alarm_type === "basic" && alarm.is_active) {
+      try {
+        await schedulerService.scheduleBasicAlarm(alarm);
+      } catch (error) {
+        console.error("Scheduler failed:", error);
+      }
+    }
+
     return { alarm };
   }
 
@@ -163,6 +173,12 @@ class AlarmService {
 
     await alarm.update(updateData);
 
+    // 기존 알람 정리
+    await schedulerService.cancelAlarm(alarm);
+    if (alarm.alarm_type === "basic" && alarm.is_active) {
+      await schedulerService.scheduleBasicAlarm(alarm);
+    }
+
     return { alarm };
   }
 
@@ -183,6 +199,14 @@ class AlarmService {
       is_active: params.is_active,
     });
 
+    if (!alarm.is_active) {
+      // 비활성화 시 스케줄 제거
+      await schedulerService.cancelAlarm(alarm);
+    } else if (alarm.alarm_type === "basic") {
+      // 다시 활성 + basic이면 재스케줄
+      await schedulerService.scheduleBasicAlarm(alarm);
+    }
+
     return { alarm };
   }
 
@@ -196,6 +220,8 @@ class AlarmService {
     if (!alarm) {
       throw new AlarmNotFoundError();
     }
+
+    await schedulerService.cancelAlarm(alarm);
 
     await alarm.destroy();
 
