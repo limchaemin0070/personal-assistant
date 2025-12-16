@@ -2,7 +2,7 @@ import Redis, { RedisOptions } from "ioredis";
 import { env } from "./env";
 
 /**
- * Redis 연결 관리 클래스 (Singleton)
+ * Redis 연결 관리 클래스
  * Redislabs 클라우드와 연결을 관리합니다
  */
 class RedisManager {
@@ -43,7 +43,7 @@ class RedisManager {
       },
     };
 
-    // rediss:// (TLS 포트)로 시작하는 경우에만 TLS 활성화
+    // TODO : 무료플랜에서는 TLS 미적용이므로 코드 제거
     if (env.REDIS_URL && env.REDIS_URL.startsWith("rediss://")) {
       baseOptions.tls = {
         rejectUnauthorized: false,
@@ -201,6 +201,7 @@ class RedisManager {
   /**
    * Keyspace Notifications 활성화
    * 알람 만료 이벤트 감지를 위해 필요
+   * TODO : 사용하지 않을 예정이므로 코드 제거 필요
    */
   async enableKeyspaceNotifications(): Promise<void> {
     try {
