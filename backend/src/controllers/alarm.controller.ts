@@ -79,15 +79,15 @@ export const createAlarm = asyncHandler(async (req: Request, res: Response) => {
     alarm_type,
   });
 
-  res.status(201).json(
-    buildSuccess("ALARM_CREATED", "알람이 생성되었습니다.", alarm)
-  );
+  res
+    .status(201)
+    .json(buildSuccess("ALARM_CREATED", "알람이 생성되었습니다.", alarm));
 });
 
 // 알람 수정
 export const updateAlarm = asyncHandler(async (req: Request, res: Response) => {
   const userId = req.user?.userId;
-  const alarmId = parseInt(req.params.id);
+  const alarmId = parseInt(req.params.id || "");
 
   if (!userId) {
     throw new UserNotFoundError();
@@ -124,7 +124,7 @@ export const updateAlarm = asyncHandler(async (req: Request, res: Response) => {
 
   const updateParams: any = {
     alarm_id: alarmId,
-    user_id: userId,
+    user_id: userId as number,
   };
 
   if (schedule_id !== undefined) updateParams.schedule_id = schedule_id ?? null;
@@ -139,16 +139,16 @@ export const updateAlarm = asyncHandler(async (req: Request, res: Response) => {
 
   const { alarm } = await alarmService.updateAlarm(updateParams);
 
-  res.status(200).json(
-    buildSuccess("ALARM_UPDATED", "알람이 수정되었습니다.", alarm)
-  );
+  res
+    .status(200)
+    .json(buildSuccess("ALARM_UPDATED", "알람이 수정되었습니다.", alarm));
 });
 
 // 알람 활성 상태만 업데이트 (PATCH)
 export const patchAlarmActive = asyncHandler(
   async (req: Request, res: Response) => {
     const userId = req.user?.userId;
-    const alarmId = parseInt(req.params.id);
+    const alarmId = parseInt(req.params.id || "");
 
     if (!userId) {
       throw new UserNotFoundError();
@@ -165,24 +165,26 @@ export const patchAlarmActive = asyncHandler(
 
     const { alarm } = await alarmService.updateAlarmActive({
       alarm_id: alarmId,
-      user_id: userId,
+      user_id: userId as number,
       is_active: isActive,
     });
 
-    res.status(200).json(
-      buildSuccess(
-        "ALARM_ACTIVE_UPDATED",
-        "알람 활성 상태가 변경되었습니다.",
-        alarm
-      )
-    );
+    res
+      .status(200)
+      .json(
+        buildSuccess(
+          "ALARM_ACTIVE_UPDATED",
+          "알람 활성 상태가 변경되었습니다.",
+          alarm
+        )
+      );
   }
 );
 
 // 알람 삭제
 export const deleteAlarm = asyncHandler(async (req: Request, res: Response) => {
   const userId = req.user?.userId;
-  const alarmId = parseInt(req.params.id);
+  const alarmId = parseInt(req.params.id || "");
 
   if (!userId) {
     throw new UserNotFoundError();
@@ -192,8 +194,7 @@ export const deleteAlarm = asyncHandler(async (req: Request, res: Response) => {
     throw new ValidationError("유효하지 않은 알람 ID입니다.", "id");
   }
 
-  const { message } = await alarmService.deleteAlarm(alarmId, userId);
+  const { message } = await alarmService.deleteAlarm(alarmId, userId as number);
 
   res.status(200).json(buildSuccess("ALARM_DELETED", message, null));
 });
-

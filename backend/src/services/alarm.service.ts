@@ -278,6 +278,8 @@ class AlarmService {
     const alarm = await this.findAlarmByReminderId(reminderId);
 
     if (alarm) {
+      // 스케줄러에서 알람 취소
+      await alarmSchedulerService.cancelAlarm(alarm.alarm_id!);
       await alarm.destroy();
     }
 
