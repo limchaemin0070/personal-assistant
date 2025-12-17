@@ -1,37 +1,19 @@
 import { useNavigate } from 'react-router-dom';
-import { FormInput } from '@/components/auth/FormInput';
+import { FormProvider } from 'react-hook-form';
+import { FormInput } from '@/components/common/Form/input';
 import { EmailAuthSection } from '@/components/auth/EmailAuthSection';
-import { useRegisterForm } from '@/hooks/Auth/useRegister';
-import {
-    validateCode,
-    validateEmail,
-    validateNickname,
-    validatePassword,
-} from '@/utils/validation/authValidator';
+import { useRegisterForm } from '@/hooks/Auth/useRegisterForm';
 
 export const RegisterPage = () => {
     const navigate = useNavigate();
     const {
-        email,
-        verificationCode,
-        password,
-        confirmPassword,
-        nickname,
+        form,
+        handleSubmit,
         isVerificationCodeSent,
         isEmailVerified,
-        errors,
-
-        setEmail,
-        setVerificationCode,
-        setPassword,
-        setConfirmPassword,
-        setNickname,
-
         handleEmailVerification,
         handleVerifyCode,
-        handleFieldBlur,
-        handleConfirmPasswordBlur,
-        handleSubmit,
+        isSubmitting,
     } = useRegisterForm();
 
     return (
@@ -43,78 +25,55 @@ export const RegisterPage = () => {
                 <h2 className="text-2xl text-sample-blue font-bold py-3 w-full">
                     회원가입
                 </h2>
-                <form
-                    className="flex flex-col w-full gap-2"
-                    onSubmit={handleSubmit}
-                    noValidate
-                >
-                    <EmailAuthSection
-                        email={email}
-                        verificationCode={verificationCode}
-                        isVerificationCodeSent={isVerificationCodeSent}
-                        isEmailVerified={isEmailVerified}
-                        errors={errors}
-                        onEmailChange={setEmail}
-                        onAuthNumChange={setVerificationCode}
-                        onEmailBlur={(value) => {
-                            handleFieldBlur('email', value, validateEmail);
-                        }}
-                        onCodeBlur={(value) => {
-                            handleFieldBlur('code', value, validateCode);
-                        }}
-                        onEmailVerification={handleEmailVerification}
-                        onVerifyCode={handleVerifyCode}
-                        disabled={isEmailVerified}
-                    />
-                    <FormInput
-                        type="password"
-                        value={password}
-                        onChange={setPassword}
-                        onBlur={(value) => {
-                            handleFieldBlur(
-                                'password',
-                                value,
-                                validatePassword,
-                            );
-                        }}
-                        placeholder="비밀번호를 입력하세요"
-                        error={errors.password}
-                    />
-                    <FormInput
-                        type="password"
-                        value={confirmPassword}
-                        onChange={setConfirmPassword}
-                        onBlur={handleConfirmPasswordBlur}
-                        placeholder="비밀번호를 한번 더 입력하세요"
-                        error={errors.confirmPassword}
-                    />
-                    <FormInput
-                        type="text"
-                        value={nickname}
-                        onChange={setNickname}
-                        onBlur={(value) => {
-                            handleFieldBlur(
-                                'nickname',
-                                value,
-                                validateNickname,
-                            );
-                        }}
-                        placeholder="사용할 닉네임을 입력하세요"
-                        error={errors.nickname}
-                    />
-                    <button type="submit" className="btn-primary-filled">
-                        회원가입
-                    </button>
-                    <div className="flex justify-center mt-2">
+                <FormProvider {...form}>
+                    <form
+                        className="flex flex-col w-full gap-2"
+                        onSubmit={handleSubmit}
+                        noValidate
+                    >
+                        <EmailAuthSection
+                            isVerificationCodeSent={isVerificationCodeSent}
+                            isEmailVerified={isEmailVerified}
+                            onEmailVerification={handleEmailVerification}
+                            onVerifyCode={handleVerifyCode}
+                            disabled={isEmailVerified}
+                        />
+                        <FormInput
+                            type="password"
+                            name="password"
+                            placeholder="비밀번호를 입력하세요"
+                            disabled={isSubmitting}
+                        />
+                        <FormInput
+                            type="password"
+                            name="confirmPassword"
+                            placeholder="비밀번호를 한번 더 입력하세요"
+                            disabled={isSubmitting}
+                        />
+                        <FormInput
+                            type="text"
+                            name="nickname"
+                            placeholder="사용할 닉네임을 입력하세요"
+                            disabled={isSubmitting}
+                        />
                         <button
-                            type="button"
-                            onClick={() => navigate('/login')}
-                            className="text-sm text-sample-blue hover:underline"
+                            type="submit"
+                            className="btn-primary-filled"
+                            disabled={isSubmitting}
                         >
-                            로그인
+                            {isSubmitting ? '회원가입 중...' : '회원가입'}
                         </button>
-                    </div>
-                </form>
+                        <div className="flex justify-center mt-2">
+                            <button
+                                type="button"
+                                onClick={() => navigate('/login')}
+                                className="text-sm text-sample-blue hover:underline"
+                            >
+                                로그인
+                            </button>
+                        </div>
+                    </form>
+                </FormProvider>
             </div>
         </div>
     );
