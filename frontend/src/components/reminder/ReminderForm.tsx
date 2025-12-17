@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FormProvider } from 'react-hook-form';
 import { BsBell, BsBellSlash } from 'react-icons/bs';
 import { cn } from '@/utils/cn';
@@ -41,6 +41,17 @@ export const ReminderForm: React.FC<ReminderFormProps> = ({
         initialReminder,
         initialDate,
     });
+
+    // 종일 여부와 알람 활성화 상태를 watch
+    const isAllDay = form.watch('is_all_day');
+    const notificationEnabled = form.watch('notification_enabled');
+
+    // 종일일 때 알람이 활성화되어 있으면 자동으로 비활성화
+    useEffect(() => {
+        if (isAllDay && notificationEnabled) {
+            form.setValue('notification_enabled', false);
+        }
+    }, [isAllDay, notificationEnabled, form]);
 
     const handleSubmit = form.handleSubmit(
         async (formData: ReminderFormData) => {
@@ -96,17 +107,20 @@ export const ReminderForm: React.FC<ReminderFormProps> = ({
                             className="p-3 border-none"
                         />
                         <ReminderDateTimeSection />
-                        <div className="flex items-center gap-2">
-                            <FormToggle
-                                name="notification_enabled"
-                                label="알림 설정"
-                                activeIcon={<BsBell />}
-                                inactiveIcon={<BsBellSlash />}
-                                size="sm"
-                                labelPosition="left"
-                                disabled={form.formState.isSubmitting}
-                            />
-                        </div>
+                        {/* 종일이 아닐 때만 알람 토글 표시 */}
+                        {!isAllDay && (
+                            <div className="flex items-center gap-2">
+                                <FormToggle
+                                    name="notification_enabled"
+                                    label="알림 설정"
+                                    activeIcon={<BsBell />}
+                                    inactiveIcon={<BsBellSlash />}
+                                    size="sm"
+                                    labelPosition="left"
+                                    disabled={form.formState.isSubmitting}
+                                />
+                            </div>
+                        )}
                         {form.formState.errors.root && (
                             <div className="text-sm text-red-500">
                                 {form.formState.errors.root.message}
