@@ -3,6 +3,7 @@ import { User } from "./User.model";
 import { Schedule } from "./Schedule.model";
 import { Reminder } from "./Reminder.model";
 import { Alarm } from "./Alarm.model";
+import { ReminderAlarm } from "./ReminderAlarm.model";
 
 // User
 User.hasMany(Schedule, {
@@ -20,16 +21,15 @@ User.hasMany(Alarm, {
   as: "alarms",
 });
 
-// Schedule
-Schedule.hasMany(Alarm, {
-  foreignKey: "schedule_id",
-  as: "alarms",
+User.hasMany(ReminderAlarm, {
+  foreignKey: "user_id",
+  as: "reminderAlarms",
 });
 
 // Reminder
-Reminder.hasMany(Alarm, {
+Reminder.hasMany(ReminderAlarm, {
   foreignKey: "reminder_id",
-  as: "alarms",
+  as: "reminderAlarms",
 });
 
-export { EmailVerification, User, Schedule, Reminder, Alarm };
+export { EmailVerification, User, Schedule, Reminder, Alarm, ReminderAlarm };
