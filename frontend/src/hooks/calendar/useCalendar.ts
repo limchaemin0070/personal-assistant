@@ -26,18 +26,10 @@ export const useCalendar = (options: UseCalendarOptions = {}) => {
         return CalendarUtils.getMonthGrid(currentDate);
     }, [currentDate]);
 
-    // 상단에 표시되는 헤더 텍스트 (뷰 타입에 따라 다름)
+    // 상단에 표시되는 헤더 텍스트 (월간 헤더 텍스트만 표시)
     const headerText = useMemo(() => {
-        switch (view) {
-            case 'week':
-                return CalendarUtils.getWeekRangeText(currentDate);
-            case 'day':
-                return CalendarUtils.getDayText(currentDate);
-            case 'month':
-            default:
-                return CalendarUtils.getMonthYearText(currentDate);
-        }
-    }, [currentDate, view]);
+        return CalendarUtils.getMonthYearText(currentDate);
+    }, [currentDate]);
 
     // 날짜 셀을 클릭하면 일간 뷰
     const switchToDayView = useCallback(() => {
