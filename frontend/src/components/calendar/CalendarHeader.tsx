@@ -1,12 +1,10 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { SlArrowLeft, SlArrowRight } from 'react-icons/sl';
 import type { CalendarView } from '@/hooks/calendar/useCalendar';
 import {
     ButtonGroup,
     type ButtonGroupOption,
 } from '@/components/common/ButtonGroup';
-import { authService } from '@/services/auth.service';
 
 interface CalendarHeaderProps {
     headerText: string;
@@ -16,8 +14,6 @@ interface CalendarHeaderProps {
     setView: (view: CalendarView) => void;
 }
 
-// 캘린더 헤더 섹션
-// 주간/일간/사이드바에서 공통 사용
 export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
     headerText,
     onPrevMonth,
@@ -25,22 +21,11 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
     view,
     setView,
 }: CalendarHeaderProps) => {
-    const navigate = useNavigate();
     const views: ButtonGroupOption<CalendarView>[] = [
         { value: 'month', label: '월' },
         { value: 'week', label: '주' },
         { value: 'day', label: '일' },
     ];
-
-    const handleLogout = async () => {
-        try {
-            await authService.logout();
-            navigate('/login');
-        } catch {
-            // 에러가 발생해도 로그인 페이지로 이동
-            navigate('/login');
-        }
-    };
 
     return (
         <div className="flex flex-row items-center justify-between w-full gap-5">
@@ -65,14 +50,6 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
                     onChange={(newView) => setView(newView as CalendarView)}
                     multiple={false}
                 />
-                {/* 로그아웃 버튼 */}
-                <button
-                    type="button"
-                    onClick={handleLogout}
-                    className="px-3 py-1.5 text-sm bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
-                >
-                    로그아웃
-                </button>
             </div>
         </div>
     );
