@@ -31,24 +31,63 @@ function validateEnv(): EnvVariables {
     (process.env.NODE_ENV as EnvVariables["NODE_ENV"]) || "development";
   const isTest = nodeEnv === "test";
 
-  const getEnv = (key: string, testDefault: string) => {
-    if (isTest) return process.env[key] || testDefault;
+  // MYSQL_URL 파싱 (Railway에서 제공하는 경우)
+  const parsedMysqlUrl: {
+    host?: string;
+    port?: number;
+    user?: string;
+    password?: string;
+    database?: string;
+  } = {};
 
-    const value = process.env[key];
+  const mysqlUrl = process.env.MYSQL_URL || process.env.MYSQL_PUBLIC_URL;
+  if (mysqlUrl) {
+    try {
+      const url = new URL(mysqlUrl);
+      if (url.hostname) parsedMysqlUrl.host = url.hostname;
+      if (url.port) parsedMysqlUrl.port = parseInt(url.port);
+      if (url.username) parsedMysqlUrl.user = url.username;
+      if (url.password) parsedMysqlUrl.password = url.password;
+      const dbName = url.pathname.replace(/^\//, "");
+      if (dbName) parsedMysqlUrl.database = dbName;
+    } catch (error) {
+      console.warn("MYSQL_URL 파싱 실패:", error);
+    }
+  }
+
+  const getEnv = (key: string, testDefault: string, fallbackKey?: string) => {
+    if (isTest) {
+      return process.env[key] || process.env[fallbackKey || ""] || testDefault;
+    }
+
+    const value = process.env[key] || process.env[fallbackKey || ""];
     if (!value) {
-      throw new Error(`필요한 환경변수 값이 누락되었습니다.: ${key}`);
+      throw new Error(
+        `필요한 환경변수 값이 누락되었습니다.: ${key}${
+          fallbackKey ? ` 또는 ${fallbackKey}` : ""
+        }`
+      );
     }
     return value;
   };
 
-  const getNumberEnv = (key: string, testDefault: number) => {
+  const getNumberEnv = (
+    key: string,
+    testDefault: number,
+    fallbackKey?: string
+  ) => {
     if (isTest) {
-      return process.env[key] ? parseInt(process.env[key]!) : testDefault;
+      const value = process.env[key] || process.env[fallbackKey || ""];
+      return value ? parseInt(value) : testDefault;
     }
 
-    const value = process.env[key];
+    const value = process.env[key] || process.env[fallbackKey || ""];
     if (!value) {
-      throw new Error(`필요한 환경변수 값이 누락되었습니다.: ${key}`);
+      throw new Error(
+        `필요한 환경변수 값이 누락되었습니다.: ${key}${
+          fallbackKey ? ` 또는 ${fallbackKey}` : ""
+        }`
+      );
     }
 
     const parsed = Number(value);
@@ -61,11 +100,16 @@ function validateEnv(): EnvVariables {
   return {
     NODE_ENV: nodeEnv,
     PORT: getNumberEnv("PORT", 5000),
-    DB_HOST: getEnv("DB_HOST", "127.0.0.1"),
-    DB_PORT: getNumberEnv("DB_PORT", 3306),
-    DB_USER: getEnv("DB_USER", "root"),
-    DB_PASSWORD: getEnv("DB_PASSWORD", "test"),
-    DB_NAME: getEnv("DB_NAME", "test_db"),
+    // 우선순위: MYSQL_URL 파싱 > Railway 형식(MYSQL_*) > 기존 형식(DB_*)
+    DB_HOST:
+      parsedMysqlUrl.host || getEnv("MYSQL_HOST", "127.0.0.1", "DB_HOST"),
+    DB_PORT: parsedMysqlUrl.port ?? getNumberEnv("MYSQL_PORT", 3306, "DB_PORT"),
+    DB_USER: parsedMysqlUrl.user || getEnv("MYSQL_USER", "root", "DB_USER"),
+    DB_PASSWORD:
+      parsedMysqlUrl.password ||
+      getEnv("MYSQL_PASSWORD", "test", "DB_PASSWORD"),
+    DB_NAME:
+      parsedMysqlUrl.database || getEnv("MYSQL_DATABASE", "test_db", "DB_NAME"),
 
     EMAIL_HOST: getEnv("EMAIL_HOST", "smtp.ethereal.email"),
     EMAIL_PORT: getNumberEnv("EMAIL_PORT", 587),
