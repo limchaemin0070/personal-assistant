@@ -49,3 +49,9 @@ export class AlarmNotFoundError extends CustomError {
     super(404, "ALARM_NOT_FOUND", "알람을 찾을 수 없습니다.");
   }
 }
+
+export class ReminderAlarmNotFoundError extends CustomError {
+  constructor() {
+    super(404, "REMINDER_ALARM_NOT_FOUND", "리마인더 알람을 찾을 수 없습니다.");
+  }
+}
