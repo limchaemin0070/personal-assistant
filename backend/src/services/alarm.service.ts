@@ -243,7 +243,8 @@ class AlarmService {
 
     // BullMQ에 스케줄 등록 (알람 객체를 전달하면 내부에서 핸들러를 사용하여 처리)
     await alarmSchedulerService.scheduleAlarm(alarm);
-  }
+
+
 }
 
 export const alarmService = new AlarmService();
