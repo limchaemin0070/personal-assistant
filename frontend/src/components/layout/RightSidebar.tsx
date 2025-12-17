@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Sidebar } from './Sidebar';
-import { AlarmContent } from '@/components/alarm/AlarmContent';
 import { Reminder } from '@/components/reminder/Reminder';
 import { Alarm } from '../alarm/Alarm';
 
