@@ -694,11 +694,30 @@
         text-align: right;
         padding-right: 0.5rem;
         padding-top: 0.25rem;
+        padding-bottom: 0.25rem;
     }
 
     /* 현재 달이 아닌 날짜의 텍스트 색상 */
     .calendar-day-number-other-month {
         color: var(--color-stone-300);
+    }
+
+    /* 오늘 날짜의 배경색 */
+    .calendar-day-number-today {
+        background-color: rgb(var(--color-primary));
+        color: white;
+        border-radius: 10%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.75rem;
+        height: 1.75rem;
+        margin-left: auto;
+        margin-right: 0.5rem;
+        margin-top: 0.25rem;
+        padding: 0;
+        text-align: center;
+        line-height: 1.75rem;
     }
 
     /* 이벤트 그리드: 각 날짜 셀 내부의 이벤트들을 세로로 배치하는 그리드 */
