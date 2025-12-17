@@ -4,27 +4,15 @@ import axios, {
     AxiosError,
 } from 'axios';
 import { useToastStore } from '@/hooks/useToastStore';
+import type { ApiSuccessResponse, ApiErrorResponse } from '@/types/api';
+import { getIsLoggingOut } from './apiState';
 // import { extractErrorMessage } from './errorHandler';
 
 const baseURL = import.meta.env.VITE_SERVER_URL;
 
-export interface ApiSuccessResponse<T = null> {
-    success: true;
-    code: string;
-    message: string;
-    result: T | null;
+interface RetryableRequestConfig extends AxiosRequestConfig {
+    retry?: boolean;
 }
-
-export interface ApiErrorResponse {
-    success: false;
-    error: {
-        code: string;
-        message: string;
-        field?: string;
-    };
-}
-
-export type ApiResponse<T = null> = ApiSuccessResponse<T> | ApiErrorResponse;
 
 const axiosInstance = axios.create({
     baseURL,
@@ -40,11 +28,6 @@ let failedQueue: Array<{
     reject: (error?: unknown) => void;
 }> = [];
 
-interface RetryableRequestConfig extends AxiosRequestConfig {
-    retry?: boolean;
-}
-
-// 액세스 토큰 갱신 시 사용하는 대기 배열
 const processQueue = (
     error: AxiosError | null,
     token: string | null = null,
@@ -70,12 +53,26 @@ axiosInstance.interceptors.response.use(
     async (error: AxiosError<ApiErrorResponse>) => {
         const originalRequest = error.config as RetryableRequestConfig;
 
+        console.log(originalRequest.url);
+
+        // 로그인/회원가입 페이지에서의 인증 상태 확인은 토큰 갱신을 시도하지 않음
+        const isPublicPage =
+            window.location.pathname === '/login' ||
+            window.location.pathname === '/register';
+        const isAuthCheckRequest = originalRequest.url === '/users/me';
+
         // 401 인증 만료 처리
         if (
             error.response?.status === 401 &&
             !originalRequest.retry &&
+            !getIsLoggingOut() &&
             originalRequest.url !== '/auth/refresh' &&
-            originalRequest.url !== '/auth/login'
+            originalRequest.url !== '/auth/login' &&
+            originalRequest.url !== '/auth/logout' &&
+            originalRequest.url !== '/auth/sign-up' &&
+            originalRequest.url !== '/auth/email-verifications' &&
+            originalRequest.url !== '/auth/email-verifications/verify' &&
+            !(isPublicPage && isAuthCheckRequest)
         ) {
             if (isRefreshing) {
                 return new Promise((resolve, reject) => {

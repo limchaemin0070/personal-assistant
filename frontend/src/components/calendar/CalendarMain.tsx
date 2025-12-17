@@ -1,7 +1,8 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { LuPanelRight } from 'react-icons/lu';
+import { useQueryClient } from '@tanstack/react-query';
+import { BsBell, BsBellSlash } from 'react-icons/bs';
 import { IoMdSettings } from 'react-icons/io';
+import { LuPanelRight } from 'react-icons/lu';
 import { MdLogout } from 'react-icons/md';
 import { CalendarMonthView } from './CalendarMonthView';
 import { CalendarDayView } from './CalendarDayView';
@@ -11,7 +12,8 @@ import { DropdownMenu } from '@/components/common/DropdownMenu';
 import { useCalendar } from '@/hooks/calendar/useCalendar';
 import { authService } from '@/services/auth.service';
 import { SwitchButton } from '../common/Button/SwitchButton';
-import { BsBell, BsBellSlash } from 'react-icons/bs';
+import { setLoggingOut } from '@/utils/apiState';
+import { useLogout } from '@/hooks/Auth/useLogout';
 
 interface CalendarMainProps {
     // eslint-disable-next-line react/require-default-props
@@ -24,7 +26,6 @@ export const CalendarMain: React.FC<CalendarMainProps> = ({
     onToggleLeftSidebar,
     onToggleRightSidebar,
 }) => {
-    const navigate = useNavigate();
     const {
         currentDate,
         view,
@@ -38,17 +39,10 @@ export const CalendarMain: React.FC<CalendarMainProps> = ({
         handleNext,
     } = useCalendar();
 
-    const handleLogout = async () => {
-        try {
-            await authService.logout();
-            navigate('/login');
-        } catch {
-            navigate('/login');
-        }
-    };
+    const { logout } = useLogout();
 
     const handleSwitch = async () => {
-        console.log('알람 권한 변경');
+        // TODO: 알람 권한 변경 로직 구현
     };
 
     const renderCalendarView = () => {
@@ -132,7 +126,7 @@ export const CalendarMain: React.FC<CalendarMainProps> = ({
                             value: 'logout',
                             label: '로그아웃',
                             icon: <MdLogout />,
-                            onClick: handleLogout,
+                            onClick: logout,
                         },
                     ]}
                     align="right"
