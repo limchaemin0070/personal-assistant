@@ -28,7 +28,6 @@ export interface Alarm {
 export interface AlarmResponse {
     alarm_id: number;
     user_id: number;
-    schedule_id?: number | null;
     reminder_id?: number | null;
     title?: string;
     date?: string | null; // ISO date string
@@ -36,11 +35,10 @@ export interface AlarmResponse {
     is_repeat: boolean;
     repeat_days?: string | null; // JSON string
     is_active: boolean;
-    alarm_type: 'basic' | 'event';
+    alarm_type: 'repeat' | 'once';
     next_trigger_at?: string | null;
     last_triggered_at?: string | null;
     trigger_count?: number;
     created_at?: string;
     updated_at?: string;
 }
-

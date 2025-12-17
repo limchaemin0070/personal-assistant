@@ -15,7 +15,7 @@ type BackendAlarmData = {
     scheduleId?: number | null;
     reminderId?: number | null;
     timestamp: string;
-    alarmType: string;
+    alarmKind: 'repeat' | 'once'; // 백엔드에서 alarmKind로 전송됨
 };
 
 type BackendAlarmPayload = {
@@ -33,10 +33,10 @@ function mapBackendToAlarmEvent(payload: BackendAlarmPayload): AlarmEvent {
         // 백엔드에서 별도의 time 필드를 주지 않으므로, 트리거 시각을 time으로 사용
         time: data.timestamp,
         date: null,
-        is_repeat: false,
+        is_repeat: data.alarmKind === 'repeat',
         repeat_days: null,
         is_active: true,
-        alarm_type: data.alarmType === 'event' ? 'event' : 'basic',
+        alarm_type: data.alarmKind, // 'repeat' | 'once'
         next_trigger_at: data.timestamp,
     };
 
