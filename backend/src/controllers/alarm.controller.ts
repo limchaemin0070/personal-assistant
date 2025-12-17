@@ -42,8 +42,6 @@ export const createAlarm = asyncHandler(async (req: Request, res: Response) => {
   }
 
   const {
-    schedule_id,
-    reminder_id,
     title,
     date,
     time,
@@ -55,8 +53,6 @@ export const createAlarm = asyncHandler(async (req: Request, res: Response) => {
 
   // 입력값 검증
   validateCreateAlarmPayload({
-    schedule_id,
-    reminder_id,
     title,
     date,
     time,
@@ -68,8 +64,6 @@ export const createAlarm = asyncHandler(async (req: Request, res: Response) => {
 
   const { alarm } = await alarmService.createAlarm({
     user_id: userId,
-    schedule_id: schedule_id ?? null,
-    reminder_id: reminder_id ?? null,
     title: title ?? null,
     date: date ?? null,
     time,
@@ -97,22 +91,11 @@ export const updateAlarm = asyncHandler(async (req: Request, res: Response) => {
     throw new ValidationError("유효하지 않은 알람 ID입니다.", "id");
   }
 
-  const {
-    schedule_id,
-    reminder_id,
-    title,
-    date,
-    time,
-    is_repeat,
-    repeat_days,
-    is_active,
-    alarm_type,
-  } = req.body;
+  const { title, date, time, is_repeat, repeat_days, is_active, alarm_type } =
+    req.body;
 
   // 입력값 검증
   validateUpdateAlarmPayload({
-    schedule_id,
-    reminder_id,
     title,
     date,
     time,
@@ -127,8 +110,6 @@ export const updateAlarm = asyncHandler(async (req: Request, res: Response) => {
     user_id: userId as number,
   };
 
-  if (schedule_id !== undefined) updateParams.schedule_id = schedule_id ?? null;
-  if (reminder_id !== undefined) updateParams.reminder_id = reminder_id ?? null;
   if (title !== undefined) updateParams.title = title ?? null;
   if (date !== undefined) updateParams.date = date ?? null;
   if (time !== undefined) updateParams.time = time;

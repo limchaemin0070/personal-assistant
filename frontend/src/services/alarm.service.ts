@@ -46,7 +46,7 @@ export const alarmService = {
             is_repeat: boolean;
             repeat_days: number[] | null;
             is_active: boolean;
-            alarm_type: 'basic' | 'event';
+            alarm_type: 'repeat' | 'once';
         } = {
             title: data.title || '',
             date: data.date || null,
@@ -54,7 +54,7 @@ export const alarmService = {
             is_repeat: isRepeat,
             repeat_days: isRepeat && data.repeat_days ? data.repeat_days : null,
             is_active: true,
-            alarm_type: 'basic', // 기본 알람 타입
+            alarm_type: isRepeat ? 'repeat' : 'once', // 반복 여부에 따라 결정
         };
 
         const response = await defaultApi<AlarmResponse>('/alarms', {
@@ -104,14 +104,14 @@ export const alarmService = {
             time: string;
             is_repeat: boolean;
             repeat_days: number[] | null;
-            alarm_type: 'basic' | 'event';
+            alarm_type: 'repeat' | 'once';
         } = {
             title: data.title,
             date: data.date || null,
             time: data.time,
             is_repeat: isRepeat,
             repeat_days: isRepeat && data.repeat_days ? data.repeat_days : null,
-            alarm_type: 'basic', // 기본 알람 타입
+            alarm_type: isRepeat ? 'repeat' : 'once', // 반복 여부에 따라 결정
         };
 
         const response = await defaultApi<AlarmResponse>(`/alarms/${alarmId}`, {

@@ -1,6 +1,6 @@
 import { Reminder } from "../models/Reminder.model";
 import { ReminderNotFoundError } from "../errors/BusinessError";
-import { alarmService } from "./alarm.service";
+import { reminderAlarmService } from "./reminder-alarm.service";
 
 interface GetRemindersByUserIdResult {
   reminders: Reminder[];
@@ -92,23 +92,20 @@ class ReminderService {
       notification_enabled: params.notification_enabled,
     });
 
-    // 알림이 활성화되고 날짜와 시간이 있는 경우 알람 생성
+    // 알림이 활성화되고 날짜와 시간이 있는 경우 리마인더 알람 생성
     if (
       params.notification_enabled &&
       params.date &&
       params.time &&
       !params.is_all_day
     ) {
-      await alarmService.createAlarm({
+      await reminderAlarmService.createReminderAlarm({
         user_id: params.user_id,
         reminder_id: reminder.reminder_id!,
         title: params.title,
         date: this.formatDateToString(params.date),
         time: params.time,
-        is_repeat: false,
-        repeat_days: null,
         is_active: true,
-        alarm_type: "event",
       });
     }
 
@@ -143,10 +140,11 @@ class ReminderService {
       throw new ReminderNotFoundError();
     }
 
-    // 기존 알람 조회
-    const existingAlarm = await alarmService.findAlarmByReminderId(
-      params.reminder_id
-    );
+    // 기존 리마인더 알람 조회
+    const existingReminderAlarm =
+      await reminderAlarmService.findReminderAlarmByReminderId(
+        params.reminder_id
+      );
 
     // 업데이트할 필드만 설정
     const updateData: any = {};
@@ -184,39 +182,35 @@ class ReminderService {
       finalNotificationEnabled && finalDate && finalTime && !finalIsAllDay;
 
     if (shouldHaveAlarm) {
-      // 알람이 있어야 하는 경우
-      if (existingAlarm) {
-        // 기존 알람 업데이트
-        await alarmService.updateAlarm({
-          alarm_id: existingAlarm.alarm_id,
+      // 리마인더 알람이 있어야 하는 경우
+      if (existingReminderAlarm) {
+        // 기존 리마인더 알람 업데이트
+        await reminderAlarmService.updateReminderAlarm({
+          reminder_alarm_id: existingReminderAlarm.reminder_alarm_id,
           user_id: params.user_id,
-          reminder_id: params.reminder_id,
           title: params.title !== undefined ? params.title : reminder.title,
           date: this.formatDateToString(finalDate),
           time: finalTime!,
-          is_repeat: false,
-          repeat_days: null,
           is_active: true,
-          alarm_type: "event",
         });
       } else {
-        // 새 알람 생성
-        await alarmService.createAlarm({
+        // 새 리마인더 알람 생성
+        await reminderAlarmService.createReminderAlarm({
           user_id: params.user_id,
           reminder_id: params.reminder_id,
           title: params.title !== undefined ? params.title : reminder.title,
           date: this.formatDateToString(finalDate),
           time: finalTime!,
-          is_repeat: false,
-          repeat_days: null,
           is_active: true,
-          alarm_type: "event",
         });
       }
     } else {
-      // 알람이 없어야 하는 경우 - 기존 알람 삭제
-      if (existingAlarm) {
-        await alarmService.deleteAlarm(existingAlarm.alarm_id, params.user_id);
+      // 리마인더 알람이 없어야 하는 경우 - 기존 리마인더 알람 삭제
+      if (existingReminderAlarm) {
+        await reminderAlarmService.deleteReminderAlarm(
+          existingReminderAlarm.reminder_alarm_id,
+          params.user_id
+        );
       }
     }
 
@@ -263,8 +257,8 @@ class ReminderService {
       throw new ReminderNotFoundError();
     }
 
-    // 연결된 알람 삭제
-    await alarmService.deleteAlarmByReminderId(reminderId);
+    // 연결된 리마인더 알람 삭제
+    await reminderAlarmService.deleteReminderAlarmByReminderId(reminderId);
 
     await reminder.destroy();
 

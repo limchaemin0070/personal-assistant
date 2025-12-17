@@ -41,11 +41,13 @@ export const QUEUE_CONSTANTS = {
   ALARM_QUEUE_NAME: "alarms",
 
   /**
-   * 알람 Job ID 생성 함수
-   * @param alarmId 알람 ID
-   * @returns Job ID (예: "alarm-123")
+   * 알람 Job ID 생성 함수 (기본 알람과 리마인더 알람 모두 사용)
+   * @param alarmType 알람 타입 ("alarm" 또는 "reminderAlarm" 또는 추가...)
+   * @param alarmId 알람 ID 또는 리마인더 알람 ID 또는 추가...
+   * @returns Job ID (예: "alarm-123" 또는 "reminderAlarm-456")
    */
-  alarmJobId: (alarmId: number | string): string => `alarm-${alarmId}`,
+  alarmJobId: (alarmType: string, alarmId: number): string =>
+    `${alarmType}-${alarmId}`,
 
   /**
    * Job 타입 상수

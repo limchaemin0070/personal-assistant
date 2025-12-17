@@ -11,7 +11,7 @@ export interface Alarm {
     is_repeat: boolean;
     repeat_days: number[] | null;
     is_active: boolean;
-    alarm_type: 'basic' | 'event';
+    alarm_type: 'repeat' | 'once';
     next_trigger_at: string;
 }
 

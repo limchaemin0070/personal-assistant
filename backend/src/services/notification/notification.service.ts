@@ -1,12 +1,12 @@
-import { redisClient, redisPublisher } from "../../config/redis";
-import { Alarm } from "../../models";
+import { redisClient } from "../../config/redis";
+import { REDIS_KEYS } from "../../constants/redis-keys";
 import {
   AlarmData,
   AlarmKind,
   AlarmTransportPayload,
 } from "../../types/notification";
-import { REDIS_KEYS } from "../../constants/redis-keys";
 import { AlarmSender } from "./sender";
+import { createAlarmSenders } from "./sender";
 
 /**
  * 알림 발송 서비스
@@ -21,8 +21,7 @@ class NotificationService {
   /**
    * 알림 발송
    */
-  async sendNotification(alarm: Alarm): Promise<void> {
-    const alarmData = this.buildAlarmData(alarm);
+  async sendNotification(alarmData: AlarmData): Promise<void> {
     const payload: AlarmTransportPayload = {
       type: "ALARM_TRIGGER",
       data: alarmData,
@@ -42,24 +41,6 @@ class NotificationService {
     } catch (error) {
       throw error;
     }
-  }
-
-  /**
-   * 알람 데이터 빌드
-   * 도메인 모델(Alarm)을 AlarmData DTO로 변환
-   * @returns AlarmData - buildAlarmData는 항상 AlarmData를 반환
-   */
-  private buildAlarmData(alarm: Alarm): AlarmData {
-    return {
-      alarmId: alarm.alarm_id,
-      userId: alarm.user_id,
-      title: alarm.title || "알람",
-      message: alarm.title || "알람 시간입니다.",
-      scheduleId: alarm.schedule_id ?? null,
-      reminderId: alarm.reminder_id ?? null,
-      timestamp: new Date().toISOString(),
-      alarmKind: alarm.alarm_type as AlarmKind,
-    };
   }
 
   /**
@@ -89,7 +70,7 @@ class NotificationService {
       title,
       message: "테스트 알림입니다",
       timestamp: new Date().toISOString(),
-      alarmKind: "basic",
+      alarmKind: "repeat",
     };
 
     const payload: AlarmTransportPayload = {
@@ -101,5 +82,4 @@ class NotificationService {
   }
 }
 
-import { createAlarmSenders } from "./sender";
 export default new NotificationService(createAlarmSenders());
