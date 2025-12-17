@@ -6,6 +6,7 @@ import {
     type Alarm,
 } from '@/store/useNotificationStore';
 import { playNotificationSound } from '@/utils/notification/playNotificationSound';
+import { useAuth } from '@/hooks/Auth/useAuth';
 
 type BackendAlarmData = {
     alarmId: number;
@@ -72,6 +73,8 @@ export function useAlarmSSE() {
     const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
         null,
     );
+
+    const { isAuthenticated } = useAuth();
 
     const {
         setActiveAlarm,
@@ -225,7 +228,17 @@ export function useAlarmSSE() {
     ]);
 
     useEffect(() => {
-        connect();
+        // 인증된 사용자만 SSE 연결
+        if (!isAuthenticated) {
+            // 인증되지 않은 경우 기존 연결이 있으면 종료
+            if (eventSourceRef.current) {
+                eventSourceRef.current.close();
+                eventSourceRef.current = null;
+            }
+            setConnected(false);
+        } else {
+            connect();
+        }
 
         return () => {
             if (eventSourceRef.current) {
@@ -236,7 +249,7 @@ export function useAlarmSSE() {
                 clearTimeout(reconnectTimeoutRef.current);
             }
         };
-    }, [connect]);
+    }, [connect, isAuthenticated, setConnected]);
 
     const reconnect = useCallback(() => {
         if (reconnectTimeoutRef.current) {
