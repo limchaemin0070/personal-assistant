@@ -1,7 +1,8 @@
 import { Alarm } from "../models/Alarm.model";
 import { AlarmNotFoundError } from "../errors/BusinessError";
 import { alarmSchedulerService } from "./notification/alarm-scheduler.service";
-import { alarmTriggerService } from "./notification/alarm-trigger.service";
+import { AlarmType } from "../types/notification";
+import { AlarmHandlerFactory } from "./notification/handler/alarm-handler.factory";
 
 interface GetAlarmsByUserIdResult {
   alarms: Alarm[];
@@ -9,15 +10,13 @@ interface GetAlarmsByUserIdResult {
 
 interface CreateAlarmParams {
   user_id: number;
-  schedule_id?: number | null;
-  reminder_id?: number | null;
   title?: string | null;
   date?: string | Date | null;
   time: string;
   is_repeat: boolean;
   repeat_days?: number[] | null;
   is_active: boolean;
-  alarm_type: "basic" | "event";
+  alarm_type: "repeat" | "once";
   next_trigger_at?: Date | null;
   last_triggered_at?: Date | null;
   trigger_count?: number;
@@ -30,15 +29,13 @@ interface CreateAlarmResult {
 interface UpdateAlarmParams {
   alarm_id: number;
   user_id: number;
-  schedule_id?: number | null;
-  reminder_id?: number | null;
   title?: string;
   date?: string | Date | null;
   time?: string;
   is_repeat?: boolean;
   repeat_days?: number[] | null;
   is_active?: boolean;
-  alarm_type?: "basic" | "event";
+  alarm_type?: "repeat" | "once";
   next_trigger_at?: Date | null;
   last_triggered_at?: Date | null;
   trigger_count?: number;
@@ -77,8 +74,6 @@ class AlarmService {
   async createAlarm(params: CreateAlarmParams): Promise<CreateAlarmResult> {
     const alarm = await Alarm.create({
       user_id: params.user_id,
-      schedule_id: params.schedule_id ?? null,
-      reminder_id: params.reminder_id ?? null,
       title: params.title ?? null,
       date: params.date ? new Date(params.date) : null,
       time: params.time,
@@ -133,12 +128,6 @@ class AlarmService {
 
     // 업데이트할 필드만 설정
     const updateData: any = {};
-    if (params.schedule_id !== undefined) {
-      updateData.schedule_id = params.schedule_id ?? null;
-    }
-    if (params.reminder_id !== undefined) {
-      updateData.reminder_id = params.reminder_id ?? null;
-    }
     if (params.title !== undefined) {
       updateData.title = params.title ?? null;
     }
@@ -175,7 +164,7 @@ class AlarmService {
     await alarm.update(updateData);
 
     // 기존 알람 정리
-    await alarmSchedulerService.cancelAlarm(alarm.alarm_id!);
+    await alarmSchedulerService.cancelAlarm(alarm.alarm_id!, AlarmType.ALARM);
     if (alarm.is_active) {
       await this.scheduleAlarm(alarm);
     }
@@ -202,7 +191,7 @@ class AlarmService {
 
     if (!alarm.is_active) {
       // 비활성화 시 스케줄 제거
-      await alarmSchedulerService.cancelAlarm(alarm.alarm_id!);
+      await alarmSchedulerService.cancelAlarm(alarm.alarm_id!, AlarmType.ALARM);
     } else {
       // 다시 활성화 시 재스케줄
       await this.scheduleAlarm(alarm);
@@ -222,7 +211,7 @@ class AlarmService {
       throw new AlarmNotFoundError();
     }
 
-    await alarmSchedulerService.cancelAlarm(alarm.alarm_id!);
+    await alarmSchedulerService.cancelAlarm(alarm.alarm_id!, AlarmType.ALARM);
 
     await alarm.destroy();
 
@@ -230,60 +219,30 @@ class AlarmService {
   }
 
   /**
-   * 알람 스케줄링 (내부 헬퍼 메서드)
+   * 알람 스케줄링
    * 알람 생성/수정 시 초기 스케줄링을 담당
    */
   private async scheduleAlarm(alarm: Alarm): Promise<void> {
+    const handler = AlarmHandlerFactory.getHandlerByAlarm(alarm);
+
     // 트리거 가능 여부 검증
-    if (!alarmTriggerService.canTrigger(alarm)) {
+    if (!handler.canTrigger(alarm)) {
       return;
     }
 
-    // 다음 트리거 시간 계산 (AlarmTriggerService 재사용)
-    const nextTriggerTime = alarmTriggerService.calculateNextTriggerTime(
-      alarm,
-      new Date()
-    );
+    // 다음 트리거 시간 계산
+    const nextTriggerTime = handler.calculateNextTriggerTime(alarm, new Date());
 
     // 시간 계산 실패 시 종료
     if (!nextTriggerTime) {
       return;
     }
 
-    // BullMQ에 스케줄 등록
-    await alarmSchedulerService.scheduleAlarmAt(
-      alarm.alarm_id,
-      nextTriggerTime
-    );
-
     // MySQL에 다음 실행 시간 저장
     await alarm.update({ next_trigger_at: nextTriggerTime });
-  }
 
-  // reminder_id로 알람 조회
-  async findAlarmByReminderId(reminderId: number): Promise<Alarm | null> {
-    const alarm = await Alarm.findOne({
-      where: {
-        reminder_id: reminderId,
-      },
-    });
-
-    return alarm;
-  }
-
-  // reminder_id로 알람 삭제
-  async deleteAlarmByReminderId(
-    reminderId: number
-  ): Promise<DeleteAlarmResult> {
-    const alarm = await this.findAlarmByReminderId(reminderId);
-
-    if (alarm) {
-      // 스케줄러에서 알람 취소
-      await alarmSchedulerService.cancelAlarm(alarm.alarm_id!);
-      await alarm.destroy();
-    }
-
-    return { message: "알람이 삭제되었습니다." };
+    // BullMQ에 스케줄 등록 (알람 객체를 전달하면 내부에서 핸들러를 사용하여 처리)
+    await alarmSchedulerService.scheduleAlarm(alarm);
   }
 }
 
