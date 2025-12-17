@@ -1,12 +1,12 @@
-import type { SelectOption } from '@/components/common/SelectDropdown';
+import type { ButtonGroupOption } from '@/components/common/ButtonGroup';
 
 export type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6; // 0: 일요일, 6: 토요일
 
 /**
  * 요일 옵션 배열
- * SelectDropdown에서 사용할 수 있는 형태로 정의
+ * ButtonGroup에서 사용할 수 있는 형태로 정의
  */
-export const WEEK_DAYS: SelectOption<DayOfWeek>[] = [
+export const WEEK_DAYS: ButtonGroupOption<DayOfWeek>[] = [
     { value: 0, label: '일' },
     { value: 1, label: '월' },
     { value: 2, label: '화' },

@@ -1,13 +1,13 @@
 import { useFormContext, useController } from 'react-hook-form';
 import {
-    SelectDropdown,
-    type SelectOption,
-} from '@/components/common/SelectDropdown';
+    ButtonGroup,
+    type ButtonGroupOption,
+} from '@/components/common/ButtonGroup';
 import { cn } from '@/utils/cn';
 
 interface FormSelectDropdownProps<T extends string | number = string> {
     name: string;
-    options: SelectOption<T>[];
+    options: ButtonGroupOption<T>[];
     multiple?: boolean;
     label?: string;
     helpText?: string;
@@ -59,7 +59,7 @@ export const FormSelectDropdown = <T extends string | number = string>({
                 aria-describedby={describedBy}
                 className={error ? 'aria-invalid' : ''}
             >
-                <SelectDropdown
+                <ButtonGroup
                     options={options}
                     value={field.value ?? (multiple ? [] : '')}
                     onChange={(value) => field.onChange(value)}

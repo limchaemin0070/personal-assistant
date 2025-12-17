@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { SlArrowLeft, SlArrowRight } from 'react-icons/sl';
 import type { CalendarView } from '@/hooks/calendar/useCalendar';
 import {
-    SelectDropdown,
-    type SelectOption,
-} from '@/components/common/SelectDropdown';
+    ButtonGroup,
+    type ButtonGroupOption,
+} from '@/components/common/ButtonGroup';
 import { authService } from '@/services/auth.service';
 
 interface CalendarHeaderProps {
@@ -26,7 +26,7 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
     setView,
 }: CalendarHeaderProps) => {
     const navigate = useNavigate();
-    const views: SelectOption<CalendarView>[] = [
+    const views: ButtonGroupOption<CalendarView>[] = [
         { value: 'month', label: '월' },
         { value: 'week', label: '주' },
         { value: 'day', label: '일' },
@@ -59,7 +59,7 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
             </div>
             <div className="flex flex-row items-center gap-3">
                 {/* 캘린더 뷰 변경 컨트롤러 */}
-                <SelectDropdown
+                <ButtonGroup
                     options={views}
                     value={view}
                     onChange={(newView) => setView(newView as CalendarView)}
