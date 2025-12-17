@@ -1,10 +1,17 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { LuPanelRight } from 'react-icons/lu';
+import { IoMdSettings } from 'react-icons/io';
+import { MdLogout } from 'react-icons/md';
 import { CalendarMonthView } from './CalendarMonthView';
 import { CalendarDayView } from './CalendarDayView';
 import { CalendarWeekView } from './CalendarWeekView';
 import { CalendarHeader } from './CalendarHeader';
+import { DropdownMenu } from '@/components/common/DropdownMenu';
 import { useCalendar } from '@/hooks/calendar/useCalendar';
+import { authService } from '@/services/auth.service';
+import { SwitchButton } from '../common/Button/SwitchButton';
+import { BsBell, BsBellSlash } from 'react-icons/bs';
 
 interface CalendarMainProps {
     // eslint-disable-next-line react/require-default-props
@@ -17,6 +24,7 @@ export const CalendarMain: React.FC<CalendarMainProps> = ({
     onToggleLeftSidebar,
     onToggleRightSidebar,
 }) => {
+    const navigate = useNavigate();
     const {
         currentDate,
         view,
@@ -30,7 +38,19 @@ export const CalendarMain: React.FC<CalendarMainProps> = ({
         handleNext,
     } = useCalendar();
 
-    // TODO : 주간 뷰는 일간 뷰를 7일로 반복해서 구성
+    const handleLogout = async () => {
+        try {
+            await authService.logout();
+            navigate('/login');
+        } catch {
+            navigate('/login');
+        }
+    };
+
+    const handleSwitch = async () => {
+        console.log('알람 권한 변경');
+    };
+
     const renderCalendarView = () => {
         switch (view) {
             case 'month':
@@ -87,6 +107,35 @@ export const CalendarMain: React.FC<CalendarMainProps> = ({
                     onNextMonth={handleNext}
                     view={view}
                     setView={setView}
+                />
+                <SwitchButton
+                    checked={false}
+                    onCheckedChange={handleSwitch}
+                    activeIcon={<BsBell />}
+                    inactiveIcon={<BsBellSlash />}
+                    className="text-gray-600 hover:bg-gray-100"
+                />
+                {/* 설정 드롭다운 메뉴
+                현재는 로그아웃 버튼만
+                추후 프로필이나 마이페이지 섹션 삽입 가능 */}
+                <DropdownMenu
+                    trigger={
+                        <button
+                            type="button"
+                            className="rounded-md p-1 text-gray-600 hover:bg-gray-100"
+                        >
+                            <IoMdSettings />
+                        </button>
+                    }
+                    items={[
+                        {
+                            value: 'logout',
+                            label: '로그아웃',
+                            icon: <MdLogout />,
+                            onClick: handleLogout,
+                        },
+                    ]}
+                    align="right"
                 />
                 {onToggleRightSidebar && (
                     <button

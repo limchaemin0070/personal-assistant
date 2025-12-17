@@ -3,7 +3,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { router } from '@/router.config';
 import ToastContainer from './components/common/Toast/ToastContainer';
-import { useAlarmSSE } from './hooks/notification/useNotificatonSSE';
 
 // QueryClient 설정 - 전역 설정으로 한 번만 생성
 const queryClient = new QueryClient({
@@ -26,7 +25,6 @@ const queryClient = new QueryClient({
 });
 
 export const App = () => {
-    useAlarmSSE();
     return (
         <QueryClientProvider client={queryClient}>
             <ToastContainer />

@@ -1,12 +1,12 @@
 import { cn } from '@/utils/cn';
 
-export interface SelectOption<T = string> {
+export interface ButtonGroupOption<T = string> {
     value: T;
     label: string;
 }
 
-interface SelectDropdownProps<T = string> {
-    options: SelectOption<T>[];
+interface ButtonGroupProps<T = string> {
+    options: ButtonGroupOption<T>[];
     value: T | T[];
     onChange: (value: T | T[]) => void;
     multiple?: boolean;
@@ -23,13 +23,13 @@ const buttonActiveStyles = 'bg-gray-200 font-medium text-gray-900';
 // 비선택된 버튼 스타일
 const buttonInactiveStyles = 'hover:bg-gray-100 text-gray-600';
 
-export const SelectDropdown = <T extends string | number = string>({
+export const ButtonGroup = <T extends string | number = string>({
     options,
     value,
     onChange,
     multiple = false,
     className,
-}: SelectDropdownProps<T>) => {
+}: ButtonGroupProps<T>) => {
     const handleClick = (optionValue: T) => {
         if (multiple) {
             const currentValues = Array.isArray(value) ? value : [];
