@@ -71,13 +71,11 @@ export const createReminder = asyncHandler(
       notification_enabled,
     });
 
-    res.status(201).json(
-      buildSuccess(
-        "REMINDER_CREATED",
-        "리마인더가 생성되었습니다.",
-        reminder
-      )
-    );
+    res
+      .status(201)
+      .json(
+        buildSuccess("REMINDER_CREATED", "리마인더가 생성되었습니다.", reminder)
+      );
   }
 );
 
@@ -85,11 +83,17 @@ export const createReminder = asyncHandler(
 export const updateReminder = asyncHandler(
   async (req: Request, res: Response) => {
     const userId = req.user?.userId;
-    const reminderId = parseInt(req.params.id);
+    const reminderIdParam = req.params.id;
 
     if (!userId) {
       throw new UserNotFoundError();
     }
+
+    if (!reminderIdParam) {
+      throw new ValidationError("유효하지 않은 리마인더 ID입니다.", "id");
+    }
+
+    const reminderId = parseInt(reminderIdParam);
 
     if (isNaN(reminderId)) {
       throw new ValidationError("유효하지 않은 리마인더 ID입니다.", "id");
@@ -132,13 +136,11 @@ export const updateReminder = asyncHandler(
 
     const { reminder } = await reminderService.updateReminder(updateParams);
 
-    res.status(200).json(
-      buildSuccess(
-        "REMINDER_UPDATED",
-        "리마인더가 수정되었습니다.",
-        reminder
-      )
-    );
+    res
+      .status(200)
+      .json(
+        buildSuccess("REMINDER_UPDATED", "리마인더가 수정되었습니다.", reminder)
+      );
   }
 );
 
@@ -146,11 +148,17 @@ export const updateReminder = asyncHandler(
 export const patchReminderComplete = asyncHandler(
   async (req: Request, res: Response) => {
     const userId = req.user?.userId;
-    const reminderId = parseInt(req.params.id);
+    const reminderIdParam = req.params.id;
 
     if (!userId) {
       throw new UserNotFoundError();
     }
+
+    if (!reminderIdParam) {
+      throw new ValidationError("유효하지 않은 리마인더 ID입니다.", "id");
+    }
+
+    const reminderId = parseInt(reminderIdParam);
 
     if (isNaN(reminderId)) {
       throw new ValidationError("유효하지 않은 리마인더 ID입니다.", "id");
@@ -167,13 +175,15 @@ export const patchReminderComplete = asyncHandler(
       is_completed: isCompleted,
     });
 
-    res.status(200).json(
-      buildSuccess(
-        "REMINDER_COMPLETE_UPDATED",
-        "리마인더 완료 상태가 변경되었습니다.",
-        reminder
-      )
-    );
+    res
+      .status(200)
+      .json(
+        buildSuccess(
+          "REMINDER_COMPLETE_UPDATED",
+          "리마인더 완료 상태가 변경되었습니다.",
+          reminder
+        )
+      );
   }
 );
 
@@ -181,11 +191,17 @@ export const patchReminderComplete = asyncHandler(
 export const deleteReminder = asyncHandler(
   async (req: Request, res: Response) => {
     const userId = req.user?.userId;
-    const reminderId = parseInt(req.params.id);
+    const reminderIdParam = req.params.id;
 
     if (!userId) {
       throw new UserNotFoundError();
     }
+
+    if (!reminderIdParam) {
+      throw new ValidationError("유효하지 않은 리마인더 ID입니다.", "id");
+    }
+
+    const reminderId = parseInt(reminderIdParam);
 
     if (isNaN(reminderId)) {
       throw new ValidationError("유효하지 않은 리마인더 ID입니다.", "id");
@@ -196,10 +212,6 @@ export const deleteReminder = asyncHandler(
       userId
     );
 
-    res.status(200).json(
-      buildSuccess("REMINDER_DELETED", message, null)
-    );
+    res.status(200).json(buildSuccess("REMINDER_DELETED", message, null));
   }
 );
-
-
