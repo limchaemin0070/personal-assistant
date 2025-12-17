@@ -90,11 +90,17 @@ export const createSchedule = asyncHandler(
 export const updateSchedule = asyncHandler(
   async (req: Request, res: Response) => {
     const userId = req.user?.userId;
-    const scheduleId = parseInt(req.params.id);
+    const scheduleIdParam = req.params.id;
 
     if (!userId) {
       throw new UserNotFoundError();
     }
+
+    if (!scheduleIdParam) {
+      throw new ValidationError("유효하지 않은 스케줄 ID입니다.", "id");
+    }
+
+    const scheduleId = parseInt(scheduleIdParam);
 
     if (isNaN(scheduleId)) {
       throw new ValidationError("유효하지 않은 스케줄 ID입니다.", "id");
@@ -153,11 +159,17 @@ export const updateSchedule = asyncHandler(
 export const deleteSchedule = asyncHandler(
   async (req: Request, res: Response) => {
     const userId = req.user?.userId;
-    const scheduleId = parseInt(req.params.id);
+    const scheduleIdParam = req.params.id;
 
     if (!userId) {
       throw new UserNotFoundError();
     }
+
+    if (!scheduleIdParam) {
+      throw new ValidationError("유효하지 않은 스케줄 ID입니다.", "id");
+    }
+
+    const scheduleId = parseInt(scheduleIdParam);
 
     if (isNaN(scheduleId)) {
       throw new ValidationError("유효하지 않은 스케줄 ID입니다.", "id");
