@@ -102,7 +102,7 @@ export const CalendarDayCell: React.FC<CalendarDayCellProps> = ({
             <div
                 className={`calendar-day-number ${
                     !day.isCurrentMonth ? 'calendar-day-number-other-month' : ''
-                }`}
+                } ${day.isToday ? 'calendar-day-number-today' : ''}`}
             >
                 {day.dayOfMonth}
             </div>

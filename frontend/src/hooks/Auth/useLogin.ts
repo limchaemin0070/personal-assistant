@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import type { AxiosError } from 'axios';
 import { authService } from '@/services/auth.service';
 import { useToastStore } from '@/hooks/useToastStore';
-import type { ApiErrorResponse } from '@/utils/api';
+import type { ApiErrorResponse } from '@/types/api';
 import { extractErrorMessage } from '@/utils/errorHandler';
 
 interface LoginRequest {

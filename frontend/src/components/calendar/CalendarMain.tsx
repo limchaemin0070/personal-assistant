@@ -1,5 +1,4 @@
 import React from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 import { BsBell, BsBellSlash } from 'react-icons/bs';
 import { IoMdSettings } from 'react-icons/io';
 import { LuPanelRight } from 'react-icons/lu';
@@ -10,9 +9,7 @@ import { CalendarWeekView } from './CalendarWeekView';
 import { CalendarHeader } from './CalendarHeader';
 import { DropdownMenu } from '@/components/common/DropdownMenu';
 import { useCalendar } from '@/hooks/calendar/useCalendar';
-import { authService } from '@/services/auth.service';
 import { SwitchButton } from '../common/Button/SwitchButton';
-import { setLoggingOut } from '@/utils/apiState';
 import { useLogout } from '@/hooks/Auth/useLogout';
 
 interface CalendarMainProps {
