@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 import { userService } from '@/services/user.service';
-import type { ApiErrorResponse } from '@/utils/api';
+import type { ApiErrorResponse } from '@/types/api';
 
 /**
  * 인증 상태를 관리하는 훅

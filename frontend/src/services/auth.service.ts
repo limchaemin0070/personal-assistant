@@ -1,5 +1,5 @@
+import type { ApiSuccessResponse } from '@/types';
 import { defaultApi } from '@/utils/api';
-import type { ApiSuccessResponse } from '@/utils/api';
 
 export interface SendVerificationCodeRequest {
     email: string;
