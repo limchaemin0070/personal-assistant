@@ -10,10 +10,7 @@ export function createAlarmSenders(): AlarmSender[] {
   // Redis Pub/Sub는 항상 활성화함
   senders.push(new RedisPubSubAlarmSender());
 
-  // 모바일 푸시 알림을 구현하게 되면 설정이나 환경변수를 통해 sender 추가
-  // if (process.env.ENABLE_PUSH_NOTIFICATION === "true") {
-  //   senders.push(new PushAlarmSender());
-  // }
+  // 추후 필요하면 sender 추가
 
   return senders;
 }

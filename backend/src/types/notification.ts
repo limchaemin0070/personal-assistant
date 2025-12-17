@@ -1,10 +1,19 @@
 /**
- * 알람 종류 (enum 수준으로 제한)
- * TODO : 알람 타입 구분에 의미가 있는지 체크하고 없을 시 통합...
- * - basic: 월 수 금 반복 알람 등 이벤트와 무관한 기본 알람
- * - event: 특정 이벤트나 일정 등에 부착하여 실행되는 일회성 알람
+ * 알람의 대분류
+ * 어떤 테이블의 알람인지
  */
-export type AlarmKind = "basic" | "event";
+export enum AlarmType {
+  ALARM = "alarm",
+  REMINDER_ALARM = "reminderAlarm",
+  // 추후 필요할 시 더 확장...
+}
+
+/**
+ * 알람의 동작 방식
+ * - repeat: 반복 알람 (월 수 금 반복 알람 등)
+ * - once: 일회성 알람 (특정 이벤트나 일정 등에 부착하여 실행되는 알람)
+ */
+export type AlarmKind = "repeat" | "once";
 
 /**
  * 알람 데이터 DTO
@@ -16,8 +25,7 @@ export interface AlarmData {
   userId: number;
   title: string;
   message: string;
-  // 스케줄/리마인더와 무관한 독립 알람을 위해 null/undefined 허용함
-  scheduleId?: number | null;
+  // 리마인더와 무관한 독립 알람을 위해 null/undefined 허용함
   reminderId?: number | null;
   timestamp: string;
   alarmKind: AlarmKind;
@@ -32,31 +40,15 @@ export interface AlarmTransportPayload {
   data: AlarmData;
 }
 
-/**
- * @deprecated NotificationData는 AlarmData로 대체됨
- * 하위 호환성을 위해 임시 유지
- */
-export interface NotificationData {
-  alarmId: number;
-  userId: number;
-  title: string;
-  message: string;
-  scheduleId?: number | null;
-  reminderId?: number | null;
-  timestamp: string;
-  alarmType: string;
-}
-
 // ===================================================================
 
 export interface AlarmJobData {
-  type: "SEND_ALARM" | "CHECK_SCHEDULED_ALARMS" | "CLEANUP_OLD_ALARMS";
-  data?: {
-    alarmId?: number;
-    userId?: number;
-    message?: string;
-    triggerTime?: Date;
-  };
+  alarmType?: AlarmType; // 뭔 알람인지...
+  alarmId?: number;
+  reminderAlarmId?: number; // 리마인더 알람인 경우 사용
+  userId?: number;
+  message?: string;
+  triggerTime?: Date;
 }
 
 export interface SSEMessage {
