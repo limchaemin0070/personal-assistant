@@ -10,7 +10,7 @@
     "lint": "tsc --noEmit",
     "test": "cross-env NODE_ENV=test jest --runInBand",
     "migrate": "sequelize-cli db:migrate",
-    "postinstall": "npm run build && npm run migrate",
+    "postinstall": "npm run build",
     "redis:start": "docker run -d --name redis-local -p 6379:6379 redis:7-alpine",
     "redis:stop": "docker stop redis-local && docker rm redis-local",
     "redis:logs": "docker logs -f redis-local",
