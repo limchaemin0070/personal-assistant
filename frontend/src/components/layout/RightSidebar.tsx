@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sidebar } from './Sidebar';
+import { Sidebar } from '../common/Sidebar';
 import { Reminder } from '@/components/reminder/Reminder';
 import { Alarm } from '../alarm/Alarm';
 
