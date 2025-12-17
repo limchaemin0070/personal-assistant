@@ -3,27 +3,23 @@ import { ValidationError } from "../../errors/ValidationError";
 // Alarm 관련 입력값 검증 모듈
 
 export interface CreateAlarmPayload {
-  schedule_id?: number | null;
-  reminder_id?: number | null;
   title?: string;
   date?: string | null;
   time?: string;
   is_repeat?: boolean;
   repeat_days?: number[] | null;
   is_active?: boolean;
-  alarm_type?: "basic" | "event";
+  alarm_type?: "repeat" | "once";
 }
 
 export interface UpdateAlarmPayload {
-  schedule_id?: number | null;
-  reminder_id?: number | null;
   title?: string;
   date?: string | null;
   time?: string;
   is_repeat?: boolean;
   repeat_days?: number[] | null;
   is_active?: boolean;
-  alarm_type?: "basic" | "event";
+  alarm_type?: "repeat" | "once";
 }
 
 export interface UpdateAlarmActivePayload {
@@ -64,7 +60,12 @@ const validateRepeatDaysOrThrow = (repeatDays?: number[] | null) => {
     }
     // 유효한 요일 값인지 확인 (0-6)
     for (const day of repeatDays) {
-      if (typeof day !== "number" || day < 0 || day > 6 || !Number.isInteger(day)) {
+      if (
+        typeof day !== "number" ||
+        day < 0 ||
+        day > 6 ||
+        !Number.isInteger(day)
+      ) {
         throw new ValidationError(
           "반복 요일은 0(일요일)부터 6(토요일)까지의 정수여야 합니다.",
           "repeat_days"
@@ -98,13 +99,13 @@ export const validateBooleanOrThrow = (value: any, fieldName: string) => {
   }
 };
 
-export const validateAlarmTypeOrThrow = (alarmType?: "basic" | "event") => {
+export const validateAlarmTypeOrThrow = (alarmType?: "repeat" | "once") => {
   if (!alarmType) {
     throw new ValidationError("알람 타입을 입력해주세요.", "alarm_type");
   }
-  if (alarmType !== "basic" && alarmType !== "event") {
+  if (alarmType !== "repeat" && alarmType !== "once") {
     throw new ValidationError(
-      "알람 타입은 'basic' 또는 'event'여야 합니다.",
+      "알람 타입은 'repeat' 또는 'once'여야 합니다.",
       "alarm_type"
     );
   }
@@ -145,64 +146,20 @@ export const validateTitleOrThrow = (title?: string | null) => {
 };
 
 export const validateCreateAlarmPayload = (payload: CreateAlarmPayload) => {
-  const {
-    schedule_id,
-    reminder_id,
-    title,
-    date,
-    time,
-    is_repeat,
-    repeat_days,
-    is_active,
-    alarm_type,
-  } = payload;
+  const { title, date, time, is_repeat, repeat_days, is_active, alarm_type } =
+    payload;
 
   // 필수 필드 검증
   validateTimeOrThrow(time);
   validateAlarmTypeOrThrow(alarm_type);
-  
+
   // 선택 필드 검증
   validateTitleOrThrow(title);
 
   // 선택 필드 검증
-  validateIntegerOrThrow(schedule_id, "schedule_id", true);
-  validateIntegerOrThrow(reminder_id, "reminder_id", true);
   validateBooleanOrThrow(is_repeat, "is_repeat");
   validateBooleanOrThrow(is_active, "is_active");
   validateRepeatDaysOrThrow(repeat_days);
-
-  // 알람 타입별 제약 조건 검증
-  if (alarm_type === "basic") {
-    if (schedule_id !== null && schedule_id !== undefined) {
-      throw new ValidationError(
-        "basic 타입 알람은 schedule_id를 가질 수 없습니다.",
-        "schedule_id"
-      );
-    }
-    if (reminder_id !== null && reminder_id !== undefined) {
-      throw new ValidationError(
-        "basic 타입 알람은 reminder_id를 가질 수 없습니다.",
-        "reminder_id"
-      );
-    }
-  } else if (alarm_type === "event") {
-    // event 타입은 schedule_id 또는 reminder_id 중 하나만 있어야 함
-    const hasSchedule = schedule_id !== null && schedule_id !== undefined;
-    const hasReminder = reminder_id !== null && reminder_id !== undefined;
-
-    if (!hasSchedule && !hasReminder) {
-      throw new ValidationError(
-        "event 타입 알람은 schedule_id 또는 reminder_id 중 하나는 필수입니다.",
-        "schedule_id, reminder_id"
-      );
-    }
-    if (hasSchedule && hasReminder) {
-      throw new ValidationError(
-        "event 타입 알람은 schedule_id와 reminder_id를 동시에 가질 수 없습니다.",
-        "schedule_id, reminder_id"
-      );
-    }
-  }
 
   // 반복 알람인 경우 repeat_days 필수
   if (is_repeat === true) {
@@ -224,17 +181,8 @@ export const validateCreateAlarmPayload = (payload: CreateAlarmPayload) => {
 };
 
 export const validateUpdateAlarmPayload = (payload: UpdateAlarmPayload) => {
-  const {
-    schedule_id,
-    reminder_id,
-    title,
-    date,
-    time,
-    is_repeat,
-    repeat_days,
-    is_active,
-    alarm_type,
-  } = payload;
+  const { title, date, time, is_repeat, repeat_days, is_active, alarm_type } =
+    payload;
 
   // 제공된 필드만 검증
   if (title !== undefined) {
@@ -246,12 +194,6 @@ export const validateUpdateAlarmPayload = (payload: UpdateAlarmPayload) => {
   if (alarm_type !== undefined) {
     validateAlarmTypeOrThrow(alarm_type);
   }
-  if (schedule_id !== undefined) {
-    validateIntegerOrThrow(schedule_id, "schedule_id", true);
-  }
-  if (reminder_id !== undefined) {
-    validateIntegerOrThrow(reminder_id, "reminder_id", true);
-  }
   if (is_repeat !== undefined) {
     validateBooleanOrThrow(is_repeat, "is_repeat");
   }
@@ -260,42 +202,6 @@ export const validateUpdateAlarmPayload = (payload: UpdateAlarmPayload) => {
   }
   if (repeat_days !== undefined) {
     validateRepeatDaysOrThrow(repeat_days);
-  }
-
-  // 알람 타입별 제약 조건 검증 (alarm_type이 제공된 경우)
-  if (alarm_type !== undefined) {
-    if (alarm_type === "basic") {
-      // basic 타입으로 변경하는 경우, schedule_id와 reminder_id가 모두 null이어야 함
-      if (schedule_id !== null && schedule_id !== undefined) {
-        throw new ValidationError(
-          "basic 타입 알람은 schedule_id를 가질 수 없습니다.",
-          "schedule_id"
-        );
-      }
-      if (reminder_id !== null && reminder_id !== undefined) {
-        throw new ValidationError(
-          "basic 타입 알람은 reminder_id를 가질 수 없습니다.",
-          "reminder_id"
-        );
-      }
-    } else if (alarm_type === "event") {
-      // event 타입으로 변경하는 경우, schedule_id 또는 reminder_id 중 하나는 필수
-      const hasSchedule = schedule_id !== null && schedule_id !== undefined;
-      const hasReminder = reminder_id !== null && reminder_id !== undefined;
-
-      if (!hasSchedule && !hasReminder) {
-        throw new ValidationError(
-          "event 타입 알람은 schedule_id 또는 reminder_id 중 하나는 필수입니다.",
-          "schedule_id, reminder_id"
-        );
-      }
-      if (hasSchedule && hasReminder) {
-        throw new ValidationError(
-          "event 타입 알람은 schedule_id와 reminder_id를 동시에 가질 수 없습니다.",
-          "schedule_id, reminder_id"
-        );
-      }
-    }
   }
 
   // 반복 알람 관련 검증
@@ -336,10 +242,6 @@ export const validateUpdateAlarmActivePayload = (
   }
 
   if (typeof isActive !== "boolean") {
-    throw new ValidationError(
-      "활성 상태는 불린 값이어야 합니다.",
-      "isActive"
-    );
+    throw new ValidationError("활성 상태는 불린 값이어야 합니다.", "isActive");
   }
 };
-
