@@ -22,6 +22,8 @@ interface EnvVariables {
   JWT_REFRESH_SECRET: string;
   JWT_ACCESS_EXPIRES_IN: string;
   JWT_REFRESH_EXPIRES_IN: string;
+  JWT_SSE_SECRET: string;
+  JWT_SSE_EXPIRES_IN: string;
 
   REDIS_URL?: string;
   CORS_ORIGIN: string;
@@ -84,6 +86,8 @@ function validateEnv(): EnvVariables {
     JWT_REFRESH_SECRET: getEnv("JWT_REFRESH_SECRET", "test-refresh-secret-key"),
     JWT_ACCESS_EXPIRES_IN: getEnv("JWT_ACCESS_EXPIRES_IN", "15m"),
     JWT_REFRESH_EXPIRES_IN: getEnv("JWT_REFRESH_EXPIRES_IN", "7d"),
+    JWT_SSE_SECRET: getEnv("JWT_SSE_SECRET", "test-sse-secret-key"),
+    JWT_SSE_EXPIRES_IN: getEnv("JWT_SSE_EXPIRES_IN", "24h"),
 
     REDIS_URL: getEnv("REDIS_URL", ""),
     CORS_ORIGIN: getEnv("CORS_ORIGIN", "http://localhost:5173"),
