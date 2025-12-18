@@ -73,6 +73,7 @@ function extractPayload(decoded: any): TokenPayload {
   const { userId, email } = decoded;
   return { userId, email };
 }
+
 // 리프레시 토큰 검증
 export function verifyRefreshToken(token: string): TokenPayload {
   try {
@@ -86,5 +87,29 @@ export function verifyRefreshToken(token: string): TokenPayload {
       throw new InvalidTokenError("refresh");
     }
     throw new InvalidTokenError("refresh");
+  }
+}
+
+// ==================SSE=====================
+
+// SSE 토큰 생성
+export function generateSSEToken(payload: TokenPayload): string {
+  const options = {
+    algorithm: "HS256",
+    expiresIn: env.JWT_SSE_EXPIRES_IN,
+  } as SignOptions;
+  return jwt.sign(payload, env.JWT_SSE_SECRET, options);
+}
+
+// SSE 토큰 검증
+export function verifySSEToken(token: string): TokenPayload {
+  try {
+    const decoded = jwt.verify(token, env.JWT_SSE_SECRET);
+    return extractPayload(decoded);
+  } catch (error) {
+    if (error instanceof JwtTokenExpiredError) {
+      throw new TokenExpiredError("sse" as any);
+    }
+    throw new InvalidTokenError("sse" as any);
   }
 }

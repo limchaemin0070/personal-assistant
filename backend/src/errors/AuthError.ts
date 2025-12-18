@@ -13,23 +13,26 @@ export class InvalidCredentialsError extends CustomError {
 }
 
 export class TokenExpiredError extends CustomError {
-  constructor(tokenType: "access" | "refresh" = "access") {
-    super(
-      401,
-      "TOKEN_EXPIRED",
-      `${tokenType === "access" ? "액세스" : "리프레시"} 토큰이 만료되었습니다.`
-    );
+  constructor(tokenType: "access" | "refresh" | "sse" = "access") {
+    let message = "토큰이 만료되었습니다.";
+    if (tokenType === "access") message = "액세스 토큰이 만료되었습니다.";
+    else if (tokenType === "refresh")
+      message = "리프레시 토큰이 만료되었습니다.";
+    else if (tokenType === "sse") message = "SSE 토큰이 만료되었습니다.";
+
+    super(401, "TOKEN_EXPIRED", message);
   }
 }
 
 export class InvalidTokenError extends CustomError {
-  constructor(tokenType: "access" | "refresh" = "access") {
-    super(
-      401,
-      "INVALID_TOKEN",
-      `${
-        tokenType === "access" ? "액세스" : "리프레시"
-      } 토큰이 유효하지 않습니다.`
-    );
+  constructor(tokenType: "access" | "refresh" | "sse" = "access") {
+    let message = "토큰이 유효하지 않습니다.";
+    if (tokenType === "access") message = "액세스 토큰이 유효하지 않습니다.";
+    else if (tokenType === "refresh")
+      message = "리프레시 토큰이 유효하지 않습니다.";
+    else if (tokenType === "sse")
+      message = "SSE 토큰이 유효하지 않거나 만료되었습니다.";
+
+    super(401, "INVALID_TOKEN", message);
   }
 }
