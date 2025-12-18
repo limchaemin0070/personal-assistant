@@ -7,6 +7,7 @@ import { REDIS_KEYS } from "../constants/redis-keys";
 import { buildSuccess } from "../utils/response";
 import { generateSSEToken, expiresInToMs } from "../utils/authentication/jwt";
 import { env } from "../config/env";
+import { sseSubscriptionManager } from "../services/notification/sse-subscription.manager";
 
 export const issueSSEToken = asyncHandler(
   async (req: Request, res: Response) => {
@@ -71,7 +72,7 @@ export const notificationStreamHandler = asyncHandler(
       `[SSE-${connectionId}] 현재 공유 Subscriber 리스너 수: ${listenerCount}`
     );
 
-    await redisSubscriber.subscribe(channel);
+    await sseSubscriptionManager.subscribe(channel);
     console.log(`[SSE-${connectionId}] Redis 채널 구독 시작: ${channel}`);
 
     const cleanup = () => {
@@ -86,7 +87,7 @@ export const notificationStreamHandler = asyncHandler(
         `[SSE-${connectionId}] Redis unsubscribe 호출 예정 (Channel: ${channel})`
       );
 
-      redisSubscriber.unsubscribe(channel).catch((err) => {
+      sseSubscriptionManager.unsubscribe(channel).catch((err) => {
         console.error(`[SSE-${connectionId}] unsubscribe 에러:`, err);
       });
     };
