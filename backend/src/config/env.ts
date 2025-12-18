@@ -24,6 +24,7 @@ interface EnvVariables {
   JWT_REFRESH_EXPIRES_IN: string;
 
   REDIS_URL?: string;
+  CORS_ORIGIN: string;
 }
 
 function validateEnv(): EnvVariables {
@@ -85,6 +86,7 @@ function validateEnv(): EnvVariables {
     JWT_REFRESH_EXPIRES_IN: getEnv("JWT_REFRESH_EXPIRES_IN", "7d"),
 
     REDIS_URL: getEnv("REDIS_URL", ""),
+    CORS_ORIGIN: getEnv("CORS_ORIGIN", "http://localhost:5173"),
   };
 }
 
