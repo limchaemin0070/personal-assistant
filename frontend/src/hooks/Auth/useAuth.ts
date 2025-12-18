@@ -14,7 +14,7 @@ import type { ApiErrorResponse } from '@/types/api';
  * - error: 에러 정보
  */
 export const useAuth = () => {
-    const { data, isError, error } = useQuery({
+    const { data, isError, error, isLoading } = useQuery({
         queryKey: ['auth', 'me'],
         queryFn: async () => {
             const response = await userService.getCurrentUser();
@@ -44,6 +44,7 @@ export const useAuth = () => {
     return {
         user: data,
         isAuthenticated,
+        isLoading,
         isUnauthorized,
         error: authError,
     };
