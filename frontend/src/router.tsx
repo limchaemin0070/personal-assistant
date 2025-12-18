@@ -28,11 +28,8 @@ export const ProtectedRoute = ({ children }: RouteProps) => {
 
 // 공개 라우트 (비로그인 접근 가능, 인증된 사용자는 메인으로 리다이렉트)
 export const PublicRoute = ({ children }: RouteProps) => {
-    const { isAuthenticated, isLoading } = useAuth();
-
-    if (isLoading) {
-        return null;
-    }
+    // 공개 페이지에서는 새로운 유저 정보를 요청하지 않음 (기존 캐시만 활용)
+    const { isAuthenticated } = useAuth({ enabled: false });
 
     if (isAuthenticated) {
         return <Navigate to="/" replace />;
