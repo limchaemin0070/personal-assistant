@@ -82,9 +82,11 @@ export function useAlarmSSE() {
         activeAlarm,
         settings,
         setConnected,
-        reconnectAttempts,
         setReconnectAttempts,
     } = useNotificationStore();
+
+    // 재연결 횟수를 추적하기 위한 ref (의존성 배열에서 제외하기 위함)
+    const reconnectAttemptsRef = useRef(0);
 
     const handleAlarmEvent = useCallback(
         (event: AlarmEvent) => {
@@ -133,6 +135,7 @@ export function useAlarmSSE() {
         eventSource.onopen = () => {
             console.log('✅ Alarm SSE connected');
             setConnected(true);
+            reconnectAttemptsRef.current = 0;
             setReconnectAttempts(0);
 
             if (reconnectTimeoutRef.current) {
@@ -208,7 +211,8 @@ export function useAlarmSSE() {
 
             // 지수 백오프로 재연결 시도
             if (!reconnectTimeoutRef.current) {
-                const nextAttempts = reconnectAttempts + 1;
+                const nextAttempts = reconnectAttemptsRef.current + 1;
+                reconnectAttemptsRef.current = nextAttempts;
                 setReconnectAttempts(nextAttempts);
 
                 const delay = Math.min(30000, 1000 * 2 ** (nextAttempts - 1));
@@ -220,12 +224,7 @@ export function useAlarmSSE() {
                 }, delay);
             }
         };
-    }, [
-        handleAlarmEvent,
-        reconnectAttempts,
-        setConnected,
-        setReconnectAttempts,
-    ]);
+    }, [handleAlarmEvent, setConnected, setReconnectAttempts]);
 
     useEffect(() => {
         // 인증된 사용자만 SSE 연결
