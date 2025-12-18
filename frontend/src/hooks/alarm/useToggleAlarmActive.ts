@@ -18,7 +18,7 @@ export const useToggleAlarmActive = () => {
 
         onSuccess: () => {
             queryClient.invalidateQueries({
-                queryKey: queryKeys.alarms.user(),
+                queryKey: queryKeys.alarms.all,
             });
         },
 

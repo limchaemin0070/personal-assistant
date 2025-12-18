@@ -39,6 +39,6 @@ export const useAlarm = () => {
                 return 0;
             });
         },
-        staleTime: 5 * 60 * 1000,
+        staleTime: 0,
     });
 };

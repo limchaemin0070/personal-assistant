@@ -14,7 +14,7 @@ export const useCreateAlarm = () => {
 
         onSuccess: () => {
             queryClient.invalidateQueries({
-                queryKey: queryKeys.alarms.user(),
+                queryKey: queryKeys.alarms.all,
             });
             addToast('알람이 생성되었습니다.', 'success');
         },

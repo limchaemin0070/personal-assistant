@@ -18,7 +18,7 @@ export const useToggleReminderComplete = () => {
 
         onSuccess: () => {
             queryClient.invalidateQueries({
-                queryKey: queryKeys.reminders.user(),
+                queryKey: queryKeys.reminders.all,
             });
         },
 

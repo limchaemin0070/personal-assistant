@@ -34,6 +34,6 @@ export const useReminder = () => {
                 return 0;
             });
         },
-        staleTime: 5 * 60 * 1000,
+        staleTime: 0,
     });
 };
