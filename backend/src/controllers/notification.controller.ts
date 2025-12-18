@@ -14,8 +14,11 @@ export const notificationStreamHandler = asyncHandler(
       throw new UserNotFoundError();
     }
 
+    // 초기 연결 확인 메시지
+    res.write("event: connected\ndata: true\n\n");
+
     const messageHandler = (receivedChannel: string, message: string) => {
-      if (receivedChannel === channel && message) {
+      if (receivedChannel === channel && message && !res.writableEnded) {
         res.write(`event: alarm\ndata: ${message}\n\n`);
       }
     };

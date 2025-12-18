@@ -14,7 +14,11 @@ export function sseInitMiddleware(
   res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
   res.setHeader("Cache-Control", "no-cache, no-transform");
   res.setHeader("Connection", "keep-alive");
-  // res.setHeader("Transfer-Encoding", "chunked");
+  res.setHeader("X-Accel-Buffering", "no"); // Nginx 버퍼링 방지
+
+  // 소켓 설정 최적화
+  req.socket.setKeepAlive(true);
+  req.socket.setTimeout(0);
 
   // TODO : CORS 설정
 
@@ -29,7 +33,9 @@ export function sseInitMiddleware(
   // 핑 15~30초
   const heartbeatMs = 15000;
   const heartbeat = setInterval(() => {
-    res.write(`event: ping\ndata: {}\n\n`);
+    if (!res.writableEnded) {
+      res.write(`event: ping\ndata: {}\n\n`);
+    }
   }, heartbeatMs);
 
   // 커넥션 종료 시 정리
