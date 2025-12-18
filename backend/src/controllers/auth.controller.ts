@@ -90,19 +90,21 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     password
   );
 
-  // 액세스토큰과 리프레시토큰 모두 httponly 쿠키에 저장합니다
+  // 액세스토큰과 리프레시토큰 모두 httponly 쿠키에 저장
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    secure: true,
+    // secure: env.NODE_ENV === "production",
+    sameSite: "none",
     maxAge: expiresInToMs(env.JWT_ACCESS_EXPIRES_IN),
     path: "/",
   });
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    secure: true,
+    // secure: env.NODE_ENV === "production",
+    sameSite: "none",
     maxAge: expiresInToMs(env.JWT_REFRESH_EXPIRES_IN),
     path: "/",
   });
@@ -119,7 +121,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
 export const logout = asyncHandler(async (req: Request, res: Response) => {
   const cookieOptions = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: env.NODE_ENV === "production",
     sameSite: "strict" as const,
     path: "/",
   };
@@ -143,34 +145,47 @@ export const refreshAccesstoken = asyncHandler(
     // 입력값 검증
     validateRefreshTokenOrThrow(refreshToken);
 
-    // 액세스토큰과 리프레시토큰 둘 다 새로 발급
-    const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
-      await authService.refreshTokens(refreshToken);
+    try {
+      // 액세스토큰과 리프레시토큰 둘 다 새로 발급
+      const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
+        await authService.refreshTokens(refreshToken);
 
-    res.cookie("accessToken", newAccessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: expiresInToMs(env.JWT_ACCESS_EXPIRES_IN),
-      path: "/",
-    });
+      res.cookie("accessToken", newAccessToken, {
+        httpOnly: true,
+        secure: env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: expiresInToMs(env.JWT_ACCESS_EXPIRES_IN),
+        path: "/",
+      });
 
-    res.cookie("refreshToken", newRefreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: expiresInToMs(env.JWT_REFRESH_EXPIRES_IN),
-      path: "/",
-    });
+      res.cookie("refreshToken", newRefreshToken, {
+        httpOnly: true,
+        secure: env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: expiresInToMs(env.JWT_REFRESH_EXPIRES_IN),
+        path: "/",
+      });
 
-    res
-      .status(200)
-      .json(
-        buildSuccess(
-          "REFRESH_SUCCESS",
-          "액세스 토큰 재발급에 성공했습니다.",
-          null
-        )
-      );
+      res
+        .status(200)
+        .json(
+          buildSuccess(
+            "REFRESH_SUCCESS",
+            "액세스 토큰 재발급에 성공했습니다.",
+            null
+          )
+        );
+    } catch (error) {
+      // 리프레시 토큰이 유효하지 않은 경우 쿠키 삭제
+      const cookieOptions = {
+        httpOnly: true,
+        secure: env.NODE_ENV === "production",
+        sameSite: "strict" as const,
+        path: "/",
+      };
+      res.clearCookie("accessToken", cookieOptions);
+      res.clearCookie("refreshToken", cookieOptions);
+      throw error;
+    }
   }
 );

@@ -9,10 +9,6 @@ import {
 } from "./config/redis";
 import alarmWorker from "./queue/alarm.worker";
 
-console.log("🔍 환경변수 확인:");
-console.log("REDIS_URL:", process.env.REDIS_URL ? "설정됨" : "없음");
-console.log("REDIS_URL 길이:", process.env.REDIS_URL?.length);
-
 /**
  * MySQL 연결
  */
