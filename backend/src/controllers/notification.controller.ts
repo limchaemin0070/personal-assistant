@@ -43,10 +43,21 @@ export const notificationStreamHandler = asyncHandler(
       throw new UserNotFoundError();
     }
 
+    // [디버깅] 연결 식별을 위한 고유 ID 생성
+    const connectionId = Math.random().toString(36).substring(7);
+    console.log(
+      `[SSE-${connectionId}] 연결 시도: UserID=${userId}, Channel=${channel}`
+    );
+
     // 초기 연결 확인 메시지
     res.write("event: connected\ndata: true\n\n");
 
     const messageHandler = (receivedChannel: string, message: string) => {
+      // [디버깅] 메시지 수신 확인
+      if (receivedChannel === channel) {
+        console.log(`[SSE-${connectionId}] Redis 메시지 수신 (본인 채널)`);
+      }
+
       if (receivedChannel === channel && message && !res.writableEnded) {
         res.write(`event: alarm\ndata: ${message}\n\n`);
       }
@@ -54,11 +65,30 @@ export const notificationStreamHandler = asyncHandler(
 
     redisSubscriber.on("message", messageHandler);
 
+    // [디버깅] 현재 공유 Subscriber의 리스너 수 확인
+    const listenerCount = redisSubscriber.listenerCount("message");
+    console.log(
+      `[SSE-${connectionId}] 현재 공유 Subscriber 리스너 수: ${listenerCount}`
+    );
+
     await redisSubscriber.subscribe(channel);
+    console.log(`[SSE-${connectionId}] Redis 채널 구독 시작: ${channel}`);
 
     const cleanup = () => {
+      console.log(
+        `[SSE-${connectionId}] 연결 종료 및 클린업 시작 (UserID=${userId})`
+      );
+
       redisSubscriber.removeListener("message", messageHandler);
-      redisSubscriber.unsubscribe(channel).catch(() => {});
+
+      // [디버깅] unsubscribe 호출 전 알림
+      console.log(
+        `[SSE-${connectionId}] Redis unsubscribe 호출 예정 (Channel: ${channel})`
+      );
+
+      redisSubscriber.unsubscribe(channel).catch((err) => {
+        console.error(`[SSE-${connectionId}] unsubscribe 에러:`, err);
+      });
     };
 
     req.on("close", cleanup);
