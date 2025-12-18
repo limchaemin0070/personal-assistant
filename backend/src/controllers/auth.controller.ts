@@ -10,9 +10,12 @@ import {
 } from "../utils/validation/authValidator";
 import { ValidationError } from "../errors/ValidationError";
 import { buildSuccess } from "../utils/response";
-import { expiresInToMs } from "../utils/authentication/jwt";
 import { env } from "../config/env";
 import { authService } from "../services/auth.service";
+import {
+  getAuthCookieOptions,
+  getRefreshCookieOptions,
+} from "../utils/authentication/cookie";
 
 // 이메일 검증 코드 전송
 export const sendVerificationCode = asyncHandler(
@@ -91,23 +94,17 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   );
 
   // 액세스토큰과 리프레시토큰 모두 httponly 쿠키에 저장
-  res.cookie("accessToken", accessToken, {
-    httpOnly: true,
-    secure: true,
-    // secure: env.NODE_ENV === "production",
-    sameSite: "none",
-    maxAge: expiresInToMs(env.JWT_ACCESS_EXPIRES_IN),
-    path: "/",
-  });
+  res.cookie(
+    "accessToken",
+    accessToken,
+    getAuthCookieOptions(env.JWT_ACCESS_EXPIRES_IN)
+  );
 
-  res.cookie("refreshToken", refreshToken, {
-    httpOnly: true,
-    secure: true,
-    // secure: env.NODE_ENV === "production",
-    sameSite: "none",
-    maxAge: expiresInToMs(env.JWT_REFRESH_EXPIRES_IN),
-    path: "/",
-  });
+  res.cookie(
+    "refreshToken",
+    refreshToken,
+    getAuthCookieOptions(env.JWT_REFRESH_EXPIRES_IN)
+  );
 
   res.status(200).json(
     buildSuccess("LOGIN_SUCCESS", "로그인에 성공했습니다.", {
@@ -119,12 +116,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
 
 // 로그아웃
 export const logout = asyncHandler(async (req: Request, res: Response) => {
-  const cookieOptions = {
-    httpOnly: true,
-    secure: env.NODE_ENV === "production",
-    sameSite: "strict" as const,
-    path: "/",
-  };
+  const cookieOptions = getAuthCookieOptions();
 
   // 액세스 토큰 쿠키 삭제
   res.clearCookie("accessToken", cookieOptions);
@@ -150,21 +142,17 @@ export const refreshAccesstoken = asyncHandler(
       const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
         await authService.refreshTokens(refreshToken);
 
-      res.cookie("accessToken", newAccessToken, {
-        httpOnly: true,
-        secure: env.NODE_ENV === "production",
-        sameSite: "strict",
-        maxAge: expiresInToMs(env.JWT_ACCESS_EXPIRES_IN),
-        path: "/",
-      });
+      res.cookie(
+        "accessToken",
+        newAccessToken,
+        getRefreshCookieOptions(env.JWT_ACCESS_EXPIRES_IN)
+      );
 
-      res.cookie("refreshToken", newRefreshToken, {
-        httpOnly: true,
-        secure: env.NODE_ENV === "production",
-        sameSite: "strict",
-        maxAge: expiresInToMs(env.JWT_REFRESH_EXPIRES_IN),
-        path: "/",
-      });
+      res.cookie(
+        "refreshToken",
+        newRefreshToken,
+        getRefreshCookieOptions(env.JWT_REFRESH_EXPIRES_IN)
+      );
 
       res
         .status(200)
@@ -177,12 +165,7 @@ export const refreshAccesstoken = asyncHandler(
         );
     } catch (error) {
       // 리프레시 토큰이 유효하지 않은 경우 쿠키 삭제
-      const cookieOptions = {
-        httpOnly: true,
-        secure: env.NODE_ENV === "production",
-        sameSite: "strict" as const,
-        path: "/",
-      };
+      const cookieOptions = getRefreshCookieOptions();
       res.clearCookie("accessToken", cookieOptions);
       res.clearCookie("refreshToken", cookieOptions);
       throw error;
