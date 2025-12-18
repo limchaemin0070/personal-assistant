@@ -1,4 +1,5 @@
-// src/server.ts
+process.env.TZ = "Asia/Seoul";
+
 import app from "./app";
 import sequelize from "./config/database";
 import { env } from "./config/env";
