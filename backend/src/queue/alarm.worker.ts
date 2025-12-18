@@ -12,13 +12,10 @@ const alarmWorker = new Worker<AlarmJobData>(
 
     switch (jobType) {
       case QUEUE_CONSTANTS.JOB_TYPES.SEND_ALARM:
-        // 리팩토링된 AlarmProcessorService를 사용하여 Job 처리
         await alarmProcessorService.processAlarmJob(job);
         break;
 
       case QUEUE_CONSTANTS.JOB_TYPES.CHECK_SCHEDULED_ALARMS:
-        // BullMQ가 자동으로 스케줄을 관리하므로 대부분의 경우 불필요
-        // 필요시 DB에서 스케줄 동기화 로직 추가 가능
         console.log("CHECK_SCHEDULED_ALARMS job received (no-op)");
         break;
 
