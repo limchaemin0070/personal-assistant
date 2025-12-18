@@ -13,7 +13,7 @@ export const useDeleteReminder = () => {
 
         onSuccess: () => {
             queryClient.invalidateQueries({
-                queryKey: queryKeys.reminders.user(),
+                queryKey: queryKeys.reminders.all,
             });
             addToast('리마인더가 삭제되었습니다.', 'success');
         },

@@ -19,7 +19,7 @@ export const useUpdateAlarm = () => {
 
         onSuccess: () => {
             queryClient.invalidateQueries({
-                queryKey: queryKeys.alarms.user(),
+                queryKey: queryKeys.alarms.all,
             });
             addToast('알람이 수정되었습니다.', 'success');
         },

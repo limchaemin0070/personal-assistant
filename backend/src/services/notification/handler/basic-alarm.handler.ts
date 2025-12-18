@@ -126,24 +126,11 @@ export class BasicAlarmHandler implements AlarmHandler<Alarm> {
     await alarm.save();
   }
 
-  async rescheduleAlarm(
-    alarm: Alarm,
-    currentTime: Date = new Date()
-  ): Promise<Date | null> {
-    const nextTriggerTime = this.calculateNextTriggerTime(alarm, currentTime);
-
-    if (!nextTriggerTime) {
-      await alarm.update({ is_active: false });
-      return null;
-    }
-
     await alarm.update({
-      last_triggered_at: currentTime,
-      next_trigger_at: nextTriggerTime,
+      last_triggered_at: new Date(),
+      next_trigger_at: nextTime,
       trigger_count: (alarm.trigger_count || 0) + 1,
     });
-
-    return nextTriggerTime;
   }
 
   async findById(alarmId: number): Promise<Alarm | null> {

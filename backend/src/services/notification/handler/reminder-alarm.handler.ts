@@ -65,27 +65,15 @@ export class ReminderAlarmHandler implements AlarmHandler<ReminderAlarm> {
     await alarm.update({ is_active: false });
   }
 
-  // TODO : 리마인더 알람은 once라 필요하지 않음
   async updateNextTriggerTime(
     alarm: ReminderAlarm,
-    // TODO : ?
     nextTime: Date | null
   ): Promise<void> {
-    alarm.next_trigger_at = new Date();
-    await alarm.save();
-  }
-
-  async rescheduleAlarm(
-    alarm: ReminderAlarm,
-    currentTime: Date = new Date()
-  ): Promise<Date | null> {
-    // 일회성이므로 재스케줄링 없이 완료 처리
     await alarm.update({
-      last_triggered_at: currentTime,
+      last_triggered_at: new Date(),
+      next_trigger_at: nextTime,
       trigger_count: (alarm.trigger_count || 0) + 1,
-      is_active: false,
     });
-    return null;
   }
 
   async findById(alarmId: number): Promise<ReminderAlarm | null> {

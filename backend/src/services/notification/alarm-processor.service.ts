@@ -46,8 +46,7 @@ class AlarmProcessorService {
 
       // 1. 트리거 가능 여부 검증
       if (!handler.canTrigger(alarm)) {
-        console.log(`Alarm ${alarmId} cannot be triggered, cancelling`);
-        await alarmSchedulerService.cancelAlarm(alarmId, alarmType);
+        console.log(`Alarm ${alarmId} cannot be triggered, skipping job`);
         return;
       }
 
@@ -65,9 +64,8 @@ class AlarmProcessorService {
       } else {
         // 일회성 알람: 완료 처리
         await handler.completeAlarm(alarm);
-        await alarmSchedulerService.cancelAlarm(alarmId, alarmType);
 
-        console.log(`Alarm ${alarmId} completed and cancelled`);
+        console.log(`Alarm ${alarmId} completed`);
       }
     } catch (error) {
       console.error(`Failed to process alarm ${alarmId}:`, error);

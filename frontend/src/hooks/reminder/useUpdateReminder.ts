@@ -19,7 +19,7 @@ export const useUpdateReminder = () => {
 
         onSuccess: () => {
             queryClient.invalidateQueries({
-                queryKey: queryKeys.reminders.user(),
+                queryKey: queryKeys.reminders.all,
             });
             addToast('리마인더가 수정되었습니다.', 'success');
         },

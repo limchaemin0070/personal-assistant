@@ -12,7 +12,7 @@ export const useDeleteAlarm = () => {
 
         onSuccess: () => {
             queryClient.invalidateQueries({
-                queryKey: queryKeys.alarms.user(),
+                queryKey: queryKeys.alarms.all,
             });
             addToast('알람이 삭제되었습니다.', 'success');
         },
