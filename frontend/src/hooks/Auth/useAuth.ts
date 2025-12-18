@@ -13,13 +13,14 @@ import type { ApiErrorResponse } from '@/types/api';
  * - isUnauthorized: 인증 실패 여부 (401 에러)
  * - error: 에러 정보
  */
-export const useAuth = () => {
+export const useAuth = (options: { enabled?: boolean } = {}) => {
     const { data, isError, error, isLoading } = useQuery({
         queryKey: ['auth', 'me'],
         queryFn: async () => {
             const response = await userService.getCurrentUser();
             return response.result;
         },
+        enabled: options.enabled,
         retry: (failureCount, err) => {
             // 401 에러는 재시도하지 않음 (인터셉터에서 처리)
             const axiosError = err as { response?: { status?: number } };
