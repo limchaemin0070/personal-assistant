@@ -13,7 +13,6 @@ import { normalizeRepeatDays } from "../../../utils/alarm/alarmUtils";
 
 /**
  * 그냥 일반 알람 핸들링
- *
  */
 export class BasicAlarmHandler implements AlarmHandler<Alarm> {
   readonly alarmType = "alarm";
@@ -114,7 +113,7 @@ export class BasicAlarmHandler implements AlarmHandler<Alarm> {
   }
 
   async completeAlarm(alarm: Alarm): Promise<void> {
-    await alarm.update({ is_active: false });
+    await alarm.destroy();
   }
 
   async updateNextTriggerTime(
@@ -122,10 +121,6 @@ export class BasicAlarmHandler implements AlarmHandler<Alarm> {
     // TODO : ?
     nextTime: Date | null
   ): Promise<void> {
-    alarm.next_trigger_at = new Date();
-    await alarm.save();
-  }
-
     await alarm.update({
       last_triggered_at: new Date(),
       next_trigger_at: nextTime,
