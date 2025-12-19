@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/Auth/useAuth';
-import { useAlarmSSE } from '@/hooks/notification/useNotificatonSSE';
+import { useAlarmSSE } from '@/hooks/notification/useNotificationSSE';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { useDelayedLoading } from '@/hooks/useDelayedLoading';
 
