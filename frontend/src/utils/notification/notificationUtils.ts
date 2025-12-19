@@ -45,7 +45,7 @@ function createNotification(alarm: Alarm): void {
             body: `${formattedTime} 알람 시간입니다.`,
             icon: '/notification-icon.png',
             tag: `alarm-${alarm.alarm_id}-${alarm.time}`,
-            requireInteraction: true,
+            // requireInteraction: true,
         } as NotificationOptions & { requireInteraction?: boolean });
     } catch (error) {
         console.error('❌ 알림 생성 실패:', error);

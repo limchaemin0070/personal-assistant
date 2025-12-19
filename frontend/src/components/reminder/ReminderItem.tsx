@@ -1,4 +1,5 @@
 import React from 'react';
+import { BsBell } from 'react-icons/bs';
 import type { Reminder } from '@/types';
 import { CalendarUtils } from '@/utils/calendar/CalendarUtils';
 import { useToggleReminderComplete } from '@/hooks/reminder/useToggleReminderComplete';
@@ -21,7 +22,8 @@ export const ReminderItem: React.FC<ReminderItemProps> = ({
     reminder,
     onEditReminder,
 }) => {
-    const { title, time, isAllDay, isCompleted } = reminder;
+    const { title, time, isAllDay, isCompleted, notificationEnabled } =
+        reminder;
     const displayTime = isAllDay ? '종일' : (time ?? '-');
 
     const updateReminder = useToggleReminderComplete();
@@ -62,8 +64,12 @@ export const ReminderItem: React.FC<ReminderItemProps> = ({
             role="button"
             tabIndex={0}
         >
-            <div className="flex flex-row gap-4 min-w-0 flex-1">
-                <div onClick={(e) => e.stopPropagation()} role="presentation">
+            <div className="flex flex-row items-center gap-4 min-w-0 flex-1">
+                <div
+                    onClick={(e) => e.stopPropagation()}
+                    role="presentation"
+                    className="flex items-center"
+                >
                     <Checkbox
                         checked={isCompleted}
                         onCheckedChange={handleToggleComplete}
@@ -76,9 +82,22 @@ export const ReminderItem: React.FC<ReminderItemProps> = ({
                     <span className={reminderTitleVariants({ status })}>
                         {title}
                     </span>
-                    <span className={reminderTimeVariants({ status })}>
-                        {CalendarUtils.formatTimeKorean(displayTime)}
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                        <span className={reminderTimeVariants({ status })}>
+                            {CalendarUtils.formatTimeKorean(displayTime)}
+                        </span>
+                        {notificationEnabled && (
+                            <BsBell
+                                className={cn(
+                                    'w-3 h-3 shrink-0',
+                                    status === 'completed'
+                                        ? 'text-gray-400'
+                                        : 'text-gray-500',
+                                )}
+                                aria-label="알람 설정됨"
+                            />
+                        )}
+                    </div>
                 </div>
             </div>
             <div
