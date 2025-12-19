@@ -1,6 +1,10 @@
 import { defaultApi } from '@/utils/api';
 import type { ReminderResponse, Reminder } from '@/types/reminder';
 import type { ReminderFormData } from '@/schemas/reminderSchema';
+import {
+    transformReminderResponse,
+    transformReminderResponseArray,
+} from '@/utils/transformers/reminderTransformer';
 
 export const reminderService = {
     // 특정 유저의 리마인더 조회
@@ -13,27 +17,7 @@ export const reminderService = {
             return [];
         }
 
-        // ReminderResponse를 Reminder로 변환
-        return response.data.result.map((reminder) => ({
-            id: reminder.reminder_id,
-            title: reminder.title,
-            memo: reminder.memo,
-            date: reminder.date ? new Date(reminder.date) : null,
-            time: reminder.time,
-            isAllDay: reminder.is_all_day,
-            isCompleted: reminder.is_completed,
-            completedAt: reminder.completed_at
-                ? new Date(reminder.completed_at)
-                : null,
-            notificationEnabled: reminder.notification_enabled,
-            userId: reminder.user_id,
-            createdAt: reminder.created_at
-                ? new Date(reminder.created_at)
-                : undefined,
-            updatedAt: reminder.updated_at
-                ? new Date(reminder.updated_at)
-                : undefined,
-        }));
+        return transformReminderResponseArray(response.data.result);
     },
 
     // 리마인더 생성
@@ -47,29 +31,7 @@ export const reminderService = {
             throw new Error('리마인더 생성에 실패했습니다.');
         }
 
-        const reminder = response.data.result;
-
-        // ReminderResponse를 Reminder로 변환
-        return {
-            id: reminder.reminder_id,
-            title: reminder.title,
-            memo: reminder.memo,
-            date: reminder.date ? new Date(reminder.date) : null,
-            time: reminder.time,
-            isAllDay: reminder.is_all_day,
-            isCompleted: reminder.is_completed,
-            completedAt: reminder.completed_at
-                ? new Date(reminder.completed_at)
-                : null,
-            notificationEnabled: reminder.notification_enabled,
-            userId: reminder.user_id,
-            createdAt: reminder.created_at
-                ? new Date(reminder.created_at)
-                : undefined,
-            updatedAt: reminder.updated_at
-                ? new Date(reminder.updated_at)
-                : undefined,
-        };
+        return transformReminderResponse(response.data.result);
     },
 
     // 리마인더 수정
@@ -89,29 +51,7 @@ export const reminderService = {
             throw new Error('리마인더 수정에 실패했습니다.');
         }
 
-        const reminder = response.data.result;
-
-        // ReminderResponse를 Reminder로 변환
-        return {
-            id: reminder.reminder_id,
-            title: reminder.title,
-            memo: reminder.memo,
-            date: reminder.date ? new Date(reminder.date) : null,
-            time: reminder.time,
-            isAllDay: reminder.is_all_day,
-            isCompleted: reminder.is_completed,
-            completedAt: reminder.completed_at
-                ? new Date(reminder.completed_at)
-                : null,
-            notificationEnabled: reminder.notification_enabled,
-            userId: reminder.user_id,
-            createdAt: reminder.created_at
-                ? new Date(reminder.created_at)
-                : undefined,
-            updatedAt: reminder.updated_at
-                ? new Date(reminder.updated_at)
-                : undefined,
-        };
+        return transformReminderResponse(response.data.result);
     },
 
     // 리마인더 완료 상태 토글
