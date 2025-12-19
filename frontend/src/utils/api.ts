@@ -53,26 +53,16 @@ axiosInstance.interceptors.response.use(
     async (error: AxiosError<ApiErrorResponse>) => {
         const originalRequest = error.config as RetryableRequestConfig;
 
-        console.log(originalRequest.url);
-
-        // 로그인/회원가입 페이지에서의 인증 상태 확인은 토큰 갱신을 시도하지 않음
-        const isPublicPage =
-            window.location.pathname === '/login' ||
-            window.location.pathname === '/register';
+        // 인증 상태 확인 요청인지 확인
         const isAuthCheckRequest = originalRequest.url === '/users/me';
 
         // 401 인증 만료 처리
+        // /users/me 요청은 인증 상태 확인용이므로 토큰 갱신을 시도하지 않고 그대로 에러 반환
         if (
             error.response?.status === 401 &&
             !originalRequest.retry &&
             !getIsLoggingOut() &&
-            originalRequest.url !== '/auth/refresh' &&
-            originalRequest.url !== '/auth/login' &&
-            originalRequest.url !== '/auth/logout' &&
-            originalRequest.url !== '/auth/sign-up' &&
-            originalRequest.url !== '/auth/email-verifications' &&
-            originalRequest.url !== '/auth/email-verifications/verify' &&
-            !(isPublicPage && isAuthCheckRequest)
+            !isAuthCheckRequest
         ) {
             if (isRefreshing) {
                 return new Promise((resolve, reject) => {
@@ -103,7 +93,13 @@ axiosInstance.interceptors.response.use(
                 console.error('액세스 토큰 갱신 실패:', refreshError);
                 processQueue(refreshError as AxiosError, null);
 
-                if (window.location.pathname !== '/login') {
+                // 공개 페이지가 아니고, 로그인 페이지가 아닐 때만 리다이렉트
+                // 인증 확인 요청(/users/me)은 ProtectedRoute에서 처리하므로 여기서 리다이렉트하지 않음
+                if (
+                    window.location.pathname !== '/login' &&
+                    window.location.pathname !== '/register' &&
+                    !isAuthCheckRequest
+                ) {
                     const { addToast } = useToastStore.getState();
                     addToast('로그인이 만료되었습니다', 'error');
 

@@ -10,6 +10,8 @@ import { EventTicketForm } from '../event/EventTicketForm';
 import { Modal } from '../common/Modal/Modal';
 import { MonthEventTicket } from '../event/MonthEventTicket';
 import { useDeleteEvent } from '@/hooks/event/useDeleteEvent';
+import { LoadingSpinner } from '../common/LoadingSpinner';
+import { useDelayedLoading } from '@/hooks/useDelayedLoading';
 
 interface CalendarWeekViewProps {
     currentDate: Date;
@@ -25,6 +27,7 @@ export const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
     setSelectedDate: _setSelectedDate,
 }) => {
     const { allEvents, isLoading } = useCalendarEvents(currentDate);
+    const showSpinner = useDelayedLoading(isLoading);
     const { calculateDayLayout } = useCalendarLayout();
 
     const {
@@ -72,11 +75,9 @@ export const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
                     <div className="text-xl font-bold">{dayDate.getDate()}</div>
                 </div>
                 <div className="flex-1 overflow-y-auto p-3">
-                    {isLoading ? (
+                    {showSpinner ? (
                         <div className="flex items-center justify-center p-4">
-                            <p className="text-sm text-gray-500">
-                                이벤트를 불러오는 중...
-                            </p>
+                            <LoadingSpinner size="md" color="blue" />
                         </div>
                     ) : (
                         <div className="flex flex-col gap-2">
