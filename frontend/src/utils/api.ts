@@ -53,16 +53,12 @@ axiosInstance.interceptors.response.use(
     async (error: AxiosError<ApiErrorResponse>) => {
         const originalRequest = error.config as RetryableRequestConfig;
 
-        // 인증 상태 확인 요청인지 확인
-        const isAuthCheckRequest = originalRequest.url === '/users/me';
-
         // 401 인증 만료 처리
         // /users/me 요청은 인증 상태 확인용이므로 토큰 갱신을 시도하지 않고 그대로 에러 반환
         if (
             error.response?.status === 401 &&
             !originalRequest.retry &&
-            !getIsLoggingOut() &&
-            !isAuthCheckRequest
+            !getIsLoggingOut()
         ) {
             if (isRefreshing) {
                 return new Promise((resolve, reject) => {
@@ -94,11 +90,9 @@ axiosInstance.interceptors.response.use(
                 processQueue(refreshError as AxiosError, null);
 
                 // 공개 페이지가 아니고, 로그인 페이지가 아닐 때만 리다이렉트
-                // 인증 확인 요청(/users/me)은 ProtectedRoute에서 처리하므로 여기서 리다이렉트하지 않음
                 if (
                     window.location.pathname !== '/login' &&
-                    window.location.pathname !== '/register' &&
-                    !isAuthCheckRequest
+                    window.location.pathname !== '/register'
                 ) {
                     const { addToast } = useToastStore.getState();
                     addToast('로그인이 만료되었습니다', 'error');
