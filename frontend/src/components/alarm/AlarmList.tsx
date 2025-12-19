@@ -2,6 +2,8 @@ import { useMemo } from 'react';
 import type { Alarm } from '@/types/alarm';
 import { AlarmItem } from './AlarmItem';
 import { useAlarm } from '@/hooks/alarm/useAlarm';
+import { LoadingSpinner } from '../common/LoadingSpinner';
+import { useDelayedLoading } from '@/hooks/useDelayedLoading';
 
 interface AlarmListProps {
     onEditAlarm: (alarm: Alarm) => void;
@@ -9,6 +11,7 @@ interface AlarmListProps {
 
 export const AlarmList = ({ onEditAlarm }: AlarmListProps) => {
     const { data: alarms = [], isLoading } = useAlarm();
+    const showSpinner = useDelayedLoading(isLoading);
 
     // 정렬된 알람 목록
     const sortedAlarms = useMemo(() => {
@@ -44,8 +47,12 @@ export const AlarmList = ({ onEditAlarm }: AlarmListProps) => {
         });
     }, [alarms]);
 
-    if (isLoading) {
-        return <div className="p-4">로딩 중...</div>;
+    if (showSpinner) {
+        return (
+            <div className="flex items-center justify-center p-8">
+                <LoadingSpinner size="md" color="blue" />
+            </div>
+        );
     }
 
     if (sortedAlarms.length === 0) {

@@ -10,6 +10,8 @@ import { useEventTicketHandling } from '@/hooks/event/useEventTicketHandling';
 import { Modal } from '../common/Modal/Modal';
 import type { CalendarDay } from '@/utils/calendar/CalendarUtils';
 import { useDeleteEvent } from '@/hooks/event/useDeleteEvent';
+import { LoadingSpinner } from '../common/LoadingSpinner';
+import { useDelayedLoading } from '@/hooks/useDelayedLoading';
 
 const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
 interface CalendarMonthViewProps {
@@ -24,6 +26,7 @@ export const CalendarMonthView: React.FC<CalendarMonthViewProps> = ({
     onDateSelect,
 }) => {
     const { monthEvents, isLoading } = useCalendarEvents(currentDate);
+    const showSpinner = useDelayedLoading(isLoading);
     const { calculateMonthLayout } = useCalendarLayout();
 
     const eventsLayout = React.useMemo(() => {
@@ -55,11 +58,10 @@ export const CalendarMonthView: React.FC<CalendarMonthViewProps> = ({
         : null;
 
     const renderCalendarGrid = () => {
-        // TODO : 로딩 스피너 혹은 스켈레톤 컴포넌트를 공용으로 작성하여 재활용
-        if (isLoading) {
+        if (showSpinner) {
             return (
                 <div className="flex items-center justify-center p-8">
-                    <p>이벤트를 불러오는 중...</p>
+                    <LoadingSpinner size="lg" color="blue" />
                 </div>
             );
         }

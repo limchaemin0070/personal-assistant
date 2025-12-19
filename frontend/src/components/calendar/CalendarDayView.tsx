@@ -9,6 +9,8 @@ import { useEventTicketHandling } from '@/hooks/event/useEventTicketHandling';
 import { Modal } from '../common/Modal/Modal';
 import { MonthEventTicket } from '../event/MonthEventTicket';
 import { useDeleteEvent } from '@/hooks/event/useDeleteEvent';
+import { LoadingSpinner } from '../common/LoadingSpinner';
+import { useDelayedLoading } from '@/hooks/useDelayedLoading';
 
 interface CalendarDayViewProps {
     currentDate: Date;
@@ -24,6 +26,7 @@ export const CalendarDayView: React.FC<CalendarDayViewProps> = ({
 }) => {
     // 일간 뷰에서는 월 필터링이 아닌 전체 이벤트를 가져와야 다른 달로 이동해도 이벤트 표시 가능
     const { allEvents, isLoading } = useCalendarEvents(currentDate);
+    const showSpinner = useDelayedLoading(isLoading);
     const { calculateDayLayout } = useCalendarLayout();
 
     const {
@@ -57,11 +60,10 @@ export const CalendarDayView: React.FC<CalendarDayViewProps> = ({
     }, [allEvents, displayDate, calculateDayLayout]);
 
     const renderEventList = () => {
-        // TODO : 로딩 스피너 혹은 스켈레톤 컴포넌트를 공용으로 작성하여 재활용
-        if (isLoading) {
+        if (showSpinner) {
             return (
                 <div className="flex items-center justify-center p-8">
-                    <p>이벤트를 불러오는 중...</p>
+                    <LoadingSpinner size="lg" color="blue" />
                 </div>
             );
         }

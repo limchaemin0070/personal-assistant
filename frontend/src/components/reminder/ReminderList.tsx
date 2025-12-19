@@ -5,6 +5,8 @@ import type { Reminder } from '@/types';
 import { ReminderItem } from './ReminderItem';
 import { useReminder } from '@/hooks/reminder/useReminder';
 import { CalendarUtils } from '@/utils/calendar/CalendarUtils';
+import { LoadingSpinner } from '../common/LoadingSpinner';
+import { useDelayedLoading } from '@/hooks/useDelayedLoading';
 
 interface ReminderListProps {
     filterCompleted: boolean;
@@ -16,6 +18,7 @@ export const ReminderList = ({
     filterCompleted,
 }: ReminderListProps) => {
     const { data: reminders = [], isLoading } = useReminder();
+    const showSpinner = useDelayedLoading(isLoading);
 
     // 날짜별로 그룹핑
     const grouped = useMemo(() => {
@@ -47,8 +50,12 @@ export const ReminderList = ({
         return result;
     }, [reminders, filterCompleted]);
 
-    if (isLoading) {
-        return <div className="p-4">로딩 중...</div>;
+    if (showSpinner) {
+        return (
+            <div className="flex items-center justify-center p-8">
+                <LoadingSpinner size="md" color="blue" />
+            </div>
+        );
     }
 
     if (reminders.length === 0) {
