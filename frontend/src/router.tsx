@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/Auth/useAuth';
 import { useAlarmSSE } from '@/hooks/notification/useNotificationSSE';
 import { Loading } from '@/components/common/Loading';
@@ -13,6 +13,7 @@ interface RouteProps {
 export const ProtectedRoute = ({ children }: RouteProps) => {
     const { isAuthenticated, isLoading } = useAuth();
     const showSpinner = useDelayedLoading(isLoading);
+    const location = useLocation();
 
     // 인증된 사용자만 SSE 연결
     useAlarmSSE();
@@ -26,9 +27,9 @@ export const ProtectedRoute = ({ children }: RouteProps) => {
         return null;
     }
 
-    // 인증되지 않은 사용자는 로그인 페이지로 리다이렉트
+    // 인증되지 않은 사용자는 로그인 페이지로 리다이렉트 (원래 URL 저장)
     if (!isAuthenticated) {
-        return <Navigate to="/login" replace />;
+        return <Navigate to="/login" state={{ from: location }} replace />;
     }
 
     return children;
