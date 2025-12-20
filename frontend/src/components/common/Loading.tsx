@@ -1,4 +1,6 @@
-interface LoadingSpinnerProps {
+import React from 'react';
+
+interface LoadingProps {
     size?: 'sm' | 'md' | 'lg';
     color?: 'blue' | 'gray' | 'red' | 'green' | 'purple';
     fullScreen?: boolean;
@@ -19,12 +21,12 @@ const colorClasses = {
     purple: 'border-purple-500 border-t-transparent',
 };
 
-export const LoadingSpinner = ({
+export const Loading: React.FC<LoadingProps> = ({
     size = 'md',
     color = 'blue',
     fullScreen = false,
     className = '',
-}: LoadingSpinnerProps) => {
+}: LoadingProps) => {
     const spinner = (
         <div
             className={`rounded-full animate-spin ${sizeClasses[size]} ${colorClasses[color]} ${className}`}

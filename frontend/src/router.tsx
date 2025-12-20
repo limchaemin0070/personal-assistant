@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/Auth/useAuth';
 import { useAlarmSSE } from '@/hooks/notification/useNotificationSSE';
-import { LoadingSpinner } from '@/components/common/LoadingSpinner';
+import { Loading } from '@/components/common/Loading';
 import { useDelayedLoading } from '@/hooks/useDelayedLoading';
 
 interface RouteProps {
@@ -20,7 +20,7 @@ export const ProtectedRoute = ({ children }: RouteProps) => {
     // 로딩 중일 때는 리다이렉트하지 않음 (인증 확인 대기)
     if (isLoading) {
         if (showSpinner) {
-            return <LoadingSpinner fullScreen={true} size="lg" color="blue" />;
+            return <Loading fullScreen={true} size="lg" color="blue" />;
         }
         // 로딩 중이지만 스피너를 아직 표시하지 않을 때는 아무것도 렌더링하지 않음
         return null;

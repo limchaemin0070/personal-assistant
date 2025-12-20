@@ -10,8 +10,8 @@ import { useEventTicketHandling } from '@/hooks/event/useEventTicketHandling';
 import { Modal } from '../common/Modal/Modal';
 import type { CalendarDay } from '@/utils/calendar/CalendarUtils';
 import { useDeleteEvent } from '@/hooks/event/useDeleteEvent';
-import { LoadingSpinner } from '../common/LoadingSpinner';
 import { useDelayedLoading } from '@/hooks/useDelayedLoading';
+import { Loading } from '../common/Loading';
 
 const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
 interface CalendarMonthViewProps {
@@ -61,7 +61,7 @@ export const CalendarMonthView: React.FC<CalendarMonthViewProps> = ({
         if (showSpinner) {
             return (
                 <div className="flex items-center justify-center p-8">
-                    <LoadingSpinner size="lg" color="blue" />
+                    <Loading size="lg" color="blue" />
                 </div>
             );
         }

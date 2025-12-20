@@ -5,7 +5,7 @@ import type { Reminder } from '@/types';
 import { ReminderItem } from './ReminderItem';
 import { useReminder } from '@/hooks/reminder/useReminder';
 import { CalendarUtils } from '@/utils/calendar/CalendarUtils';
-import { LoadingSpinner } from '../common/LoadingSpinner';
+import { Loading } from '../common/Loading';
 import { useDelayedLoading } from '@/hooks/useDelayedLoading';
 
 interface ReminderListProps {
@@ -53,7 +53,7 @@ export const ReminderList = ({
     if (showSpinner) {
         return (
             <div className="flex items-center justify-center p-8">
-                <LoadingSpinner size="md" color="blue" />
+                <Loading size="md" color="blue" />
             </div>
         );
     }

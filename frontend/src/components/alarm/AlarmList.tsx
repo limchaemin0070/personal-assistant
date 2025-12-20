@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import type { Alarm } from '@/types/alarm';
 import { AlarmItem } from './AlarmItem';
 import { useAlarm } from '@/hooks/alarm/useAlarm';
-import { LoadingSpinner } from '../common/LoadingSpinner';
+import { Loading } from '../common/Loading';
 import { useDelayedLoading } from '@/hooks/useDelayedLoading';
 
 interface AlarmListProps {
@@ -50,7 +50,7 @@ export const AlarmList = ({ onEditAlarm }: AlarmListProps) => {
     if (showSpinner) {
         return (
             <div className="flex items-center justify-center p-8">
-                <LoadingSpinner size="md" color="blue" />
+                <Loading size="md" color="blue" />
             </div>
         );
     }

@@ -9,7 +9,7 @@ import { useEventTicketHandling } from '@/hooks/event/useEventTicketHandling';
 import { Modal } from '../common/Modal/Modal';
 import { MonthEventTicket } from '../event/MonthEventTicket';
 import { useDeleteEvent } from '@/hooks/event/useDeleteEvent';
-import { LoadingSpinner } from '../common/LoadingSpinner';
+import { Loading } from '../common/Loading';
 import { useDelayedLoading } from '@/hooks/useDelayedLoading';
 
 interface CalendarDayViewProps {
@@ -63,7 +63,7 @@ export const CalendarDayView: React.FC<CalendarDayViewProps> = ({
         if (showSpinner) {
             return (
                 <div className="flex items-center justify-center p-8">
-                    <LoadingSpinner size="lg" color="blue" />
+                    <Loading size="lg" color="blue" />
                 </div>
             );
         }

@@ -5,7 +5,7 @@ import type { ApiErrorResponse } from '@/types/api';
 
 /**
  * 인증 상태를 관리하는 훅
- * httpOnly 쿠키 환경에서 API 호출을 통해 인증 상태를 확인합니다.
+ * httpOnly 쿠키 환경에서 API 호출을 통해 인증 상태를 확인
  *
  * @returns {Object} 인증 상태 정보
  * - user: 현재 로그인한 사용자 정보
