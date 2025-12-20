@@ -11,11 +11,13 @@ import { CalendarGrid } from './CalendarGrid';
 interface CalendarMonthViewProps {
     currentDate: Date;
     modalHandlers: ReturnType<typeof useEventTicketHandling>;
+    onDateSelect: (date: Date) => void;
 }
 
 export const CalendarMonthView: React.FC<CalendarMonthViewProps> = ({
     currentDate,
     modalHandlers,
+    onDateSelect,
 }) => {
     const { monthEvents, isLoading } = useCalendarEvents(currentDate);
     const { calculateMonthLayout } = useCalendarLayout();
@@ -42,6 +44,9 @@ export const CalendarMonthView: React.FC<CalendarMonthViewProps> = ({
                             hoveredEventId={modalHandlers.hoveredEventId}
                             onHover={modalHandlers.handleHover}
                             onEventClick={modalHandlers.handleEventClick}
+                            onDoubleClick={() => {
+                                onDateSelect(day.date);
+                            }}
                         />
                     );
                 }}
