@@ -39,7 +39,6 @@ export const useToastStore = create<ToastStore>((set) => ({
                 toasts: limitedToasts,
             };
         });
-        // 자동 제거는 Toast 컴포넌트에서 애니메이션과 함께 처리됩니다
     },
     removeToast: (id) =>
         set((state) => ({
