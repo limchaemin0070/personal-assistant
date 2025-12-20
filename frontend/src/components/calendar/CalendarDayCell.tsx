@@ -3,6 +3,7 @@ import React from 'react';
 import type { CalendarDay, EventLayout } from '@/types/calendar';
 import { MonthEventTicket } from '../event/MonthEventTicket';
 import { CalendarUtils } from '@/utils/calendar/CalendarUtils';
+import { cn } from '@/utils/cn';
 
 interface CalendarDayCellProps {
     day: CalendarDay;
@@ -41,7 +42,7 @@ export const CalendarDayCell: React.FC<CalendarDayCellProps> = ({
             const availableHeight = gridElement.clientHeight;
 
             // 사용 가능한 높이에서 표시할 수 있는 이벤트 개수 계산
-            // 각 이벤트는 높이 20px + 간격 2px = 22px 필요
+            // 각 이벤트는 높이 20px + 간격 2px = 22px 필요...
             const eventHeightWithGap = EVENT_TICKET_HEIGHT + EVENT_GAP;
             const calculatedMax = Math.max(
                 1,
@@ -51,7 +52,7 @@ export const CalendarDayCell: React.FC<CalendarDayCellProps> = ({
             setMaxVisibleEvents(calculatedMax);
         };
 
-        // 초기 계산 (약간의 지연을 두어 레이아웃이 완료된 후 계산)
+        // 초기 계산 (레이아웃 완료된 후 계산)
         const timeoutId = setTimeout(calculateMaxEvents, 0);
 
         // ResizeObserver를 사용하여 리사이즈 감지
@@ -64,7 +65,7 @@ export const CalendarDayCell: React.FC<CalendarDayCellProps> = ({
             resizeObserver.observe(cellRef.current);
         }
 
-        // 창 리사이즈 이벤트도 감지 (추가 보장)
+        // 창 리사이즈 이벤트도 감지
         window.addEventListener('resize', calculateMaxEvents);
 
         return () => {
@@ -76,7 +77,6 @@ export const CalendarDayCell: React.FC<CalendarDayCellProps> = ({
 
     // 최대 개수만큼만 이벤트 필터링
     const visibleEvents = React.useMemo(() => {
-        // row 순서대로 정렬하여 위에서부터 표시
         const sortedEvents = [...events].sort((a, b) => a.row - b.row);
         return sortedEvents.slice(0, maxVisibleEvents);
     }, [events, maxVisibleEvents]);
@@ -91,18 +91,21 @@ export const CalendarDayCell: React.FC<CalendarDayCellProps> = ({
     return (
         <div
             ref={cellRef}
-            className={`calendar-day-cell ${
-                isWeekend ? 'calendar-day-cell-weekend' : ''
-            }`}
+            className={cn(
+                'calendar-day-cell',
+                isWeekend && 'calendar-day-cell-weekend',
+            )}
             onDoubleClick={onDoubleClick}
             role="button"
             tabIndex={0}
             onKeyDown={handleKeyDown}
         >
             <div
-                className={`calendar-day-number ${
-                    !day.isCurrentMonth ? 'calendar-day-number-other-month' : ''
-                } ${day.isToday ? 'calendar-day-number-today' : ''}`}
+                className={cn(
+                    'calendar-day-number',
+                    !day.isCurrentMonth && 'calendar-day-number-other-month',
+                    day.isToday && 'calendar-day-number-today',
+                )}
             >
                 {day.dayOfMonth}
             </div>

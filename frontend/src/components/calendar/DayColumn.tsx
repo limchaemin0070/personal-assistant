@@ -11,7 +11,8 @@ interface DayColumnProps {
     events: CalendarEvent[];
     isLoading: boolean;
     viewType: 'day' | 'week';
-    hoveredEventId: number | null;
+    hoveredEventId?: number | null; // 일간 뷰용
+    hoveredEventKey?: string | null; // 주간 뷰용 (이벤트 ID + 날짜 키 조합)
     onHover: (id: number | null) => void;
     onEventClick: (eventId: number) => void;
     className?: string;
@@ -23,6 +24,7 @@ export const DayColumn: React.FC<DayColumnProps> = ({
     isLoading,
     viewType,
     hoveredEventId,
+    hoveredEventKey,
     onHover,
     onEventClick,
     className = '',
@@ -87,30 +89,39 @@ export const DayColumn: React.FC<DayColumnProps> = ({
                                 일정 없음
                             </div>
                         ) : (
-                            events.map((event) => (
-                                <MonthEventTicket
-                                    key={`${event.id}-${dateKey}`}
-                                    id={event.id}
-                                    title={event.title}
-                                    categoryColor={
-                                        event.categoryColor || '#3b82f6'
-                                    }
-                                    startDate={event.startDate}
-                                    endDate={event.endDate}
-                                    startTime={event.startTime}
-                                    endTime={event.endTime}
-                                    isAllDay={event.isAllDay}
-                                    row={0}
-                                    span={1}
-                                    isStart
-                                    isEnd
-                                    isWeekStart={false}
-                                    isHovered={hoveredEventId === event.id}
-                                    onHover={onHover}
-                                    onClick={onEventClick}
-                                    viewType={viewType}
-                                />
-                            ))
+                            events.map((event) => {
+                                // 주간 뷰에서는 고유 키로, 일간 뷰에서는 이벤트 ID로 호버 상태 확인
+                                const isHovered =
+                                    viewType === 'week'
+                                        ? hoveredEventKey ===
+                                          `${event.id}-${dateKey}`
+                                        : hoveredEventId === event.id;
+
+                                return (
+                                    <MonthEventTicket
+                                        key={`${event.id}-${dateKey}`}
+                                        id={event.id}
+                                        title={event.title}
+                                        categoryColor={
+                                            event.categoryColor || '#3b82f6'
+                                        }
+                                        startDate={event.startDate}
+                                        endDate={event.endDate}
+                                        startTime={event.startTime}
+                                        endTime={event.endTime}
+                                        isAllDay={event.isAllDay}
+                                        row={0}
+                                        span={1}
+                                        isStart
+                                        isEnd
+                                        isWeekStart={false}
+                                        isHovered={isHovered}
+                                        onHover={onHover}
+                                        onClick={onEventClick}
+                                        viewType={viewType}
+                                    />
+                                );
+                            })
                         )}
                     </div>
                 )}
