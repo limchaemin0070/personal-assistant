@@ -29,7 +29,7 @@ export const SwitchButton = ({
     'aria-label': ariaLabel,
 }: SwitchButtonProps) => {
     const iconSizes = {
-        sm: 'w-5 h-5',
+        sm: 'w-4 h-4',
         md: 'w-6 h-6',
         lg: 'w-7 h-7',
     };
@@ -46,7 +46,7 @@ export const SwitchButton = ({
             aria-pressed={checked}
             className={cn(
                 buttonVariants({ variant, size }),
-                'flex items-center justify-center',
+                'flex items-center justify-center btn-icon',
                 className,
             )}
         >

@@ -6,6 +6,7 @@ import {
     getWeekDayLabels,
     type DayOfWeek,
 } from '@/constants/weekDays';
+import { CalendarUtils } from '@/utils/calendar/CalendarUtils';
 
 interface AlarmDateSectionProps {
     repeatDaysName?: string;
@@ -69,7 +70,10 @@ export const AlarmDateSection: React.FC<AlarmDateSectionProps> = ({
     return (
         <div>
             {renderText()}
-            <FormDate name={dateName} />
+            <FormDate
+                name={dateName}
+                min={CalendarUtils.getDateKey(new Date())}
+            />
             <FormSelectDropdown
                 name={repeatDaysName}
                 options={WEEK_DAYS}

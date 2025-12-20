@@ -3,10 +3,12 @@ import { alarmService } from '@/services/alarm.service';
 import { useToastStore } from '../useToastStore';
 import { queryKeys } from '@/lib/queryKeys';
 import type { AlarmFormData } from '@/schemas/alarmSchema';
+import { useMutationErrorHandler } from '../useMutationErrorHandler';
 
 export const useUpdateAlarm = () => {
     const queryClient = useQueryClient();
     const { addToast } = useToastStore();
+    const handleError = useMutationErrorHandler('update');
 
     return useMutation({
         mutationFn: ({
@@ -24,8 +26,6 @@ export const useUpdateAlarm = () => {
             addToast('알람이 수정되었습니다.', 'success');
         },
 
-        onError: () => {
-            addToast('알람 수정에 실패했습니다.', 'error');
-        },
+        onError: handleError,
     });
 };

@@ -3,6 +3,7 @@ import { BsBell, BsBellSlash } from 'react-icons/bs';
 import { IoMdSettings } from 'react-icons/io';
 import { LuPanelRight } from 'react-icons/lu';
 import { MdLogout } from 'react-icons/md';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { CalendarMonthView } from './CalendarMonthView';
 import { CalendarDayView } from './CalendarDayView';
 import { CalendarWeekView } from './CalendarWeekView';
@@ -11,8 +12,11 @@ import { DropdownMenu } from '@/components/common/DropdownMenu';
 import { useCalendar } from '@/hooks/calendar/useCalendar';
 import { SwitchButton } from '../common/Button/SwitchButton';
 import { useLogout } from '@/hooks/Auth/useLogout';
+import { useAuth } from '@/hooks/Auth/useAuth';
 import { useEventTicketHandling } from '@/hooks/event/useEventTicketHandling';
 import { AddButton } from '../common/Button/AddButton';
+import { userService } from '@/services/user.service';
+import { useToastStore } from '@/hooks/useToastStore';
 
 interface CalendarMainProps {
     // eslint-disable-next-line react/require-default-props
@@ -34,13 +38,35 @@ export const CalendarMain: React.FC<CalendarMainProps> = ({
         headerText,
         handlePrev,
         handleNext,
+        handleDateSelect,
     } = useCalendar();
 
     const { logout } = useLogout();
+    const { user } = useAuth();
     const modalHandlers = useEventTicketHandling();
+    const queryClient = useQueryClient();
+    const { addToast } = useToastStore();
 
-    const handleSwitch = async () => {
-        // TODO: 알람 권한 변경 로직 구현
+    const updateNotificationMutation = useMutation({
+        mutationFn: (notification_enabled: boolean) =>
+            userService.updateNotificationEnabled(notification_enabled),
+        onSuccess: (response) => {
+            queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
+            const isEnabled = response.result?.notification_enabled ?? false;
+            addToast(
+                isEnabled
+                    ? '알람이 활성화되었습니다.'
+                    : '알람이 비활성화되었습니다.',
+                'success',
+            );
+        },
+        onError: () => {
+            addToast('알람 설정 변경에 실패했습니다.', 'error');
+        },
+    });
+
+    const handleSwitch = (checked: boolean) => {
+        updateNotificationMutation.mutate(checked);
     };
 
     const renderCalendarView = () => {
@@ -50,7 +76,7 @@ export const CalendarMain: React.FC<CalendarMainProps> = ({
                     <CalendarMonthView
                         currentDate={currentDate}
                         modalHandlers={modalHandlers}
-                        // onDateSelect={handleDateSelect}
+                        onDateSelect={handleDateSelect}
                     />
                 );
             case 'week':
@@ -76,6 +102,7 @@ export const CalendarMain: React.FC<CalendarMainProps> = ({
                     <CalendarMonthView
                         currentDate={currentDate}
                         modalHandlers={modalHandlers}
+                        onDateSelect={handleDateSelect}
                     />
                 );
         }
@@ -88,7 +115,7 @@ export const CalendarMain: React.FC<CalendarMainProps> = ({
                     <button
                         type="button"
                         onClick={onToggleLeftSidebar}
-                        className="rounded-md p-1 text-gray-600 hover:bg-gray-100"
+                        className="btn-icon-sm"
                     >
                         ☰
                     </button>
@@ -102,21 +129,20 @@ export const CalendarMain: React.FC<CalendarMainProps> = ({
                     setView={setView}
                 />
                 <SwitchButton
-                    checked={false}
+                    checked={user?.notification_enabled ?? false}
                     onCheckedChange={handleSwitch}
                     activeIcon={<BsBell />}
                     inactiveIcon={<BsBellSlash />}
+                    size="sm"
                     className="text-gray-600 hover:bg-gray-100"
+                    disabled={updateNotificationMutation.isPending}
                 />
                 {/* 설정 드롭다운 메뉴
                 현재는 로그아웃 버튼만
                 추후 프로필이나 마이페이지 섹션 삽입 가능 */}
                 <DropdownMenu
                     trigger={
-                        <button
-                            type="button"
-                            className="rounded-md p-1 text-gray-600 hover:bg-gray-100"
-                        >
+                        <button type="button" className="btn-icon">
                             <IoMdSettings />
                         </button>
                     }
@@ -134,7 +160,7 @@ export const CalendarMain: React.FC<CalendarMainProps> = ({
                     <button
                         type="button"
                         onClick={onToggleRightSidebar}
-                        className="rounded-md p-1 text-gray-600 hover:bg-gray-100"
+                        className="btn-icon"
                     >
                         <LuPanelRight />
                     </button>

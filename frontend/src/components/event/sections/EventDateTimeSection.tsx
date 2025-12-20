@@ -48,12 +48,7 @@ export const EventDateTimeSection = () => {
     }, [isAllDay, setValue, startTime, endTime]);
 
     return (
-        <section className="space-y-4">
-            <DateRangeSection
-                startDateName="start_date"
-                endDateName="end_date"
-                autoAdjustEndDate
-            />
+        <div className="space-y-4">
             <FormToggle
                 name="is_all_day"
                 label="하루 종일"
@@ -62,16 +57,23 @@ export const EventDateTimeSection = () => {
                 size="sm"
                 labelPosition="left"
             />
-            {!isAllDay && (
-                <TimeRangeSection
-                    startTimeName="start_time"
-                    endTimeName="end_time"
+            <div className="space-y-1">
+                <DateRangeSection
                     startDateName="start_date"
                     endDateName="end_date"
-                    autoAdjustEndTime
-                    minDurationMinutes={60}
+                    autoAdjustEndDate
                 />
-            )}
-        </section>
+                {!isAllDay && (
+                    <TimeRangeSection
+                        startTimeName="start_time"
+                        endTimeName="end_time"
+                        startDateName="start_date"
+                        endDateName="end_date"
+                        autoAdjustEndTime
+                        minDurationMinutes={60}
+                    />
+                )}
+            </div>
+        </div>
     );
 };

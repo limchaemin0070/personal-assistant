@@ -20,7 +20,7 @@ export function useAlarmSSE() {
     );
 
     const connectionRef = useRef<SSEConnectionService | null>(null);
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, user } = useAuth();
 
     // Zustand Store
     const setActiveAlarm = useNotificationStore(
@@ -43,6 +43,14 @@ export function useAlarmSSE() {
         (event: AlarmEvent) => {
             console.log('⏰ [알람 트리거] 알람 이벤트 처리 시작:', event);
 
+            // 사용자의 전체 알람 권한 확인
+            if (!user?.notification_enabled) {
+                console.log(
+                    '🚫 [알람 트리거] 사용자 알람 권한이 비활성화되어 알림을 표시 안함',
+                );
+                return;
+            }
+
             // 활성 알람이 있으면 큐에 추가, 없으면 활성화
             if (activeAlarm) {
                 console.log('📥 [알람 트리거] 활성 알람이 있어 큐에 추가');
@@ -64,7 +72,7 @@ export function useAlarmSSE() {
                 showBrowserNotification(event.alarm);
             }
         },
-        [activeAlarm, addToQueue, setActiveAlarm, settings],
+        [activeAlarm, addToQueue, setActiveAlarm, settings, user],
     );
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -133,6 +141,7 @@ export function useAlarmSSE() {
         isAuthenticated,
         setConnected,
         setReconnectAttempts,
+        connectSSE,
     ]);
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

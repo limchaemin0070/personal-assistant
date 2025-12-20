@@ -32,10 +32,18 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
             <div className="flex flex-row items-center gap-5">
                 {/* 캘린더 월 변경 컨트롤러 */}
                 <div className="flex flex-row gap-2">
-                    <button className="p-2" type="button" onClick={onPrevMonth}>
+                    <button
+                        className="btn-icon"
+                        type="button"
+                        onClick={onPrevMonth}
+                    >
                         <SlArrowLeft />
                     </button>
-                    <button className="p-2" type="button" onClick={onNextMonth}>
+                    <button
+                        className="btn-icon"
+                        type="button"
+                        onClick={onNextMonth}
+                    >
                         <SlArrowRight />
                     </button>
                 </div>

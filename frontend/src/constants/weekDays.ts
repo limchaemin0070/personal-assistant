@@ -21,7 +21,7 @@ export const WEEK_DAYS: ButtonGroupOption<DayOfWeek>[] = [
  * 빠른 조회를 위해 Map 자료구조 사용
  */
 export const WEEK_DAY_LABELS = new Map<DayOfWeek, string>(
-    WEEK_DAYS.map((day) => [day.value, day.label])
+    WEEK_DAYS.map((day) => [day.value, day.label]),
 );
 
 /**
@@ -41,4 +41,3 @@ export const getWeekDayLabel = (dayOfWeek: DayOfWeek): string => {
 export const getWeekDayLabels = (daysOfWeek: DayOfWeek[]): string[] => {
     return daysOfWeek.map(getWeekDayLabel).filter(Boolean);
 };
-

@@ -105,7 +105,7 @@ export const EventTicketForm: React.FC<EventTicketFormProps> = ({
                     <EventDateTimeSection />
 
                     {/* 알림 설정 */}
-                    <FormToggle
+                    {/* <FormToggle
                         name="notification_enabled"
                         label="알림 설정"
                         activeIcon={<BsBell />}
@@ -113,7 +113,7 @@ export const EventTicketForm: React.FC<EventTicketFormProps> = ({
                         size="sm"
                         labelPosition="left"
                         disabled={form.formState.isSubmitting}
-                    />
+                    /> */}
 
                     {/* Root 에러 */}
                     {form.formState.errors.root && (

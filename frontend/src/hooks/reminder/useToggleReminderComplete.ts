@@ -2,10 +2,11 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { reminderService } from '@/services/reminder.service';
 import { useToastStore } from '../useToastStore';
 import { queryKeys } from '@/lib/queryKeys';
+import { useMutationErrorHandler } from '../useMutationErrorHandler';
 
 export const useToggleReminderComplete = () => {
     const queryClient = useQueryClient();
-    const { addToast } = useToastStore();
+    const handleError = useMutationErrorHandler('toggle');
 
     return useMutation({
         mutationFn: ({
@@ -22,8 +23,6 @@ export const useToggleReminderComplete = () => {
             });
         },
 
-        onError: () => {
-            addToast('상태 변경에 실패했습니다.', 'error');
-        },
+        onError: handleError,
     });
 };

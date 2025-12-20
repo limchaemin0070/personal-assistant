@@ -1,6 +1,9 @@
 import bcrypt from "bcrypt";
 import { User } from "../models/User.model";
-import { EmailAlreadyExistsError } from "../errors/BusinessError";
+import {
+  EmailAlreadyExistsError,
+  UserNotFoundError,
+} from "../errors/BusinessError";
 
 interface CreateUserParams {
   email: string;
@@ -51,6 +54,22 @@ class UserService {
       nickname,
       notification_enabled,
     });
+
+    return user;
+  }
+
+  // 사용자 알람 설정 업데이트
+  async updateNotificationEnabled(
+    userId: number,
+    notification_enabled: boolean
+  ): Promise<User> {
+    const user = await this.findById(userId);
+    if (!user) {
+      throw new UserNotFoundError();
+    }
+
+    user.notification_enabled = notification_enabled;
+    await user.save();
 
     return user;
   }

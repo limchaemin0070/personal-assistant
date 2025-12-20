@@ -48,6 +48,32 @@ const config: Config = {
                 bold: '700', // font-bold
                 extrabold: '800', // font-extrabold
             },
+            keyframes: {
+                'toast-slide-in': {
+                    '0%': {
+                        transform: 'translateY(100%)',
+                        opacity: '0',
+                    },
+                    '100%': {
+                        transform: 'translateY(0)',
+                        opacity: '1',
+                    },
+                },
+                'toast-slide-out': {
+                    '0%': {
+                        transform: 'translateY(0)',
+                        opacity: '1',
+                    },
+                    '100%': {
+                        transform: 'translateY(100%)',
+                        opacity: '0',
+                    },
+                },
+            },
+            animation: {
+                'toast-slide-in': 'toast-slide-in 0.3s ease-out',
+                'toast-slide-out': 'toast-slide-out 0.3s ease-in',
+            },
         },
     },
     plugins: [],

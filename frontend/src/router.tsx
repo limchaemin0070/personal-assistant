@@ -20,7 +20,7 @@ export const ProtectedRoute = ({ children }: RouteProps) => {
     // 로딩 중일 때는 리다이렉트하지 않음 (인증 확인 대기)
     if (isLoading) {
         if (showSpinner) {
-            return <Loading fullScreen={true} size="lg" color="blue" />;
+            return <Loading fullScreen size="lg" color="blue" />;
         }
         // 로딩 중이지만 스피너를 아직 표시하지 않을 때는 아무것도 렌더링하지 않음
         return null;

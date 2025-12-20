@@ -6,7 +6,11 @@ import {
     registerFormSchema,
     type RegisterFormData,
 } from '@/schemas/authSchema';
-import { useSendVerificationCode, useVerifyCode, useRegister } from './useRegister';
+import {
+    useSendVerificationCode,
+    useVerifyCode,
+    useRegister,
+} from './useRegister';
 import { useToastStore } from '@/hooks/useToastStore';
 
 export const useRegisterForm = () => {
@@ -106,4 +110,3 @@ export const useRegisterForm = () => {
             registerMutation.isPending,
     };
 };
-

@@ -3,10 +3,12 @@ import { reminderService } from '@/services/reminder.service';
 import { useToastStore } from '../useToastStore';
 import { queryKeys } from '@/lib/queryKeys';
 import type { ReminderFormData } from '@/schemas/reminderSchema';
+import { useMutationErrorHandler } from '../useMutationErrorHandler';
 
 export const useUpdateReminder = () => {
     const queryClient = useQueryClient();
     const { addToast } = useToastStore();
+    const handleError = useMutationErrorHandler('update');
 
     return useMutation({
         mutationFn: ({
@@ -24,8 +26,6 @@ export const useUpdateReminder = () => {
             addToast('리마인더가 수정되었습니다.', 'success');
         },
 
-        onError: () => {
-            addToast('리마인더 수정에 실패했습니다.', 'error');
-        },
+        onError: handleError,
     });
 };

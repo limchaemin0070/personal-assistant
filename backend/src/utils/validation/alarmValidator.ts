@@ -145,6 +145,37 @@ export const validateTitleOrThrow = (title?: string | null) => {
   }
 };
 
+// 날짜 검증 (과거 날짜 체크)
+export const validateDateOrThrow = (date?: string | null) => {
+  if (date !== null && date !== undefined) {
+    if (typeof date !== "string") {
+      throw new ValidationError("날짜는 문자열이어야 합니다.", "date");
+    }
+
+    // 날짜 형식 검증 (YYYY-MM-DD)
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(date)) {
+      throw new ValidationError(
+        "날짜는 YYYY-MM-DD 형식이어야 합니다.",
+        "date"
+      );
+    }
+
+    // 과거 날짜 체크
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const inputDate = new Date(date);
+    inputDate.setHours(0, 0, 0, 0);
+
+    if (inputDate < today) {
+      throw new ValidationError(
+        "과거 날짜의 알람은 생성할 수 없습니다.",
+        "date"
+      );
+    }
+  }
+};
+
 export const validateCreateAlarmPayload = (payload: CreateAlarmPayload) => {
   const { title, date, time, is_repeat, repeat_days, is_active, alarm_type } =
     payload;
@@ -176,6 +207,10 @@ export const validateCreateAlarmPayload = (payload: CreateAlarmPayload) => {
         "반복 알람이 아닌 경우 반복 요일을 입력할 수 없습니다.",
         "repeat_days"
       );
+    }
+    // 반복 알람이 아닌 경우(date가 있는 경우) 과거 날짜 검증
+    if (date) {
+      validateDateOrThrow(date);
     }
   }
 };
