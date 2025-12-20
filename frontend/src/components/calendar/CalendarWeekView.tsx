@@ -3,17 +3,17 @@ import { addDays } from 'date-fns';
 import { useCalendarEvents } from '@/hooks/calendar/useCalendarEvents';
 import { useCalendarLayout } from '@/hooks/calendar/useCalendarLayout';
 import { CalendarUtils } from '@/utils/calendar/CalendarUtils';
-import { useEventTicketHandling } from '@/hooks/event/useEventTicketHandling';
-import { AddButton } from '../common/Button/AddButton';
+import type { useEventTicketHandling } from '@/hooks/event/useEventTicketHandling';
 import { MonthEventTicket } from '../event/MonthEventTicket';
 import { Loading } from '../common/Loading';
 import { useDelayedLoading } from '@/hooks/useDelayedLoading';
-import { CalendarModals } from './CalendarModal';
+import { CalendarModal } from './CalendarModal';
 
 interface CalendarWeekViewProps {
     currentDate: Date;
     selectedDate: Date | null;
     setSelectedDate: (date: Date | null) => void;
+    modalHandlers: ReturnType<typeof useEventTicketHandling>;
 }
 
 export const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
@@ -22,14 +22,13 @@ export const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
     selectedDate: _selectedDate,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     setSelectedDate: _setSelectedDate,
+    modalHandlers,
 }) => {
     const { allEvents, isLoading } = useCalendarEvents(currentDate);
     const showSpinner = useDelayedLoading(isLoading);
     const { calculateDayLayout } = useCalendarLayout();
-    const modalHandlers = useEventTicketHandling();
 
-    const { hoveredEventId, handleHover, handleEventClick, handleAdd } =
-        modalHandlers;
+    const { hoveredEventId, handleHover, handleEventClick } = modalHandlers;
 
     // 주의 시작일(일요일)부터 7일 계산
     const weekDays = useMemo(() => {
@@ -95,13 +94,7 @@ export const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
             <div className="flex flex-1 overflow-x-auto">
                 {weekDays.map((dayDate) => renderDayColumn(dayDate))}
             </div>
-            <AddButton
-                onClick={handleAdd}
-                className="absolute bottom-6 right-6 z-50"
-                variant="fab"
-                size="md"
-            />
-            <CalendarModals
+            <CalendarModal
                 currentDate={currentDate}
                 events={allEvents}
                 modalHandlers={modalHandlers}

@@ -11,6 +11,7 @@ import {
     subWeeks,
     subDays,
     endOfWeek,
+    endOfMonth,
 } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import type { CalendarEvent } from '@/types/calendar';
@@ -26,9 +27,9 @@ export interface CalendarDay {
 export class CalendarUtils {
     /**
      * 캘린더 그리드용 날짜 배열 생성 (6주 * 7일 = 42칸)
-     * 항상 6주로 고정되며, 빈 줄은 이전달/다음달 날짜로 채워집니다.
+     * 항상 6주로 고정되며, 빈 줄은 이전달/다음달 날짜로 채워짐
      */
-    static getMonthGrid(date: Date): CalendarDay[] {
+    static generateMonthDays(date: Date): CalendarDay[] {
         const monthStart = startOfMonth(date);
 
         // 캘린더 시작 - 월의 첫 날이 속한 주의 일요일 (weekStartsOn : 0)
@@ -46,6 +47,42 @@ export class CalendarUtils {
             isCurrentMonth: isSameMonth(day, date),
             isToday: isToday(day),
             isPast: day < startOfDay(today),
+        }));
+    }
+
+    /**
+     * 간단한 월간 달력 날짜 배열 생성 (이벤트 레이아웃 불필요한 경우)
+     * Date Selector 같은 단순 UI용
+     * @param month 기준 월
+     * @param fixedRows 고정 행 수 (기본 6주, false면 가변)
+     * @returns 날짜 배열
+     */
+    static getSimpleMonthDays(
+        month: Date,
+        fixedRows: number | false = 6,
+    ): CalendarDay[] {
+        const monthStart = startOfMonth(month);
+        const gridStart = startOfWeek(monthStart, { weekStartsOn: 0 });
+
+        // 가변 행 모드: 해당 월에 필요한 최소 행만 사용
+        let gridEnd: Date;
+        if (fixedRows === false) {
+            const monthEnd = endOfMonth(month);
+            const lastWeekEnd = endOfWeek(monthEnd, { weekStartsOn: 0 });
+            gridEnd = lastWeekEnd;
+        } else {
+            gridEnd = addDays(gridStart, fixedRows * 7 - 1);
+        }
+
+        const days = eachDayOfInterval({ start: gridStart, end: gridEnd });
+        const today = startOfDay(new Date());
+
+        return days.map((day) => ({
+            date: day,
+            dayOfMonth: day.getDate(),
+            isCurrentMonth: isSameMonth(day, month),
+            isToday: isToday(day),
+            isPast: day < today,
         }));
     }
 

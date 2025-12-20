@@ -1,18 +1,18 @@
 import React from 'react';
 import { useCalendarEvents } from '@/hooks/calendar/useCalendarEvents';
 import { useCalendarLayout } from '@/hooks/calendar/useCalendarLayout';
-import { AddButton } from '../common/Button/AddButton';
 import { CalendarUtils } from '@/utils/calendar/CalendarUtils';
-import { useEventTicketHandling } from '@/hooks/event/useEventTicketHandling';
+import type { useEventTicketHandling } from '@/hooks/event/useEventTicketHandling';
 import { MonthEventTicket } from '../event/MonthEventTicket';
 import { Loading } from '../common/Loading';
 import { useDelayedLoading } from '@/hooks/useDelayedLoading';
-import { CalendarModals } from './CalendarModal';
+import { CalendarModal } from './CalendarModal';
 
 interface CalendarDayViewProps {
     currentDate: Date;
     selectedDate: Date | null;
     setSelectedDate: (date: Date | null) => void;
+    modalHandlers: ReturnType<typeof useEventTicketHandling>;
 }
 
 export const CalendarDayView: React.FC<CalendarDayViewProps> = ({
@@ -20,11 +20,11 @@ export const CalendarDayView: React.FC<CalendarDayViewProps> = ({
     selectedDate,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     setSelectedDate: _setSelectedDate,
+    modalHandlers,
 }) => {
     const { allEvents, isLoading } = useCalendarEvents(currentDate);
     const showSpinner = useDelayedLoading(isLoading);
     const { calculateDayLayout } = useCalendarLayout();
-    const modalHandlers = useEventTicketHandling();
 
     const displayDate = selectedDate || currentDate;
 
@@ -85,13 +85,7 @@ export const CalendarDayView: React.FC<CalendarDayViewProps> = ({
     return (
         <div className="relative flex flex-col flex-1 h-full w-full bg-white">
             {renderEventList()}
-            <AddButton
-                onClick={modalHandlers.handleAdd}
-                className="absolute bottom-6 right-6 z-50"
-                variant="fab"
-                size="md"
-            />
-            <CalendarModals
+            <CalendarModal
                 currentDate={currentDate}
                 events={allEvents}
                 modalHandlers={modalHandlers}

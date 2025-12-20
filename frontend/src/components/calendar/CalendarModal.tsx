@@ -5,17 +5,17 @@ import { Modal } from '../common/Modal/Modal';
 import { EventTicketDetail } from '../event/EventTicketDetail';
 import { EventTicketForm } from '../event/EventTicketForm';
 
-interface CalendarModalsProps {
+interface CalendarModalProps {
     currentDate: Date;
     events: CalendarEvent[];
     modalHandlers: ReturnType<typeof useEventTicketHandling>;
 }
 
-export const CalendarModals: React.FC<CalendarModalsProps> = ({
+export const CalendarModal: React.FC<CalendarModalProps> = ({
     currentDate,
     events,
     modalHandlers,
-}: CalendarModalsProps) => {
+}: CalendarModalProps) => {
     const {
         selectedEventId,
         editingEventId,

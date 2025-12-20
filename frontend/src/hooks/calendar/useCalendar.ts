@@ -23,7 +23,7 @@ export const useCalendar = (options: UseCalendarOptions = {}) => {
 
     // 월간 날짜 데이터
     const monthDays = useMemo(() => {
-        return CalendarUtils.getMonthGrid(currentDate);
+        return CalendarUtils.generateMonthDays(currentDate);
     }, [currentDate]);
 
     // 상단에 표시되는 헤더 텍스트 (월간 헤더 텍스트만 표시)
