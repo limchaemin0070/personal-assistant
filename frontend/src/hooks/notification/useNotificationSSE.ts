@@ -186,9 +186,6 @@ export function useAlarmSSE() {
         connectSSE();
     }, [connectSSE]);
 
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // 반환값
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     return {
         reconnect,
         isConnected: !!(

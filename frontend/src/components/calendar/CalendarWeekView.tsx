@@ -10,7 +10,7 @@ import { EventTicketForm } from '../event/EventTicketForm';
 import { Modal } from '../common/Modal/Modal';
 import { MonthEventTicket } from '../event/MonthEventTicket';
 import { useDeleteEvent } from '@/hooks/event/useDeleteEvent';
-import { LoadingSpinner } from '../common/LoadingSpinner';
+import { Loading } from '../common/Loading';
 import { useDelayedLoading } from '@/hooks/useDelayedLoading';
 
 interface CalendarWeekViewProps {
@@ -77,7 +77,7 @@ export const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
                 <div className="flex-1 overflow-y-auto p-3">
                     {showSpinner ? (
                         <div className="flex items-center justify-center p-4">
-                            <LoadingSpinner size="md" color="blue" />
+                            <Loading size="md" color="blue" />
                         </div>
                     ) : (
                         <div className="flex flex-col gap-2">
