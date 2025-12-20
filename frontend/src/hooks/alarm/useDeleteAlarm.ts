@@ -2,10 +2,12 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { alarmService } from '@/services/alarm.service';
 import { useToastStore } from '../useToastStore';
 import { queryKeys } from '@/lib/queryKeys';
+import { useMutationErrorHandler } from '../useMutationErrorHandler';
 
 export const useDeleteAlarm = () => {
     const queryClient = useQueryClient();
     const { addToast } = useToastStore();
+    const handleError = useMutationErrorHandler('delete');
 
     return useMutation({
         mutationFn: (alarmId: number) => alarmService.deleteAlarm(alarmId),
@@ -17,8 +19,6 @@ export const useDeleteAlarm = () => {
             addToast('알람이 삭제되었습니다.', 'success');
         },
 
-        onError: () => {
-            addToast('알람 삭제에 실패했습니다.', 'error');
-        },
+        onError: handleError,
     });
 };
