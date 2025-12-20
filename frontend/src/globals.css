@@ -876,7 +876,17 @@
     .month-event-ticket-day .event-time,
     .month-event-ticket-week .event-time {
         flex-shrink: 0;
-        font-weight: 600;
+        font-weight: 700;
+        font-size: large;
+        color: rgb(var(--color-text-secondary));
+        min-width: 60px;
+    }
+
+    .month-event-ticket-day .event-time-spread,
+    .month-event-ticket-week .event-time-spread {
+        flex-shrink: 0;
+        font-weight: 500;
+        font-size: 0.875rem;
         color: rgb(var(--color-text-secondary));
         min-width: 60px;
     }
