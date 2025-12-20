@@ -27,9 +27,18 @@ export const useToastStore = create<ToastStore>((set) => ({
     toasts: [],
     addToast: (message, variant) => {
         const id = Date.now();
-        set((state) => ({
-            toasts: [...state.toasts, { id, message, variant }],
-        }));
+        set((state) => {
+            const newToasts = [...state.toasts, { id, message, variant }];
+            // 최대 3개까지만 유지, 초과 시 가장 오래된 것(첫 번째)부터 제거
+            const maxToasts = 3;
+            const limitedToasts =
+                newToasts.length > maxToasts
+                    ? newToasts.slice(-maxToasts)
+                    : newToasts;
+            return {
+                toasts: limitedToasts,
+            };
+        });
         // 자동 제거는 Toast 컴포넌트에서 애니메이션과 함께 처리됩니다
     },
     removeToast: (id) =>
