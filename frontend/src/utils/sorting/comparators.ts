@@ -4,7 +4,7 @@
  */
 
 // 날짜가 있는 객체를 위한 타입
-type HasDate = { date?: string | null };
+type HasDate = { date?: string | Date | null };
 type HasTime = { time?: string | null };
 type HasDateTime = HasDate & HasTime;
 
