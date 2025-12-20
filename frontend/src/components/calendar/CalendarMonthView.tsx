@@ -2,16 +2,13 @@ import React from 'react';
 import { useCalendarEvents } from '@/hooks/calendar/useCalendarEvents';
 import { useCalendarLayout } from '@/hooks/calendar/useCalendarLayout';
 import { AddButton } from '../common/Button/AddButton';
-import { EventTicketDetail } from '../event/EventTicketDetail';
-import { EventTicketForm } from '../event/EventTicketForm';
 import { CalendarUtils } from '@/utils/calendar/CalendarUtils';
 import { CalendarDayCell } from './CalendarDayCell';
 import { useEventTicketHandling } from '@/hooks/event/useEventTicketHandling';
-import { Modal } from '../common/Modal/Modal';
 import type { CalendarDay } from '@/utils/calendar/CalendarUtils';
-import { useDeleteEvent } from '@/hooks/event/useDeleteEvent';
 import { useDelayedLoading } from '@/hooks/useDelayedLoading';
 import { Loading } from '../common/Loading';
+import { CalendarModals } from './CalendarModal';
 
 const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
 interface CalendarMonthViewProps {
@@ -28,34 +25,14 @@ export const CalendarMonthView: React.FC<CalendarMonthViewProps> = ({
     const { monthEvents, isLoading } = useCalendarEvents(currentDate);
     const showSpinner = useDelayedLoading(isLoading);
     const { calculateMonthLayout } = useCalendarLayout();
+    const modalHandlers = useEventTicketHandling();
 
     const eventsLayout = React.useMemo(() => {
         return calculateMonthLayout(monthEvents);
     }, [monthEvents, calculateMonthLayout]);
 
-    const {
-        hoveredEventId,
-        selectedEventId,
-        editingEventId,
-        isDetailModalOpen,
-        isEditModalOpen,
-        handleHover,
-        handleEventClick,
-        handleEventUpdate,
-        handleAdd,
-        handleCancel,
-        closeDetailModal,
-    } = useEventTicketHandling();
-
-    // TODO : 삭제 확인 모달?
-    const deleteEvent = useDeleteEvent();
-
-    const selectedEvent = selectedEventId
-        ? monthEvents.find((e) => e.id === selectedEventId)
-        : null;
-    const editingEvent = editingEventId
-        ? monthEvents.find((e) => e.id === editingEventId)
-        : null;
+    const { hoveredEventId, handleHover, handleEventClick, handleAdd } =
+        modalHandlers;
 
     const renderCalendarGrid = () => {
         if (showSpinner) {
@@ -112,41 +89,11 @@ export const CalendarMonthView: React.FC<CalendarMonthViewProps> = ({
                 variant="fab"
                 size="md"
             />
-            {/* 이벤트 조회 모달 */}
-            {isDetailModalOpen && (
-                <Modal
-                    clickEvent={closeDetailModal}
-                    height="h-auto max-h-[80vh] overflow-y-auto"
-                    showCloseButton={false}
-                >
-                    {selectedEvent && (
-                        <EventTicketDetail
-                            event={selectedEvent}
-                            onUpdate={(event) => handleEventUpdate(event.id)}
-                            onDelete={(eventId) =>
-                                deleteEvent.mutate(eventId, {
-                                    onSuccess: closeDetailModal,
-                                })
-                            }
-                            onClose={closeDetailModal}
-                        />
-                    )}
-                </Modal>
-            )}
-            {/* 이벤트 생성/수정 모달 */}
-            {isEditModalOpen && (
-                <Modal
-                    clickEvent={handleCancel}
-                    height="h-auto max-h-[90vh] overflow-y-auto"
-                >
-                    <EventTicketForm
-                        onSubmit={handleCancel}
-                        onCancel={handleCancel}
-                        initialDate={currentDate}
-                        initialEvent={editingEvent}
-                    />
-                </Modal>
-            )}
+            <CalendarModals
+                currentDate={currentDate}
+                events={monthEvents}
+                modalHandlers={modalHandlers}
+            />
         </div>
     );
 };
