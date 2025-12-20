@@ -58,7 +58,11 @@ export const AlarmDateSection: React.FC<AlarmDateSectionProps> = ({
 
     const renderText = () => {
         if (repeatDays && repeatDays.length > 0) {
-            const dayLabels = getWeekDayLabels(repeatDays as DayOfWeek[]);
+            // 선택된 요일들을 일~토 순서로 정렬
+            const sortedDays = [...(repeatDays as DayOfWeek[])].sort(
+                (a, b) => a - b,
+            );
+            const dayLabels = getWeekDayLabels(sortedDays);
             return <div>매주 {dayLabels.join(', ')}</div>;
         }
         if (date) {
