@@ -97,8 +97,8 @@ export const MonthEventTicket = ({
                 <div className="event-content-day">
                     {renderTimeDisplay()}
                     <div>
-                        <span className="event-title">{title}</span>
-                        <span className="event-time">
+                        <span className="event-title text-title3">{title}</span>
+                        <span className="event-time-spread">
                             {CalendarUtils.formatEventTimeRange(
                                 isAllDay,
                                 startTime,
@@ -115,7 +115,7 @@ export const MonthEventTicket = ({
                 <div className="event-content-day">
                     <div>
                         <span className="event-title">{title}</span>
-                        <span className="event-time">
+                        <span className="event-time-spread">
                             {CalendarUtils.formatEventTimeRange(
                                 isAllDay,
                                 startTime,

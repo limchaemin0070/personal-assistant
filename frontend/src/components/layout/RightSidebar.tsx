@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Sidebar } from '../common/Sidebar';
 import { Reminder } from '@/components/reminder/Reminder';
 import { Alarm } from '../alarm/Alarm';
+import { cn } from '@/utils/cn';
 
 type RightSidebarTab = 'alarm' | 'reminder';
 
@@ -25,22 +26,24 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({ onClose }) => {
                     <button
                         type="button"
                         onClick={() => setActiveTab('reminder')}
-                        className={`rounded px-3 py-1 text-sm font-medium transition-colors ${
+                        className={cn(
+                            'rounded px-3 py-1 text-sm font-medium transition-colors',
                             activeTab === 'reminder'
                                 ? 'bg-white text-gray-900 shadow-sm'
-                                : 'text-gray-600 hover:text-gray-900'
-                        }`}
+                                : 'text-gray-600 hover:text-gray-900',
+                        )}
                     >
                         리마인더
                     </button>
                     <button
                         type="button"
                         onClick={() => setActiveTab('alarm')}
-                        className={`rounded px-3 py-1 text-sm font-medium transition-colors ${
+                        className={cn(
+                            'rounded px-3 py-1 text-sm font-medium transition-colors',
                             activeTab === 'alarm'
                                 ? 'bg-white text-gray-900 shadow-sm'
-                                : 'text-gray-600 hover:text-gray-900'
-                        }`}
+                                : 'text-gray-600 hover:text-gray-900',
+                        )}
                     >
                         알람
                     </button>

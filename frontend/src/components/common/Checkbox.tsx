@@ -1,4 +1,5 @@
 import { useId } from 'react';
+import { cn } from '@/utils/cn';
 
 interface CheckboxProps {
     checked: boolean;
@@ -20,7 +21,11 @@ export const Checkbox = ({
     return (
         <label
             htmlFor={id}
-            className={`inline-flex items-center gap-2 cursor-pointer ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
+            className={cn(
+                'inline-flex items-center gap-2 cursor-pointer',
+                disabled && 'opacity-50 cursor-not-allowed',
+                className
+            )}
         >
             <input
                 id={id}

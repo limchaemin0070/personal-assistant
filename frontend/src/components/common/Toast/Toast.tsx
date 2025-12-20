@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { IoMdClose, IoIosWarning } from 'react-icons/io';
 import { FaCheck } from 'react-icons/fa';
 import { MdError } from 'react-icons/md';
+import { cn } from '@/utils/cn';
 
 interface ToastProps {
     children: React.ReactNode;
@@ -46,26 +47,26 @@ const Toast = ({ children, variant = 'success', onClose }: ToastProps) => {
 
     return (
         <div
-            className={`
-            relative flex items-center
-            w-[70%] md:w-[350px]
-            h-[40px] md:h-[50px]
-            mb-2 px-6 md:px-8
-            rounded-lg text-white
-            font-sans font-normal
-            text-sm md:text-[16px]
-            leading-[16px] md:leading-[26px]
-            shadow-md 
-            ${variantStyles[variant]}
-            ${isExiting ? 'animate-toast-slide-out' : 'animate-toast-slide-in'}
-        `}
+            className={cn(
+                'relative flex items-center',
+                'w-[70%] md:w-[350px]',
+                'h-[40px] md:h-[50px]',
+                'mb-2 px-6 md:px-8',
+                'rounded-lg text-white',
+                'font-sans font-normal',
+                'text-sm md:text-[16px]',
+                'leading-[16px] md:leading-[26px]',
+                'shadow-md',
+                variantStyles[variant],
+                isExiting ? 'animate-toast-slide-out' : 'animate-toast-slide-in'
+            )}
         >
             <div className="flex items-center w-full gap-3">
                 {Icon}
                 <span className="flex-1 text-center truncate">{children}</span>
                 <IoMdClose
                     onClick={handleClose}
-                    className={`${closeStyles} cursor-pointer`}
+                    className={cn(closeStyles, 'cursor-pointer')}
                 />
             </div>
         </div>

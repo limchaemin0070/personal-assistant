@@ -1,4 +1,5 @@
 import type { InputHTMLAttributes } from 'react';
+import { cn } from '@/utils/cn';
 
 export interface FormInputProps
     extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'onBlur'> {
@@ -23,9 +24,7 @@ export const FormInput = ({
     id,
     name,
 }: FormInputProps) => {
-    const inputClass =
-        (error ? 'input-error' : 'input-base') +
-        (className ? ` ${className}` : '');
+    const inputClass = cn(error ? 'input-error' : 'input-base', className);
     return (
         <div>
             {/* 폼 입력 에러 텍스트영역 */}

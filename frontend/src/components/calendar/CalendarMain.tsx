@@ -1,7 +1,7 @@
 import React from 'react';
 import { BsBell, BsBellSlash } from 'react-icons/bs';
 import { IoMdSettings } from 'react-icons/io';
-import { LuPanelRight } from 'react-icons/lu';
+import { LuPanelLeft, LuPanelRight } from 'react-icons/lu';
 import { MdLogout } from 'react-icons/md';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { CalendarMonthView } from './CalendarMonthView';
@@ -39,6 +39,7 @@ export const CalendarMain: React.FC<CalendarMainProps> = ({
         handlePrev,
         handleNext,
         handleDateSelect,
+        goToToday,
     } = useCalendar();
 
     const { logout } = useLogout();
@@ -85,7 +86,6 @@ export const CalendarMain: React.FC<CalendarMainProps> = ({
                         currentDate={currentDate}
                         selectedDate={selectedDate}
                         setSelectedDate={setSelectedDate}
-                        modalHandlers={modalHandlers}
                     />
                 );
             case 'day':
@@ -109,22 +109,22 @@ export const CalendarMain: React.FC<CalendarMainProps> = ({
     };
 
     return (
-        <main className="flex flex-1 flex-col overflow-hidden">
+        <main className="flex flex-1 flex-col">
             <div className="flex items-center gap-2 bg-white px-4 py-3">
                 {onToggleLeftSidebar && (
                     <button
                         type="button"
                         onClick={onToggleLeftSidebar}
-                        className="btn-icon-sm"
+                        className="btn-icon"
                     >
-                        ☰
+                        <LuPanelLeft />
                     </button>
                 )}
-                {/* 캘린더 헤더 */}
                 <CalendarHeader
                     headerText={headerText}
                     onPrevMonth={handlePrev}
                     onNextMonth={handleNext}
+                    onToday={goToToday}
                     view={view}
                     setView={setView}
                 />
@@ -137,9 +137,6 @@ export const CalendarMain: React.FC<CalendarMainProps> = ({
                     className="text-gray-600 hover:bg-gray-100"
                     disabled={updateNotificationMutation.isPending}
                 />
-                {/* 설정 드롭다운 메뉴
-                현재는 로그아웃 버튼만
-                추후 프로필이나 마이페이지 섹션 삽입 가능 */}
                 <DropdownMenu
                     trigger={
                         <button type="button" className="btn-icon">
@@ -166,7 +163,7 @@ export const CalendarMain: React.FC<CalendarMainProps> = ({
                     </button>
                 )}
             </div>
-            <div className="relative flex flex-1">
+            <div className="relative flex flex-1 min-h-0">
                 {renderCalendarView()}
                 <AddButton
                     onClick={modalHandlers.handleAdd}

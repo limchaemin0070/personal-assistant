@@ -1,4 +1,5 @@
 import React from 'react';
+import { cn } from '@/utils/cn';
 
 interface SidebarProps {
     title: string;
@@ -37,7 +38,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
     return (
         <aside
-            className={`${widthMap[width]} shrink-0 ${borderMap[borderPosition]} border-gray-200 bg-stone-100`}
+            className={cn(
+                widthMap[width],
+                'shrink-0',
+                borderMap[borderPosition],
+                'border-gray-200 bg-white',
+            )}
         >
             <div className="flex h-full flex-col p-4">
                 <div className="mb-4 flex items-center justify-between">
