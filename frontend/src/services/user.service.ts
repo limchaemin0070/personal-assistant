@@ -18,4 +18,15 @@ export const userService = {
         });
         return response.data;
     },
+
+    // 사용자 알람 설정 업데이트
+    async updateNotificationEnabled(
+        notification_enabled: boolean,
+    ): Promise<ApiSuccessResponse<UserInfo>> {
+        const response = await defaultApi<UserInfo>('/users/me/notification', {
+            method: 'PATCH',
+            data: { notification_enabled },
+        });
+        return response.data;
+    },
 };
