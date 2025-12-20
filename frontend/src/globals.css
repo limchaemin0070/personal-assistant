@@ -206,9 +206,32 @@
 }
 
 /* ============================================
-   Components 스타일
-   ============================================ */
+       Components 스타일
+       ============================================ */
 @layer components {
+    /* ============================================
+           사이드바 배경색
+           ============================================ */
+    /* 좌측 사이드바 배경색 */
+    .sidebar-bg-left {
+        background-color: var(--color-stone-100);
+    }
+
+    /* 우측 사이드바 배경색 */
+    .sidebar-bg-right {
+        background-color: rgb(var(--color-background));
+    }
+
+    /* 다크 모드에서 사이드바 배경색 */
+    [data-theme='dark'] .sidebar-bg-left,
+    .dark .sidebar-bg-left {
+        background-color: rgb(var(--color-background-secondary));
+    }
+
+    [data-theme='dark'] .sidebar-bg-right,
+    .dark .sidebar-bg-right {
+        background-color: rgb(var(--color-background-secondary));
+    }
     /* ============================================
        버튼 스타일
        ============================================ */

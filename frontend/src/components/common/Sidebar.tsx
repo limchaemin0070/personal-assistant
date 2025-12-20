@@ -27,6 +27,11 @@ const borderMap = {
     right: 'border-r',
 };
 
+const backgroundMap = {
+    left: 'sidebar-bg-right', // borderPosition이 left면 우측 사이드바
+    right: 'sidebar-bg-left', // borderPosition이 right면 좌측 사이드바
+};
+
 export const Sidebar: React.FC<SidebarProps> = ({
     title,
     width = 'md',
@@ -42,7 +47,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 widthMap[width],
                 'shrink-0',
                 borderMap[borderPosition],
-                'border-gray-200 bg-white',
+                'border-gray-200',
+                backgroundMap[borderPosition],
             )}
         >
             <div className="flex h-full flex-col p-4">
