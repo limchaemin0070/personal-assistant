@@ -1,10 +1,9 @@
 import React from 'react';
 import { FormProvider } from 'react-hook-form';
-import { BsBell, BsBellSlash } from 'react-icons/bs';
 import { cn } from '@/utils/cn';
 import type { CalendarEvent } from '@/types/calendar';
 import { useEventForm } from '@/hooks/event/useEventForm';
-import { FormInput, FormTextArea, FormToggle } from '../common/Form/input';
+import { FormInput, FormTextArea } from '../common/Form/input';
 import { EventDateTimeSection } from './sections/EventDateTimeSection';
 import { useCreateEvent } from '@/hooks/event/useCreateEvent';
 import { useUpdateEvent } from '@/hooks/event/useUpdateEvent';

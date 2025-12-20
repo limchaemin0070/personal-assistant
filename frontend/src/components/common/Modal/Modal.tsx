@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Overlay } from '../Overlay/Overlay';
 import { CloseButton } from '../Button/CloseButton';
 
@@ -17,30 +17,33 @@ export const Modal = ({
 }: ModalProps) => {
     const heightValue = height || 'h-[200px]';
 
+    const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (e.target === e.currentTarget) {
+            clickEvent();
+        }
+    };
+
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                clickEvent();
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [clickEvent]);
+
     return (
-        <Overlay>
+        <Overlay onClick={handleOverlayClick}>
+            {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
             <div
                 className={`bg-white w-[370px] ${heightValue} rounded-2xl p-2 relative shadow-lg animate-fade-up`}
-                onClick={clickEvent}
-                onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        clickEvent();
-                    }
-                }}
-                tabIndex={0}
-                role="button"
+                onClick={(e) => e.stopPropagation()}
             >
-                <div
-                    className="relative h-full"
-                    onClick={(e) => e.stopPropagation()}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                            e.stopPropagation();
-                        }
-                    }}
-                    role="presentation"
-                >
+                <div className="relative h-full">
                     {showCloseButton && (
                         <CloseButton
                             onClick={clickEvent}

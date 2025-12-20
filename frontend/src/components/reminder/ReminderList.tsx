@@ -70,8 +70,7 @@ export const ReminderList = ({
         <div className="space-y-6">
             {grouped.map((group) => (
                 <div key={group.date || 'no-date'}>
-                    {/* 섹션 헤더 */}
-                    <div className="px-4 py-2 sticky top-0">
+                    <div className="px-4 py-2">
                         <h3 className="text-sm font-semibold text-gray-600">
                             {group.date
                                 ? format(new Date(group.date), 'M월 d일 (E)', {

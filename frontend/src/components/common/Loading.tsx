@@ -1,4 +1,5 @@
 import React from 'react';
+import { cn } from '@/utils/cn';
 
 interface LoadingProps {
     size?: 'sm' | 'md' | 'lg';
@@ -29,7 +30,12 @@ export const Loading: React.FC<LoadingProps> = ({
 }: LoadingProps) => {
     const spinner = (
         <div
-            className={`rounded-full animate-spin ${sizeClasses[size]} ${colorClasses[color]} ${className}`}
+            className={cn(
+                'rounded-full animate-spin',
+                sizeClasses[size],
+                colorClasses[color],
+                className,
+            )}
             role="status"
             aria-label="Loading"
         >

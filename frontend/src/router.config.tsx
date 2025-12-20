@@ -1,5 +1,11 @@
 import { createBrowserRouter } from 'react-router-dom';
-import { RegisterPage, LoginPage, MainPage } from './pages';
+import {
+    RegisterPage,
+    LoginPage,
+    MainPage,
+    CalendarPage,
+    CalendarRedirect,
+} from './pages';
 import { ProtectedRoute, PublicRoute } from './router';
 
 export const router = createBrowserRouter([
@@ -10,6 +16,20 @@ export const router = createBrowserRouter([
                 <MainPage />
             </ProtectedRoute>
         ),
+        children: [
+            {
+                index: true,
+                element: <CalendarRedirect />,
+            },
+            {
+                path: 'calendar',
+                element: <CalendarRedirect />,
+            },
+            {
+                path: 'calendar/:view/:date',
+                element: <CalendarPage />,
+            },
+        ],
     },
     {
         path: '/login',

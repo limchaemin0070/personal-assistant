@@ -75,8 +75,8 @@ export const Reminder: React.FC = () => {
     };
 
     return (
-        <div className="space-y-1 p-1">
-            <div className="flex items-center gap-2 justify-between">
+        <div className="space-y-1 p-1 ">
+            <div className="flex items-center gap-2 justify-between sticky top-0 sidebar-bg-right py-1 -mx-1 px-1 z-10">
                 <AddButton
                     onClick={handleAdd}
                     className=""
