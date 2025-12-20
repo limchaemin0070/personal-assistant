@@ -11,6 +11,8 @@ import { DropdownMenu } from '@/components/common/DropdownMenu';
 import { useCalendar } from '@/hooks/calendar/useCalendar';
 import { SwitchButton } from '../common/Button/SwitchButton';
 import { useLogout } from '@/hooks/Auth/useLogout';
+import { useEventTicketHandling } from '@/hooks/event/useEventTicketHandling';
+import { AddButton } from '../common/Button/AddButton';
 
 interface CalendarMainProps {
     // eslint-disable-next-line react/require-default-props
@@ -29,14 +31,13 @@ export const CalendarMain: React.FC<CalendarMainProps> = ({
         setView,
         selectedDate,
         setSelectedDate,
-        monthDays,
         headerText,
-        handleDateSelect,
         handlePrev,
         handleNext,
     } = useCalendar();
 
     const { logout } = useLogout();
+    const modalHandlers = useEventTicketHandling();
 
     const handleSwitch = async () => {
         // TODO: 알람 권한 변경 로직 구현
@@ -48,8 +49,8 @@ export const CalendarMain: React.FC<CalendarMainProps> = ({
                 return (
                     <CalendarMonthView
                         currentDate={currentDate}
-                        monthDays={monthDays}
-                        onDateSelect={handleDateSelect}
+                        modalHandlers={modalHandlers}
+                        // onDateSelect={handleDateSelect}
                     />
                 );
             case 'week':
@@ -58,6 +59,7 @@ export const CalendarMain: React.FC<CalendarMainProps> = ({
                         currentDate={currentDate}
                         selectedDate={selectedDate}
                         setSelectedDate={setSelectedDate}
+                        modalHandlers={modalHandlers}
                     />
                 );
             case 'day':
@@ -66,14 +68,14 @@ export const CalendarMain: React.FC<CalendarMainProps> = ({
                         currentDate={currentDate}
                         selectedDate={selectedDate}
                         setSelectedDate={setSelectedDate}
+                        modalHandlers={modalHandlers}
                     />
                 );
             default:
                 return (
                     <CalendarMonthView
                         currentDate={currentDate}
-                        monthDays={monthDays}
-                        onDateSelect={handleDateSelect}
+                        modalHandlers={modalHandlers}
                     />
                 );
         }
@@ -138,7 +140,15 @@ export const CalendarMain: React.FC<CalendarMainProps> = ({
                     </button>
                 )}
             </div>
-            <div className="flex flex-1">{renderCalendarView()}</div>
+            <div className="relative flex flex-1">
+                {renderCalendarView()}
+                <AddButton
+                    onClick={modalHandlers.handleAdd}
+                    className="absolute bottom-6 right-6 z-50"
+                    variant="fab"
+                    size="md"
+                />
+            </div>
         </main>
     );
 };

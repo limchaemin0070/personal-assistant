@@ -183,7 +183,7 @@
         margin: 0;
         height: 100%;
         width: 100%;
-        background-color: rgb(var(--color-background-secondary));
+        background-color: rgb(var(--color-background));
         color: rgb(var(--color-text-primary));
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
@@ -656,6 +656,7 @@
     .calendar-grid-header {
         display: grid;
         grid-template-columns: repeat(7, minmax(0, 1fr));
+        flex-shrink: 0; /* 헤더가 축소되지 않도록 */
         /* 요일 헤더 스타일 */
     }
 
