@@ -1,79 +1,109 @@
 import { useCallback, useMemo, useState } from 'react';
-import { addMonths, subMonths } from 'date-fns';
+import { useParams, useNavigate } from 'react-router-dom';
+import { format, parseISO, isValid, addMonths, subMonths } from 'date-fns';
 import { CalendarUtils } from '@/utils/calendar/CalendarUtils';
 
 export type CalendarView = 'month' | 'week' | 'day';
 
-interface UseCalendarOptions {
-    initialDate?: Date;
-    initialView?: CalendarView;
-}
+export const useCalendar = () => {
+    const { view: viewParam, date: dateParam } = useParams<{
+        view: CalendarView;
+        date: string;
+    }>();
+    const navigate = useNavigate();
 
-export const useCalendar = (options: UseCalendarOptions = {}) => {
-    // 오늘 날짜
-    const [currentDate, setCurrentDate] = useState(
-        options.initialDate || new Date(),
-    );
+    // URL에서 view와 date를 읽어오기
+    const view = (viewParam as CalendarView) || 'month';
 
-    // 캘린더 전체보기인지 주간/일간 자세히보기인지 관리하는 상태
-    const [view, setView] = useState(options.initialView || 'month');
+    const currentDate = useMemo(() => {
+        if (!dateParam) return new Date();
+        const parsed = parseISO(dateParam);
+        return isValid(parsed) ? parsed : new Date();
+    }, [dateParam]);
 
     // 사용자가 선택한 날짜
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+
+    // URL 업데이트 함수
+    const updateURL = useCallback(
+        (newView: CalendarView, newDate: Date) => {
+            const dateStr = format(newDate, 'yyyy-MM-dd');
+            navigate(`/calendar/${newView}/${dateStr}`, { replace: true });
+        },
+        [navigate],
+    );
 
     // 월간 날짜 데이터
     const monthDays = useMemo(() => {
         return CalendarUtils.generateMonthDays(currentDate);
     }, [currentDate]);
 
-    // 상단에 표시되는 헤더 텍스트 (월간 헤더 텍스트만 표시)
+    // 상단에 표시되는 헤더 텍스트
     const headerText = useMemo(() => {
-        return CalendarUtils.getMonthYearText(currentDate);
-    }, [currentDate]);
+        switch (view) {
+            // case 'week':
+            //     return CalendarUtils.getWeekRangeText(currentDate);
+            // case 'day':
+            //     return CalendarUtils.getDayText(currentDate);
+            // case 'month':
+            default:
+                return CalendarUtils.getMonthYearText(currentDate);
+        }
+    }, [view, currentDate]);
 
     // 날짜 셀을 클릭하면 일간 뷰
     const switchToDayView = useCallback(() => {
-        setCurrentDate((prev) => addMonths(prev, 1));
-    }, []);
+        updateURL(view, addMonths(currentDate, 1));
+    }, [view, currentDate, updateURL]);
 
     // 월간 네비게이션
     const goToNextMonth = useCallback(() => {
-        setCurrentDate((prev) => addMonths(prev, 1));
-    }, []);
+        updateURL(view, addMonths(currentDate, 1));
+    }, [view, currentDate, updateURL]);
 
     const goToPrevMonth = useCallback(() => {
-        setCurrentDate((prev) => subMonths(prev, 1));
-    }, []);
+        updateURL(view, subMonths(currentDate, 1));
+    }, [view, currentDate, updateURL]);
 
     // 주간 뷰 네비게이션
     const goToNextWeek = useCallback(() => {
-        setCurrentDate((prev) => CalendarUtils.getNextWeek(prev));
-    }, []);
+        updateURL(view, CalendarUtils.getNextWeek(currentDate));
+    }, [view, currentDate, updateURL]);
 
     const goToPrevWeek = useCallback(() => {
-        setCurrentDate((prev) => CalendarUtils.getPrevWeek(prev));
-    }, []);
+        updateURL(view, CalendarUtils.getPrevWeek(currentDate));
+    }, [view, currentDate, updateURL]);
 
     // 일간 뷰 네비게이션
     const goToNextDay = useCallback(() => {
-        setCurrentDate((prev) => CalendarUtils.getNextDay(prev));
-    }, []);
+        updateURL(view, CalendarUtils.getNextDay(currentDate));
+    }, [view, currentDate, updateURL]);
 
     const goToPrevDay = useCallback(() => {
-        setCurrentDate((prev) => CalendarUtils.getPrevDay(prev));
-    }, []);
+        updateURL(view, CalendarUtils.getPrevDay(currentDate));
+    }, [view, currentDate, updateURL]);
 
     // 오늘로 이동
     const goToToday = useCallback(() => {
-        setCurrentDate(new Date());
-    }, []);
+        updateURL(view, new Date());
+    }, [view, updateURL]);
+
+    // 뷰 변경
+    const setView = useCallback(
+        (newView: CalendarView) => {
+            updateURL(newView, currentDate);
+        },
+        [currentDate, updateURL],
+    );
 
     // 날짜 선택 시 일간 뷰로 전환 (더블클릭)
-    const handleDateSelect = useCallback((date: Date) => {
-        setSelectedDate(date);
-        setCurrentDate(date);
-        setView('day');
-    }, []);
+    const handleDateSelect = useCallback(
+        (date: Date) => {
+            setSelectedDate(date);
+            updateURL('day', date);
+        },
+        [updateURL],
+    );
 
     // 날짜 포커스만 설정 (단일 클릭)
     const handleDateFocus = useCallback((date: Date) => {
