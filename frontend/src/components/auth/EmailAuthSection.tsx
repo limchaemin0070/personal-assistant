@@ -19,17 +19,19 @@ export const EmailAuthSection = ({
 
     return (
         <>
-            <div className="flex flex-row gap-2">
-                <FormInput
-                    type="email"
-                    name="email"
-                    placeholder="이메일을 입력하세요"
-                    disabled={isDisabled}
-                />
+            <div className="flex flex-row gap-2 items-start">
+                <div className="flex-1 [&_.input-group]:mb-0">
+                    <FormInput
+                        type="email"
+                        name="email"
+                        placeholder="이메일을 입력하세요"
+                        disabled={isDisabled}
+                    />
+                </div>
                 <button
                     type="button"
                     onClick={onEmailVerification}
-                    className="btn-primary-filled w-[30%]"
+                    className="btn-primary-filled w-[30%] self-start"
                     disabled={isDisabled}
                 >
                     인증
