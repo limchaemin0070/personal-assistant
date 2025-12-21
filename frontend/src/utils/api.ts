@@ -54,59 +54,100 @@ axiosInstance.interceptors.response.use(
         const originalRequest = error.config as RetryableRequestConfig;
 
         // 401 인증 만료 처리
-        // /users/me 요청은 인증 상태 확인용이므로 토큰 갱신을 시도하지 않고 그대로 에러 반환
-        const isAuthCheckRequest = originalRequest.url?.includes('/users/me');
-
-        if (
-            error.response?.status === 401 &&
-            !originalRequest.retry &&
-            !getIsLoggingOut() &&
-            !isAuthCheckRequest // /users/me 요청은 제외
-        ) {
-            if (isRefreshing) {
-                return new Promise((resolve, reject) => {
-                    failedQueue.push({ resolve, reject });
-                })
-                    .then(() => {
-                        return axiosInstance(originalRequest);
-                    })
-                    .catch((err) => {
-                        return Promise.reject(err);
-                    });
+        if (error.response?.status === 401) {
+            // 디버깅: 재시도 조건 확인
+            if (import.meta.env.DEV) {
+                // eslint-disable-next-line no-console
+                console.log('401 에러 감지:', {
+                    url: originalRequest?.url,
+                    method: originalRequest?.method,
+                    hasConfig: !!originalRequest,
+                    alreadyRetried: originalRequest?.retry,
+                    isLoggingOut: getIsLoggingOut(),
+                    isRefreshing,
+                });
             }
 
-            originalRequest.retry = true;
-            isRefreshing = true;
-
-            try {
-                // eslint-disable-next-line no-console
-                console.log('리프레시 토큰으로 액세스 토큰 갱신 시도 중...');
-                await axiosInstance.post('/auth/refresh');
-                // eslint-disable-next-line no-console
-                console.log('액세스 토큰 갱신 성공');
-                processQueue(null, null);
-                const retryResponse = await axiosInstance(originalRequest);
-                return retryResponse;
-            } catch (refreshError) {
-                // eslint-disable-next-line no-console
-                console.error('액세스 토큰 갱신 실패:', refreshError);
-                processQueue(refreshError as AxiosError, null);
-
-                // 공개 페이지가 아니고, 로그인 페이지가 아닐 때만 리다이렉트
-                if (
-                    window.location.pathname !== '/login' &&
-                    window.location.pathname !== '/register'
-                ) {
-                    const { addToast } = useToastStore.getState();
-                    addToast('로그인이 만료되었습니다', 'error');
-
-                    setTimeout(() => {
-                        window.location.replace('/login');
-                    }, 500);
+            // 재시도 조건 확인
+            if (
+                originalRequest && // error.config가 존재하는지 확인
+                !originalRequest.retry &&
+                !getIsLoggingOut()
+            ) {
+                if (isRefreshing) {
+                    // eslint-disable-next-line no-console
+                    console.log(
+                        '토큰 갱신 중이므로 대기열에 추가:',
+                        originalRequest.url,
+                    );
+                    return new Promise((resolve, reject) => {
+                        failedQueue.push({ resolve, reject });
+                    })
+                        .then(() => {
+                            return axiosInstance(originalRequest);
+                        })
+                        .catch((err) => {
+                            return Promise.reject(err);
+                        });
                 }
-                return await Promise.reject(refreshError);
-            } finally {
-                isRefreshing = false;
+
+                originalRequest.retry = true;
+                isRefreshing = true;
+
+                try {
+                    // eslint-disable-next-line no-console
+                    console.log(
+                        '리프레시 토큰으로 액세스 토큰 갱신 시도 중...',
+                    );
+                    await axiosInstance.post('/auth/refresh');
+                    // eslint-disable-next-line no-console
+                    console.log('액세스 토큰 갱신 성공');
+                    processQueue(null, null);
+                    // eslint-disable-next-line no-console
+                    console.log(
+                        '원본 요청 재시도:',
+                        originalRequest.method,
+                        originalRequest.url,
+                    );
+                    const retryResponse = await axiosInstance(originalRequest);
+                    return retryResponse;
+                } catch (refreshError) {
+                    // eslint-disable-next-line no-console
+                    console.error('액세스 토큰 갱신 실패:', refreshError);
+                    processQueue(refreshError as AxiosError, null);
+
+                    // 공개 페이지가 아니고, 로그인 페이지가 아닐 때만 리다이렉트
+                    if (
+                        window.location.pathname !== '/login' &&
+                        window.location.pathname !== '/register'
+                    ) {
+                        const { addToast } = useToastStore.getState();
+                        addToast('로그인이 만료되었습니다', 'error');
+
+                        setTimeout(() => {
+                            window.location.replace('/login');
+                        }, 500);
+                    }
+                    return await Promise.reject(refreshError);
+                } finally {
+                    isRefreshing = false;
+                }
+            } else if (import.meta.env.DEV) {
+                let reason: string;
+                if (!originalRequest) {
+                    reason = 'error.config가 없음';
+                } else if (originalRequest.retry) {
+                    reason = '이미 재시도함';
+                } else if (getIsLoggingOut()) {
+                    reason = '로그아웃 중';
+                } else {
+                    reason = '알 수 없는 이유';
+                }
+                // eslint-disable-next-line no-console
+                console.warn('401 에러지만 재시도하지 않음:', {
+                    url: originalRequest?.url,
+                    reason,
+                });
             }
         }
 
