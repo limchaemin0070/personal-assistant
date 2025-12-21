@@ -155,10 +155,7 @@ export const validateDateOrThrow = (date?: string | null) => {
     // 날짜 형식 검증 (YYYY-MM-DD)
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
     if (!dateRegex.test(date)) {
-      throw new ValidationError(
-        "날짜는 YYYY-MM-DD 형식이어야 합니다.",
-        "date"
-      );
+      throw new ValidationError("날짜는 YYYY-MM-DD 형식이어야 합니다.", "date");
     }
 
     // 과거 날짜 체크
