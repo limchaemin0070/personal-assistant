@@ -5,6 +5,8 @@ export const queryKeys = {
         byId: (id: number) => [...queryKeys.events.all, id] as const,
         byMonth: (year: number, month: number) =>
             [...queryKeys.events.all, 'month', year, month] as const,
+        range: (monthKey: string) =>
+            [...queryKeys.events.all, 'range', monthKey] as const,
     },
     reminders: {
         all: ['reminders'] as const,
