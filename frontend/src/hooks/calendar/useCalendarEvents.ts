@@ -120,8 +120,8 @@ export const useCalendarEvents = (currentDate: Date, view?: CalendarView) => {
     const getEventsByDate = useMemo(
         () => (date: Date) => {
             return allEvents.filter((event) => {
-                const eventStart = event.startDate;
-                const eventEnd = event.endDate;
+                // const eventStart = event.startDate;
+                // const eventEnd = event.endDate;
                 const dayStart = startOfDay(date);
                 const dayEnd = endOfDay(date);
 
