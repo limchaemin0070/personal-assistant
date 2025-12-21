@@ -1,3 +1,4 @@
+import { Op } from "sequelize";
 import { Schedule } from "../models/Schedule.model";
 import { ScheduleNotFoundError } from "../errors/BusinessError";
 
@@ -42,6 +43,22 @@ interface DeleteScheduleResult {
   message: string;
 }
 
+interface GetSchedulesByDateRangeParams {
+  userId: number;
+  startDate: string;
+  endDate: string;
+  limit?: number;
+}
+
+interface GetSchedulesByDateRangeResult {
+  schedules: Schedule[];
+  count: number;
+  range: {
+    start: string;
+    end: string;
+  };
+}
+
 class ScheduleService {
   // 유저ID로 스케줄 목록 조회
   async getSchedulesByUserId(
@@ -56,6 +73,68 @@ class ScheduleService {
     });
 
     return { schedules };
+  }
+
+  // 날짜 범위로 스케줄 목록 조회
+  async getSchedulesByDateRange(
+    params: GetSchedulesByDateRangeParams
+  ): Promise<GetSchedulesByDateRangeResult> {
+    const { userId, startDate, endDate, limit = 500 } = params;
+
+    // DATEONLY 필드는 YYYY-MM-DD 형식의 문자열로 비교
+    // Sequelize가 자동으로 DATEONLY 타입과 문자열을 비교할 때 날짜만 비교함
+    const rangeStartStr = startDate; // YYYY-MM-DD 형식
+    const rangeEndStr = endDate; // YYYY-MM-DD 형식
+
+    // 월 경계를 가로지르는 이벤트도 포함하는 쿼리
+    // 조건:
+    // 1. start_date가 범위 내에 있음 (start_date >= rangeStart AND start_date <= rangeEnd)
+    // 2. end_date가 범위 내에 있음 (end_date >= rangeStart AND end_date <= rangeEnd)
+    // 3. 이벤트가 범위를 완전히 포함 (start_date <= rangeStart AND end_date >= rangeEnd)
+    const schedules = await Schedule.findAll({
+      where: {
+        user_id: userId,
+        [Op.or]: [
+          // 시작일이 범위 내
+          {
+            start_date: {
+              [Op.gte]: rangeStartStr,
+              [Op.lte]: rangeEndStr,
+            },
+          },
+          // 종료일이 범위 내
+          {
+            end_date: {
+              [Op.gte]: rangeStartStr,
+              [Op.lte]: rangeEndStr,
+            },
+          },
+          // 이벤트가 범위를 완전히 포함
+          {
+            start_date: {
+              [Op.lte]: rangeStartStr,
+            },
+            end_date: {
+              [Op.gte]: rangeEndStr,
+            },
+          },
+        ],
+      },
+      order: [
+        ["start_date", "ASC"],
+        ["start_time", "ASC"],
+      ],
+      limit: Math.min(limit, 1000),
+    });
+
+    return {
+      schedules,
+      count: schedules.length,
+      range: {
+        start: startDate,
+        end: endDate,
+      },
+    };
   }
 
   // 스케줄 생성
