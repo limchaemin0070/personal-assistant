@@ -107,14 +107,14 @@ export type UpdateReminderCompletePayload = z.infer<
   typeof updateReminderCompleteSchema
 >;
 
-// export const validateCreateReminderPayload = (payload: unknown) => {
-//   validateWithZod(createReminderSchema, payload);
-// };
+export const validateCreateReminderPayload = (payload: unknown) => {
+  validateWithZod(createReminderSchema, payload);
+};
 
-// export const validateUpdateReminderPayload = (payload: unknown) => {
-//   validateWithZod(updateReminderSchema, payload);
-// };
+export const validateUpdateReminderPayload = (payload: unknown) => {
+  validateWithZod(updateReminderSchema, payload);
+};
 
-// export const validateUpdateReminderCompletePayload = (payload: unknown) => {
-//   validateWithZod(updateReminderCompleteSchema, payload);
-// };
+export const validateUpdateReminderCompletePayload = (payload: unknown) => {
+  validateWithZod(updateReminderCompleteSchema, payload);
+};
