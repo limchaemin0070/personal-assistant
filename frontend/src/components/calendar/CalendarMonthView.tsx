@@ -19,12 +19,12 @@ export const CalendarMonthView: React.FC<CalendarMonthViewProps> = ({
     modalHandlers,
     onDateSelect,
 }) => {
-    const { monthEvents, isLoading } = useCalendarEvents(currentDate);
+    const { events, isLoading } = useCalendarEvents(currentDate, 'month');
     const { calculateMonthLayout } = useCalendarLayout();
 
     const eventsLayout = React.useMemo(
-        () => calculateMonthLayout(monthEvents),
-        [monthEvents, calculateMonthLayout],
+        () => calculateMonthLayout(events),
+        [events, calculateMonthLayout],
     );
 
     if (isLoading) return <Loading />;
@@ -53,7 +53,7 @@ export const CalendarMonthView: React.FC<CalendarMonthViewProps> = ({
             />
             <CalendarModal
                 currentDate={currentDate}
-                events={monthEvents}
+                events={events}
                 modalHandlers={modalHandlers}
             />
         </div>

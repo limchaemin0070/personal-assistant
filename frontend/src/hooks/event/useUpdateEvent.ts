@@ -20,8 +20,9 @@ export const useUpdateEvent = () => {
         }) => calendarService.updateSchedule(eventId, formData),
 
         onSuccess: () => {
+            // 모든 events 관련 쿼리 무효화 (range 기반 쿼리 포함)
             queryClient.invalidateQueries({
-                queryKey: queryKeys.events.user(),
+                queryKey: queryKeys.events.all,
             });
             addToast('일정이 수정되었습니다.', 'success');
         },

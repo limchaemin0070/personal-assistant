@@ -107,6 +107,10 @@ Schedule.init(
         fields: ["end_date"],
         name: "idx_schedules_end_date",
       },
+      {
+        name: "idx_user_date_range",
+        fields: ["user_id", "start_date", "end_date"],
+      },
     ],
   }
 );

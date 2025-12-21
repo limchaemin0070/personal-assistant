@@ -163,7 +163,7 @@ export const EventTicketDetail: React.FC<EventTicketDetailProps> = ({
                 </div>
 
                 {/* 알림 설정 */}
-                {event.notificationEnabled !== undefined && (
+                {/* {event.notificationEnabled !== undefined && (
                     <div className="flex items-start gap-3">
                         <span className="text-sm font-medium text-gray-500 min-w-[60px]">
                             알림
@@ -174,7 +174,7 @@ export const EventTicketDetail: React.FC<EventTicketDetailProps> = ({
                                 : '설정 안 됨'}
                         </span>
                     </div>
-                )}
+                )} */}
             </div>
 
             {/* 메모 */}

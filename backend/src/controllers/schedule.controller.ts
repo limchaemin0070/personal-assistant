@@ -7,9 +7,11 @@ import { ValidationError } from "../errors/ValidationError";
 import {
   validateCreateSchedulePayload,
   validateUpdateSchedulePayload,
+  validateDateRangeQueryOrThrow,
+  validateLimitOrThrow,
 } from "../utils/validation/scheduleValidator";
 
-// 유저ID로 스케줄 목록 조회
+// 유저ID로 스케줄 목록 조회 (범위 기반)
 export const getSchedulesByUserId = asyncHandler(
   async (req: Request, res: Response) => {
     const userId = req.user?.userId;
@@ -18,17 +20,34 @@ export const getSchedulesByUserId = asyncHandler(
       throw new UserNotFoundError();
     }
 
-    const { schedules } = await scheduleService.getSchedulesByUserId(userId);
+    const { startDate, endDate, limit } = req.query;
 
-    res
-      .status(200)
-      .json(
-        buildSuccess(
-          "SCHEDULES_RETRIEVED",
-          "스케줄 목록 조회에 성공했습니다.",
-          schedules
-        )
-      );
+    // 날짜 범위 검증
+    validateDateRangeQueryOrThrow(startDate as string, endDate as string);
+
+    // limit 검증
+    if (limit) {
+      validateLimitOrThrow(limit as string);
+    }
+
+    const limitNum = limit ? parseInt(limit as string, 10) : 500;
+
+    const result = await scheduleService.getSchedulesByDateRange({
+      userId,
+      startDate: startDate as string,
+      endDate: endDate as string,
+      limit: limitNum,
+    });
+
+    res.status(200).json(
+      buildSuccess("SCHEDULES_RETRIEVED", "스케줄 목록 조회에 성공했습니다.", {
+        data: result.schedules,
+        meta: {
+          count: result.count,
+          range: result.range,
+        },
+      })
+    );
   }
 );
 
@@ -76,13 +95,11 @@ export const createSchedule = asyncHandler(
       notification_enabled,
     });
 
-    res.status(201).json(
-      buildSuccess(
-        "SCHEDULE_CREATED",
-        "스케줄이 생성되었습니다.",
-        schedule
-      )
-    );
+    res
+      .status(201)
+      .json(
+        buildSuccess("SCHEDULE_CREATED", "스케줄이 생성되었습니다.", schedule)
+      );
   }
 );
 
@@ -136,22 +153,22 @@ export const updateSchedule = asyncHandler(
 
     if (title !== undefined) updateParams.title = title;
     if (memo !== undefined) updateParams.memo = memo;
-    if (start_date !== undefined) updateParams.start_date = new Date(start_date);
+    if (start_date !== undefined)
+      updateParams.start_date = new Date(start_date);
     if (end_date !== undefined) updateParams.end_date = new Date(end_date);
     if (start_time !== undefined) updateParams.start_time = start_time;
     if (end_time !== undefined) updateParams.end_time = end_time;
     if (is_all_day !== undefined) updateParams.is_all_day = is_all_day;
-    if (notification_enabled !== undefined) updateParams.notification_enabled = notification_enabled;
+    if (notification_enabled !== undefined)
+      updateParams.notification_enabled = notification_enabled;
 
     const { schedule } = await scheduleService.updateSchedule(updateParams);
 
-    res.status(200).json(
-      buildSuccess(
-        "SCHEDULE_UPDATED",
-        "스케줄이 수정되었습니다.",
-        schedule
-      )
-    );
+    res
+      .status(200)
+      .json(
+        buildSuccess("SCHEDULE_UPDATED", "스케줄이 수정되었습니다.", schedule)
+      );
   }
 );
 
@@ -180,12 +197,6 @@ export const deleteSchedule = asyncHandler(
       userId
     );
 
-    res.status(200).json(
-      buildSuccess(
-        "SCHEDULE_DELETED",
-        message,
-        null
-      )
-    );
+    res.status(200).json(buildSuccess("SCHEDULE_DELETED", message, null));
   }
 );

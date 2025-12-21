@@ -22,7 +22,7 @@ export const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     setSelectedDate: _setSelectedDate,
 }) => {
-    const { allEvents, isLoading } = useCalendarEvents(currentDate);
+    const { allEvents, isLoading } = useCalendarEvents(currentDate, 'week');
     const showSpinner = useDelayedLoading(isLoading);
     const { calculateDayLayout } = useCalendarLayout();
     const modalHandlers = useEventTicketHandling();

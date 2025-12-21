@@ -1,28 +1,6 @@
+import { z } from "zod";
 import { ValidationError } from "../../errors/ValidationError";
-
-// Schedule 관련 입력값 검증 모듈
-
-export interface CreateSchedulePayload {
-  title?: string;
-  memo?: string | null;
-  start_date?: string;
-  end_date?: string;
-  start_time?: string | null;
-  end_time?: string | null;
-  is_all_day?: boolean;
-  notification_enabled?: boolean;
-}
-
-export interface UpdateSchedulePayload {
-  title?: string;
-  memo?: string | null;
-  start_date?: string;
-  end_date?: string;
-  start_time?: string | null;
-  end_time?: string | null;
-  is_all_day?: boolean;
-  notification_enabled?: boolean;
-}
+import { validateWithZod } from "./zodErrorHandler";
 
 // 날짜 형식 검증 (YYYY-MM-DD)
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
@@ -30,226 +8,221 @@ const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 // 시간 형식 검증 (HH:MM:SS 또는 HH:MM)
 const TIME_REGEX = /^([0-1][0-9]|2[0-3]):[0-5][0-9](:([0-5][0-9]))?$/;
 
-export const validateTitleOrThrow = (title?: string) => {
-  if (!title) {
-    throw new ValidationError("제목을 입력해주세요.", "title");
-  }
-  if (typeof title !== "string") {
-    throw new ValidationError("제목은 문자열이어야 합니다.", "title");
-  }
-  if (title.trim().length === 0) {
-    throw new ValidationError("제목을 입력해주세요.", "title");
-  }
-  if (title.length > 255) {
-    throw new ValidationError("제목은 255자 이하여야 합니다.", "title");
-  }
-};
-
-export const validateMemoOrThrow = (memo?: string | null) => {
-  if (memo !== null && memo !== undefined) {
-    if (typeof memo !== "string") {
-      throw new ValidationError("메모는 문자열이어야 합니다.", "memo");
+// 날짜 문자열 검증
+const dateStringSchema = z
+  .string()
+  .min(1, "날짜를 입력해주세요.")
+  .regex(DATE_REGEX, "날짜는 YYYY-MM-DD 형식이어야 합니다.")
+  .refine(
+    (date) => {
+      const dateObj = new Date(date);
+      return !isNaN(dateObj.getTime());
+    },
+    {
+      message: "날짜가 유효하지 않습니다.",
     }
-    if (memo.length > 500) {
-      throw new ValidationError("메모는 500자 이하여야 합니다.", "memo");
+  );
+
+// 시간 문자열 검증
+const timeStringSchema = z
+  .string()
+  .regex(TIME_REGEX, "시간은 HH:MM 또는 HH:MM:SS 형식이어야 합니다.");
+
+// Schedule 생성 스키마
+const createScheduleSchema = z
+  .object({
+    title: z
+      .string()
+      .min(1, "제목을 입력해주세요.")
+      .max(255, "제목은 255자 이하여야 합니다."),
+    memo: z
+      .string()
+      .max(500, "메모는 500자 이하여야 합니다.")
+      .nullable()
+      .optional(),
+    start_date: dateStringSchema,
+    end_date: dateStringSchema,
+    start_time: timeStringSchema.nullable().optional(),
+    end_time: timeStringSchema.nullable().optional(),
+    is_all_day: z.boolean().optional(),
+    notification_enabled: z.boolean().optional(),
+  })
+  .refine(
+    (data) => {
+      const start = new Date(data.start_date);
+      const end = new Date(data.end_date);
+      return end >= start;
+    },
+    {
+      message: "종료 날짜는 시작 날짜보다 이후여야 합니다.",
+      path: ["end_date"],
     }
-  }
-};
-
-export const validateDateOrThrow = (
-  date?: string,
-  fieldName: string = "date"
-) => {
-  if (!date) {
-    throw new ValidationError(
-      `${fieldName === "start_date" ? "시작" : "종료"} 날짜를 입력해주세요.`,
-      fieldName
-    );
-  }
-  if (typeof date !== "string") {
-    throw new ValidationError(
-      `${
-        fieldName === "start_date" ? "시작" : "종료"
-      } 날짜는 문자열이어야 합니다.`,
-      fieldName
-    );
-  }
-  if (!DATE_REGEX.test(date)) {
-    throw new ValidationError(
-      `${
-        fieldName === "start_date" ? "시작" : "종료"
-      } 날짜는 YYYY-MM-DD 형식이어야 합니다.`,
-      fieldName
-    );
-  }
-  // 유효한 날짜인지 확인
-  const dateObj = new Date(date);
-  if (isNaN(dateObj.getTime())) {
-    throw new ValidationError(
-      `${
-        fieldName === "start_date" ? "시작" : "종료"
-      } 날짜가 유효하지 않습니다.`,
-      fieldName
-    );
-  }
-};
-
-export const validateTimeOrThrow = (
-  time?: string | null,
-  fieldName: string = "time"
-) => {
-  if (time !== null && time !== undefined) {
-    if (typeof time !== "string") {
-      throw new ValidationError(
-        `${
-          fieldName === "start_time" ? "시작" : "종료"
-        } 시간은 문자열이어야 합니다.`,
-        fieldName
-      );
+  )
+  .refine(
+    (data) => {
+      if (data.is_all_day === false) {
+        return !!data.start_time && !!data.end_time;
+      }
+      return true;
+    },
+    {
+      message: "종일 일정이 아닌 경우 시작 시간을 입력해주세요.",
+      path: ["start_time"],
     }
-    if (!TIME_REGEX.test(time)) {
-      throw new ValidationError(
-        `${
-          fieldName === "start_time" ? "시작" : "종료"
-        } 시간은 HH:MM 또는 HH:MM:SS 형식이어야 합니다.`,
-        fieldName
-      );
+  )
+  .refine(
+    (data) => {
+      if (data.is_all_day === false) {
+        return !!data.start_time && !!data.end_time;
+      }
+      return true;
+    },
+    {
+      message: "종일 일정이 아닌 경우 종료 시간을 입력해주세요.",
+      path: ["end_time"],
     }
-  }
-};
+  );
 
-export const validateBooleanOrThrow = (value: any, fieldName: string) => {
-  if (value !== undefined && typeof value !== "boolean") {
-    throw new ValidationError(
-      `${fieldName}는 불린 값이어야 합니다.`,
-      fieldName
-    );
-  }
-};
-
-export const validateDateRangeOrThrow = (
-  startDate: string,
-  endDate: string
-) => {
-  const start = new Date(startDate);
-  const end = new Date(endDate);
-
-  if (start > end) {
-    throw new ValidationError(
-      "종료 날짜는 시작 날짜보다 이후여야 합니다.",
-      "end_date"
-    );
-  }
-};
-
-export const validateCreateSchedulePayload = (
-  payload: CreateSchedulePayload
-) => {
-  const {
-    title,
-    memo,
-    start_date,
-    end_date,
-    start_time,
-    end_time,
-    is_all_day,
-    notification_enabled,
-  } = payload;
-
-  // 필수 필드 검증
-  validateTitleOrThrow(title);
-  validateDateOrThrow(start_date, "start_date");
-  validateDateOrThrow(end_date, "end_date");
-
-  // 선택 필드 검증
-  validateMemoOrThrow(memo);
-  validateTimeOrThrow(start_time, "start_time");
-  validateTimeOrThrow(end_time, "end_time");
-  validateBooleanOrThrow(is_all_day, "is_all_day");
-  validateBooleanOrThrow(notification_enabled, "notification_enabled");
-
-  // 날짜 범위 검증
-  if (start_date && end_date) {
-    validateDateRangeOrThrow(start_date, end_date);
-  }
-
-  // 종일 일정이 아닌 경우 시간 필수
-  if (is_all_day === false) {
-    if (!start_time) {
-      throw new ValidationError(
-        "종일 일정이 아닌 경우 시작 시간을 입력해주세요.",
-        "start_time"
-      );
+// Schedule 업데이트 스키마 (모든 필드가 optional)
+const updateScheduleSchema = z
+  .object({
+    title: z
+      .string()
+      .min(1, "제목을 입력해주세요.")
+      .max(255, "제목은 255자 이하여야 합니다.")
+      .optional(),
+    memo: z
+      .string()
+      .max(500, "메모는 500자 이하여야 합니다.")
+      .nullable()
+      .optional(),
+    start_date: dateStringSchema.optional(),
+    end_date: dateStringSchema.optional(),
+    start_time: timeStringSchema.nullable().optional(),
+    end_time: timeStringSchema.nullable().optional(),
+    is_all_day: z.boolean().optional(),
+    notification_enabled: z.boolean().optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.start_date && data.end_date) {
+        const start = new Date(data.start_date);
+        const end = new Date(data.end_date);
+        return end >= start;
+      }
+      return true;
+    },
+    {
+      message: "종료 날짜는 시작 날짜보다 이후여야 합니다.",
+      path: ["end_date"],
     }
-    if (!end_time) {
-      throw new ValidationError(
-        "종일 일정이 아닌 경우 종료 시간을 입력해주세요.",
-        "end_time"
-      );
+  )
+  .refine(
+    (data) => {
+      if (data.is_all_day === false) {
+        return !!data.start_time && !!data.end_time;
+      }
+      return true;
+    },
+    {
+      message: "종일 일정이 아닌 경우 시작 시간을 입력해주세요.",
+      path: ["start_time"],
     }
-  }
-};
-
-export const validateUpdateSchedulePayload = (
-  payload: UpdateSchedulePayload
-) => {
-  const {
-    title,
-    memo,
-    start_date,
-    end_date,
-    start_time,
-    end_time,
-    is_all_day,
-    notification_enabled,
-  } = payload;
-
-  // 제공된 필드만 검증
-  if (title !== undefined) {
-    validateTitleOrThrow(title);
-  }
-  if (memo !== undefined) {
-    validateMemoOrThrow(memo);
-  }
-  if (start_date !== undefined) {
-    validateDateOrThrow(start_date, "start_date");
-  }
-  if (end_date !== undefined) {
-    validateDateOrThrow(end_date, "end_date");
-  }
-  if (start_time !== undefined) {
-    validateTimeOrThrow(start_time, "start_time");
-  }
-  if (end_time !== undefined) {
-    validateTimeOrThrow(end_time, "end_time");
-  }
-  if (is_all_day !== undefined) {
-    validateBooleanOrThrow(is_all_day, "is_all_day");
-  }
-  if (notification_enabled !== undefined) {
-    validateBooleanOrThrow(notification_enabled, "notification_enabled");
-  }
-
-  // 날짜 범위 검증 (둘 다 제공된 경우)
-  if (start_date && end_date) {
-    validateDateRangeOrThrow(start_date, end_date);
-  }
-
-  // 종일 일정이 아닌 경우 시간 필수
-  // is_all_day가 false로 설정되거나, 이미 false인 상태에서 시간이 null로 설정되는 경우 체크
-  if (is_all_day === false) {
-    // is_all_day를 false로 변경하는 경우, start_time과 end_time이 제공되어야 함
-    if (start_time === null || start_time === undefined) {
-      throw new ValidationError(
-        "종일 일정이 아닌 경우 시작 시간을 입력해주세요.",
-        "start_time"
-      );
+  )
+  .refine(
+    (data) => {
+      if (data.is_all_day === false) {
+        return !!data.start_time && !!data.end_time;
+      }
+      return true;
+    },
+    {
+      message: "종일 일정이 아닌 경우 종료 시간을 입력해주세요.",
+      path: ["end_time"],
     }
-    if (end_time === null || end_time === undefined) {
-      throw new ValidationError(
-        "종일 일정이 아닌 경우 종료 시간을 입력해주세요.",
-        "end_time"
-      );
+  );
+
+// 날짜 범위 쿼리 스키마
+const dateRangeQuerySchema = z
+  .object({
+    startDate: dateStringSchema,
+    endDate: dateStringSchema,
+  })
+  .refine(
+    (data) => {
+      const start = new Date(data.startDate);
+      const end = new Date(data.endDate);
+      return start < end;
+    },
+    {
+      message: "startDate는 endDate보다 이전이어야 합니다.",
+      path: ["startDate"],
     }
-  }
-};
+  )
+  .refine(
+    (data) => {
+      const start = new Date(data.startDate);
+      const end = new Date(data.endDate);
+      const oneYearInMs = 365 * 24 * 60 * 60 * 1000;
+      const rangeInMs = end.getTime() - start.getTime();
+      return rangeInMs <= oneYearInMs;
+    },
+    {
+      message: "조회 범위는 최대 1년을 초과할 수 없습니다.",
+      path: ["dateRange"],
+    }
+  );
+
+// limit 파라미터 스키마
+const limitSchema = z
+  .string()
+  .refine(
+    (val) => {
+      const num = parseInt(val, 10);
+      return !isNaN(num) && num >= 1;
+    },
+    {
+      message: "limit는 1 이상의 숫자여야 합니다.",
+    }
+  )
+  .refine(
+    (val) => {
+      const num = parseInt(val, 10);
+      return num <= 1000;
+    },
+    {
+      message: "limit는 최대 1000까지 가능합니다.",
+    }
+  );
+
+// 타입 정의
+export type CreateSchedulePayload = z.infer<typeof createScheduleSchema>;
+export type UpdateSchedulePayload = z.infer<typeof updateScheduleSchema>;
+
+// export const validateCreateSchedulePayload = (payload: unknown) => {
+//   validateWithZod(createScheduleSchema, payload);
+// };
+
+// export const validateUpdateSchedulePayload = (payload: unknown) => {
+//   validateWithZod(updateScheduleSchema, payload);
+// };
+
+// export const validateDateRangeQueryOrThrow = (
+//   startDate?: string,
+//   endDate?: string
+// ) => {
+//   if (!startDate) {
+//     throw new ValidationError("startDate 파라미터가 필요합니다.", "startDate");
+//   }
+//   if (!endDate) {
+//     throw new ValidationError("endDate 파라미터가 필요합니다.", "endDate");
+//   }
+
+//   validateWithZod(dateRangeQuerySchema, { startDate, endDate });
+// };
+
+// export const validateLimitOrThrow = (limit?: string) => {
+//   if (limit !== undefined) {
+//     validateWithZod(limitSchema, limit);
+//   }
+// };

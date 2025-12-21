@@ -31,7 +31,7 @@ export const useCalendarLayout = () => {
             row += 1;
         }
 
-        // 최대 개수를 초과하면 null 반환
+        // 최대 개수 초과
         if (row >= MAX_EVENTS_PER_DAY) {
             return null;
         }
@@ -39,7 +39,7 @@ export const useCalendarLayout = () => {
         return row;
     };
 
-    // span 계산 함수 (가로로 몇칸 차지하는지)
+    // span 계산 함수 (=가로로 몇칸 차지하는지)
     const calculateSpanForDate = (
         event: CalendarEvent,
         currentDate: Date,
@@ -166,8 +166,8 @@ export const useCalendarLayout = () => {
 
     /**
      * 일간 뷰에서 특정 날짜의 이벤트 목록을 반환하는 함수
-     * 일간 뷰에서는 제한 없이 모든 이벤트를 표시합니다.
-     * 리마인더처럼 종일 이벤트를 먼저 표시하고, 이후 시작 시간 순으로 정렬합니다.
+     * 일간 뷰에서는 제한 없이 모든 이벤트를 표시
+     * 리마인더처럼 종일 이벤트를 먼저 표시하고 이후 시작 시간 순으로 정렬
      * @param events 전체 이벤트 목록
      * @param targetDate 조회할 날짜
      * @returns 해당 날짜의 이벤트 목록 (시간순 정렬됨)
@@ -188,10 +188,9 @@ export const useCalendarLayout = () => {
         return CalendarUtils.sortEventsByTime(dayEvents);
     };
 
-    // 별도 이슈에서 작성
-
-    // 주간 뷰에서 이벤트 티켓이 표시되어야 하는 위치 계산
-    // const calculateWeekLayout = () => {};
+    // TODO
+    // 시간표 뷰에서는 이벤트겹침 문제가 생겨서
+    // 추후 필요할 시 별도로 이벤트 티켓이 표시되어야 하는 위치 계산
 
     return {
         findAvailableRow,

@@ -21,7 +21,7 @@ export const CalendarDayView: React.FC<CalendarDayViewProps> = ({
     setSelectedDate: _setSelectedDate,
     modalHandlers,
 }) => {
-    const { allEvents, isLoading } = useCalendarEvents(currentDate);
+    const { allEvents, isLoading } = useCalendarEvents(currentDate, 'day');
     const showSpinner = useDelayedLoading(isLoading);
     const { calculateDayLayout } = useCalendarLayout();
 
