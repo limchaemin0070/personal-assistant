@@ -1,4 +1,5 @@
 import React from 'react';
+import HashLoader from 'react-spinners/HashLoader';
 import { cn } from '@/utils/cn';
 
 interface LoadingProps {
@@ -43,10 +44,12 @@ export const Loading: React.FC<LoadingProps> = ({
         </div>
     );
 
+    const hashSpinner = <HashLoader color="#d7e3fa" />;
+
     if (fullScreen) {
         return (
-            <div className="fixed inset-0 flex items-center justify-center w-full h-full bg-black/10 z-50">
-                {spinner}
+            <div className="fixed inset-0 flex items-center justify-center w-full h-full bg-white/10 z-50">
+                {hashSpinner}
             </div>
         );
     }
