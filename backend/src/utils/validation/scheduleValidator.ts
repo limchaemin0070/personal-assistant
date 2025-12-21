@@ -199,30 +199,30 @@ const limitSchema = z
 export type CreateSchedulePayload = z.infer<typeof createScheduleSchema>;
 export type UpdateSchedulePayload = z.infer<typeof updateScheduleSchema>;
 
-// export const validateCreateSchedulePayload = (payload: unknown) => {
-//   validateWithZod(createScheduleSchema, payload);
-// };
+export const validateCreateSchedulePayload = (payload: unknown) => {
+  validateWithZod(createScheduleSchema, payload);
+};
 
-// export const validateUpdateSchedulePayload = (payload: unknown) => {
-//   validateWithZod(updateScheduleSchema, payload);
-// };
+export const validateUpdateSchedulePayload = (payload: unknown) => {
+  validateWithZod(updateScheduleSchema, payload);
+};
 
-// export const validateDateRangeQueryOrThrow = (
-//   startDate?: string,
-//   endDate?: string
-// ) => {
-//   if (!startDate) {
-//     throw new ValidationError("startDate 파라미터가 필요합니다.", "startDate");
-//   }
-//   if (!endDate) {
-//     throw new ValidationError("endDate 파라미터가 필요합니다.", "endDate");
-//   }
+export const validateDateRangeQueryOrThrow = (
+  startDate?: string,
+  endDate?: string
+) => {
+  if (!startDate) {
+    throw new ValidationError("startDate 파라미터가 필요합니다.", "startDate");
+  }
+  if (!endDate) {
+    throw new ValidationError("endDate 파라미터가 필요합니다.", "endDate");
+  }
 
-//   validateWithZod(dateRangeQuerySchema, { startDate, endDate });
-// };
+  validateWithZod(dateRangeQuerySchema, { startDate, endDate });
+};
 
-// export const validateLimitOrThrow = (limit?: string) => {
-//   if (limit !== undefined) {
-//     validateWithZod(limitSchema, limit);
-//   }
-// };
+export const validateLimitOrThrow = (limit?: string) => {
+  if (limit !== undefined) {
+    validateWithZod(limitSchema, limit);
+  }
+};

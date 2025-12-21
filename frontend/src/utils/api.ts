@@ -55,10 +55,13 @@ axiosInstance.interceptors.response.use(
 
         // 401 인증 만료 처리
         // /users/me 요청은 인증 상태 확인용이므로 토큰 갱신을 시도하지 않고 그대로 에러 반환
+        const isAuthCheckRequest = originalRequest.url?.includes('/users/me');
+
         if (
             error.response?.status === 401 &&
             !originalRequest.retry &&
-            !getIsLoggingOut()
+            !getIsLoggingOut() &&
+            !isAuthCheckRequest // /users/me 요청은 제외
         ) {
             if (isRefreshing) {
                 return new Promise((resolve, reject) => {

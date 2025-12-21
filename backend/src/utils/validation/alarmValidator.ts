@@ -131,14 +131,14 @@ export type CreateAlarmPayload = z.infer<typeof createAlarmSchema>;
 export type UpdateAlarmPayload = z.infer<typeof updateAlarmSchema>;
 export type UpdateAlarmActivePayload = z.infer<typeof updateAlarmActiveSchema>;
 
-// export const validateCreateAlarmPayload = (payload: unknown) => {
-//   validateWithZod(createAlarmSchema, payload);
-// };
+export const validateCreateAlarmPayload = (payload: unknown) => {
+  validateWithZod(createAlarmSchema, payload);
+};
 
-// export const validateUpdateAlarmPayload = (payload: unknown) => {
-//   validateWithZod(updateAlarmSchema, payload);
-// };
+export const validateUpdateAlarmPayload = (payload: unknown) => {
+  validateWithZod(updateAlarmSchema, payload);
+};
 
-// export const validateUpdateAlarmActivePayload = (payload: unknown) => {
-//   validateWithZod(updateAlarmActiveSchema, payload);
-// };
+export const validateUpdateAlarmActivePayload = (payload: unknown) => {
+  validateWithZod(updateAlarmActiveSchema, payload);
+};

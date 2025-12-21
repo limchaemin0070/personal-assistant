@@ -50,26 +50,26 @@ const refreshTokenSchema = z
 // 타입 정의
 export type SignUpPayload = z.infer<typeof signUpSchema>;
 
-// export const validateEmailOrThrow = (email?: string) => {
-//   validateWithZod(emailSchema, email);
-// };
+export const validateEmailOrThrow = (email?: string) => {
+  validateWithZod(emailSchema, email);
+};
 
-// export const validateCodeOrThrow = (code?: string) => {
-//   validateWithZod(codeSchema, code);
-// };
+export const validateCodeOrThrow = (code?: string) => {
+  validateWithZod(codeSchema, code);
+};
 
-// export const validatePasswordOrThrow = (password?: string) => {
-//   validateWithZod(passwordSchema, password);
-// };
+export const validatePasswordOrThrow = (password?: string) => {
+  validateWithZod(passwordSchema, password);
+};
 
-// export const validateNicknameOrThrow = (nickname?: string) => {
-//   validateWithZod(nicknameSchema, nickname);
-// };
+export const validateNicknameOrThrow = (nickname?: string) => {
+  validateWithZod(nicknameSchema, nickname);
+};
 
-// export const validateSignUpPayload = (payload: unknown) => {
-//   validateWithZod(signUpSchema, payload);
-// };
+export const validateSignUpPayload = (payload: unknown) => {
+  validateWithZod(signUpSchema, payload);
+};
 
-// export const validateRefreshTokenOrThrow = (refreshToken?: string) => {
-//   validateWithZod(refreshTokenSchema, refreshToken);
-// };
+export const validateRefreshTokenOrThrow = (refreshToken?: string) => {
+  validateWithZod(refreshTokenSchema, refreshToken);
+};
