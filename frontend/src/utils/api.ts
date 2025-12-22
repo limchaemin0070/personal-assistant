@@ -55,12 +55,28 @@ axiosInstance.interceptors.response.use(
 
         // 401 인증 만료 처리
         if (error.response?.status === 401) {
+            const errorCode = error.response?.data?.error?.code;
+            const requestUrl = originalRequest?.url || '';
+
+            // 인증 관련 공개 API는 토큰 갱신 시도하지 않음
+            const isPublicAuthEndpoint =
+                requestUrl.includes('/auth/login') ||
+                requestUrl.includes('/auth/sign-up') ||
+                requestUrl.includes('/auth/email-verifications') ||
+                requestUrl.includes('/auth/verify');
+
+            // INVALID_CREDENTIALS 같은 인증 실패 에러는 토큰 갱신하지 않음
+            const isAuthenticationFailure = errorCode === 'INVALID_CREDENTIALS';
+
             // 디버깅: 재시도 조건 확인
             if (import.meta.env.DEV) {
                 // eslint-disable-next-line no-console
                 console.log('401 에러 감지:', {
                     url: originalRequest?.url,
                     method: originalRequest?.method,
+                    errorCode,
+                    isPublicAuthEndpoint,
+                    isAuthenticationFailure,
                     hasConfig: !!originalRequest,
                     alreadyRetried: originalRequest?.retry,
                     isLoggingOut: getIsLoggingOut(),
@@ -68,11 +84,13 @@ axiosInstance.interceptors.response.use(
                 });
             }
 
-            // 재시도 조건 확인
+            // 재시도 조건 확인 (공개 인증 API나 인증 실패 에러는 제외)
             if (
                 originalRequest && // error.config가 존재하는지 확인
                 !originalRequest.retry &&
-                !getIsLoggingOut()
+                !getIsLoggingOut() &&
+                !isPublicAuthEndpoint &&
+                !isAuthenticationFailure
             ) {
                 if (isRefreshing) {
                     // eslint-disable-next-line no-console
