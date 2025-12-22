@@ -112,7 +112,7 @@ export const AlarmForm: React.FC<AlarmFormProps> = ({
                                             ? '수정 중...'
                                             : '생성 중...';
                                     }
-                                    return isEditMode ? '수정' : '제출';
+                                    return isEditMode ? '수정' : '생성';
                                 })()}
                             </button>
                         </div>

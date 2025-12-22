@@ -49,13 +49,14 @@ const Toast = ({ children, variant = 'success', onClose }: ToastProps) => {
         <div
             className={cn(
                 'relative flex items-center',
-                'w-[70%] md:w-[350px]',
-                'h-[40px] md:h-[50px]',
+                'min-w-[200px] max-w-[90%] md:max-w-[500px]',
+                'min-h-[40px] md:min-h-[50px]',
                 'mb-2 px-6 md:px-8',
+                'py-3 md:py-4',
                 'rounded-lg text-white',
                 'font-sans font-normal',
                 'text-sm md:text-[16px]',
-                'leading-[16px] md:leading-[26px]',
+                'leading-[20px] md:leading-[24px]',
                 'shadow-md',
                 variantStyles[variant],
                 isExiting ? 'animate-toast-slide-out' : 'animate-toast-slide-in'
@@ -63,10 +64,10 @@ const Toast = ({ children, variant = 'success', onClose }: ToastProps) => {
         >
             <div className="flex items-center w-full gap-3">
                 {Icon}
-                <span className="flex-1 text-center truncate">{children}</span>
+                <span className="flex-1 text-center break-words whitespace-normal">{children}</span>
                 <IoMdClose
                     onClick={handleClose}
-                    className={cn(closeStyles, 'cursor-pointer')}
+                    className={cn(closeStyles, 'cursor-pointer flex-shrink-0')}
                 />
             </div>
         </div>
