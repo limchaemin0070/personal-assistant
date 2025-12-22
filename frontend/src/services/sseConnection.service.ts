@@ -102,7 +102,7 @@ export class SSEConnectionService {
     /**
      * SSE 연결 상태 확인
      */
-    private isConnected(): boolean {
+    isConnected(): boolean {
         return this.eventSource?.readyState === EventSource.OPEN;
     }
 
