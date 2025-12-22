@@ -121,8 +121,8 @@ axiosInstance.interceptors.response.use(
                         window.location.pathname !== '/login' &&
                         window.location.pathname !== '/register'
                     ) {
-                        const { addToast } = useToastStore.getState();
-                        addToast('로그인이 만료되었습니다', 'error');
+                        // const { addToast } = useToastStore.getState();
+                        // addToast('로그인이 만료되었습니다', 'error');
 
                         setTimeout(() => {
                             window.location.replace('/login');
