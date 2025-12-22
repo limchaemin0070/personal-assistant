@@ -42,12 +42,14 @@ export const RegisterPage = () => {
                             type="password"
                             name="password"
                             placeholder="비밀번호를 입력하세요"
+                            autoComplete="new-password"
                             disabled={isSubmitting}
                         />
                         <FormInput
                             type="password"
                             name="confirmPassword"
                             placeholder="비밀번호를 한번 더 입력하세요"
+                            autoComplete="new-password"
                             disabled={isSubmitting}
                         />
                         <FormInput
