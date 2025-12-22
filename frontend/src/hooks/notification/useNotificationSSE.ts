@@ -141,7 +141,6 @@ export function useAlarmSSE() {
         isAuthenticated,
         setConnected,
         setReconnectAttempts,
-        connectSSE,
     ]);
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
