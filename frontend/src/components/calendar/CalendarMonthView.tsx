@@ -27,7 +27,13 @@ export const CalendarMonthView: React.FC<CalendarMonthViewProps> = ({
         [events, calculateMonthLayout],
     );
 
-    if (isLoading) return <Loading />;
+    if (isLoading) {
+        return (
+            <div className="relative flex flex-col flex-1 h-full w-full bg-white items-center justify-center">
+                <Loading size="lg" />
+            </div>
+        );
+    }
 
     return (
         <div className="relative flex flex-col flex-1 h-full w-full bg-white">

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import {
     format,
     startOfMonth,
@@ -11,7 +11,7 @@ import {
     subMonths,
     addMonths,
 } from 'date-fns';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { calendarService } from '@/services/calendar.service';
 import { queryKeys } from '@/lib/queryKeys';
 import type { CalendarEvent, CalendarView } from '@/types/calendar';
@@ -55,6 +55,8 @@ const isEventOverlappingPeriod = (
  * @param view 캘린더 뷰 타입 (month/week/day)
  */
 export const useCalendarEvents = (currentDate: Date, view?: CalendarView) => {
+    const queryClient = useQueryClient();
+
     // 범위 계산 (currentDate 기준 ±1개월, 뷰랑 상관없음)
     const rangeStart = useMemo(
         () => startOfMonth(subMonths(currentDate, 1)),
@@ -65,19 +67,53 @@ export const useCalendarEvents = (currentDate: Date, view?: CalendarView) => {
         [currentDate],
     );
 
+    const currentMonthKey = useMemo(
+        () => format(currentDate, 'yyyy-MM'),
+        [currentDate],
+    );
+
     const {
         data: allEvents = [],
         isLoading,
         isFetching,
         error,
     } = useQuery({
-        queryKey: queryKeys.events.range(format(rangeStart, 'yyyy-MM')),
+        queryKey: queryKeys.events.range(currentMonthKey),
         queryFn: () => calendarService.getEventsForCalendarView(currentDate),
         staleTime: 5 * 60 * 1000, // 5분
         gcTime: 30 * 60 * 1000, // 30분
         refetchOnWindowFocus: false,
         refetchOnMount: false,
     });
+
+    // 인접 월 데이터 prefetch
+    useEffect(() => {
+        const prevMonth = subMonths(currentDate, 1);
+        const nextMonth = addMonths(currentDate, 1);
+
+        const prevMonthKey = format(prevMonth, 'yyyy-MM');
+        const nextMonthKey = format(nextMonth, 'yyyy-MM');
+
+        // 이전 월 데이터 prefetch (아직 캐시에 없다면)
+        if (!queryClient.getQueryData(queryKeys.events.range(prevMonthKey))) {
+            queryClient.prefetchQuery({
+                queryKey: queryKeys.events.range(prevMonthKey),
+                queryFn: () =>
+                    calendarService.getEventsForCalendarView(prevMonth),
+                staleTime: 5 * 60 * 1000,
+            });
+        }
+
+        // 다음 월 데이터 prefetch (아직 캐시에 없다면)
+        if (!queryClient.getQueryData(queryKeys.events.range(nextMonthKey))) {
+            queryClient.prefetchQuery({
+                queryKey: queryKeys.events.range(nextMonthKey),
+                queryFn: () =>
+                    calendarService.getEventsForCalendarView(nextMonth),
+                staleTime: 5 * 60 * 1000,
+            });
+        }
+    }, [currentDate, queryClient]);
 
     // 뷰별 필터링
     const events = useMemo(() => {
