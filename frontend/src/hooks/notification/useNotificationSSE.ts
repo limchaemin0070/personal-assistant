@@ -128,6 +128,13 @@ export function useAlarmSSE() {
                         }
                     },
                 },
+                async () => {
+                    const token = await SSETokenService.getValidToken();
+                    if (token) {
+                        setSseToken(token);
+                    }
+                    return token;
+                },
             );
         }
 
@@ -141,6 +148,7 @@ export function useAlarmSSE() {
         isAuthenticated,
         setConnected,
         setReconnectAttempts,
+        connectSSE,
     ]);
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
